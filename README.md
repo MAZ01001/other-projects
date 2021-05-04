@@ -1,2 +1,4 @@
+
 # other-projects
-other small projects not hostet on maz01001.github.io
+
+> other small projects not hosted on [my GitHub page](https://maz01001.github.io)
