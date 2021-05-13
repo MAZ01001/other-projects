@@ -18,19 +18,19 @@
 > >
 > > ### snake_cmd-game.cpp
 > >
-> >     +------------+
-> >     |     +-->   |
-> >     |  +--+      |
-> >     |  |      F  |
-> >     +------------+
+> >     +-------------+
+> >     |      +--->  |
+> >     |  +---+      |
+> >     |  |       F  |
+> >     +-------------+
 > >
 > > A Windows-console Snake game written in C++
 > >
 > > + Compile (with MinGW) → `g++ .\snake_cmd-game.cpp -o .\run`
 > > + Start (in Windows-cmd) → `.\run.exe -t 200 -p`
 > >   + Extra flags:
-> >     + `-t 100` ← Sets the milliseconds delay between each frame/calculation. Default is 200.
-> >     + `-p` ← Will enable "portal walls" wich make the snake reappear on the other side instead of game over.
+> >     + `-t 100` ← Sets the millisecond delay between each frame/calculation. Default is 200.
+> >     + `-p` ← Will enable "portal walls" wich makes the snake reappear on the other side instead of game over.
 > >   + Other keys and what they do, like `[wasd] move` are on-screen underneath the game.
 > >   + The playable field is default 30*30 cells big. Wich is only changable before compiling.
 > >
