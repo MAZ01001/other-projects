@@ -19,6 +19,38 @@ char field[maxSizeField],
     tailC[maxSizeSnake];
 enum eDirection{STOP=0,LEFT,UP,RIGHT,DOWN};
 eDirection dir,pdir;
+bool screenClear(bool full){//~ https://www.cplusplus.com/articles/4z18T05o/#Windows
+    HANDLE hStdOut;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    DWORD count,cellCount;
+    COORD homeCoords={0,0};
+    hStdOut=GetStdHandle(STD_OUTPUT_HANDLE);
+    if(hStdOut==INVALID_HANDLE_VALUE){return false;}
+    if(full){
+        //~ Get the number of cells in the current buffer
+        if(!GetConsoleScreenBufferInfo(hStdOut,&csbi)){return false;}
+        cellCount=csbi.dwSize.X*csbi.dwSize.Y;
+        //~ Fill the entire buffer with spaces
+        if(!FillConsoleOutputCharacter(
+            hStdOut,
+            (TCHAR)' ',
+            cellCount,
+            homeCoords,
+            &count
+        )){return false;}
+        //~ Fill the entire buffer with the current colors and attributes
+        if(!FillConsoleOutputAttribute(
+            hStdOut,
+            csbi.wAttributes,
+            cellCount,
+            homeCoords,
+            &count
+        )){return false;}
+    }
+    //~ Move the cursor home
+    SetConsoleCursorPosition(hStdOut,homeCoords);
+    return true;
+}
 void Setup(){
     gameOver=false;
     dir=STOP;
@@ -34,6 +66,7 @@ void Setup(){
     tailY[0]=y;
     nTail=0;
     delayTime=delayTimeOg;
+    if(!screenClear(true)){exit(EXIT_FAILURE);}
 }
 void Draw(){
     fieldCount=0;
@@ -43,7 +76,13 @@ void Draw(){
     field[fieldCount++]='\n';
     for(int i=0;i<height;i++){//~ draw map row
         field[fieldCount++]='|';//~ border left
-        for(int j=0;j<widthField;j++){field[fieldCount++]=' ';}//~ draw map col
+        if(_debugInfo){//~ draw map col
+            if(i==y){for(int j=0;j<widthField;j++){field[fieldCount++]='.';}}
+            else{for(int j=0;j<widthField;j++){
+                if(j==((x*2)+1)){field[fieldCount++]='.';}
+                else{field[fieldCount++]=' ';}
+            }}
+        }else{for(int j=0;j<widthField;j++){field[fieldCount++]=' ';}}
         field[fieldCount++]='|';//~ border right
         field[fieldCount++]='\n';
     }
@@ -59,20 +98,26 @@ void Draw(){
             field[_tailpos+1]='-';
             field[_tailpos-1]='-';
         }
+        if(portalWalls){
+            if(dir==LEFT&&x==width-1){field[(((widthField+3)*(y+1))+((x*2)+2))+1]='-';}
+            else if(dir==RIGHT&&x==0){field[(((widthField+3)*(y+1))+2)-1]='-';}
+        }
         for(int i=1;i<nTail-1;i++){
             _tailpos=(((widthField+3)*(tailY[i]+1))+((tailX[i]*2)+2));
             field[_tailpos]=tailC[i];
             if(tailC[i]=='-'){
-                if(tailC[i-1]=='-'){
-                    if(tailX[i-1]>tailX[i]){field[_tailpos-1]='-';}
-                    else{field[_tailpos+1]='-';}
-                }else{
-                    field[_tailpos+1]='-';
-                    field[_tailpos-1]='-';
-                }
+                field[_tailpos+1]='-';
+                field[_tailpos-1]='-';
             }
         }
-        if(nTail>1){field[(((widthField+3)*(tailY[nTail-1]+1))+((tailX[nTail-1]*2)+2))]=tailC[nTail-1];}
+        if(nTail>1){
+            int _tailpos=(((widthField+3)*(tailY[nTail-1]+1))+((tailX[nTail-1]*2)+2));
+            field[_tailpos]=tailC[nTail-1];
+            if(tailC[nTail-1]=='-'){
+                if(tailX[nTail-1]==width-1||tailX[nTail-1]<tailX[nTail-2]){field[_tailpos+1]='-';}
+                else if(tailX[nTail-1]==0||tailX[nTail-1]>tailX[nTail-2]){field[_tailpos-1]='-';}
+            }
+        }
     }
     switch(dir){//~ snake head
         case LEFT:field[(((widthField+3)*(y+1))+((x*2)+2))]='<';break;
@@ -83,26 +128,40 @@ void Draw(){
     };
     field[(((widthField+3)*(fruitY+1))+((fruitX*2)+2))-1]='[';
     field[(((widthField+3)*(fruitY+1))+((fruitX*2)+2))+1]=']';
-    system("cls");//~ clear screen
-    std::cout
-        <<field
-        <<"\nidea:[https://youtu.be/E_-lMZDi7Uw]"
-        <<"\n[ESC/q] Exit"
-        <<"  [r] DelScore"
-        <<"  [p] Pause"
-        <<"  [wasd] Move"
-        <<"  [b] DebugInfo"
-        <<"\nscore: "<<score
-        <<std::endl;
-    if(_debugInfo){
+    if(!screenClear(false)){exit(EXIT_FAILURE);}//~ clear screen
+    if(_debugInfo){//~ print info under game
         std::cout
-            <<"\nscorestep: "<<scoreStep
-            <<"\ndelayTime: "<<delayTime
-            <<"\nnTail: "<<nTail
-            <<"\ndir: "<<dir
-            <<"\nX/Y: "<<x<<'/'<<y
-            <<"\nfruitX/Y: "<<fruitX<<'/'<<fruitY
-            <<"\nportalWalls: "<<portalWalls
+            <<field
+            <<"\nidea:[https://youtu.be/E_-lMZDi7Uw]                                "
+            <<"\n[ESC/q] Exit  [r] DelScore  [p] Pause  [wasd] Move  [b] DebugInfo  "
+            <<"\nscore: "<<score<<"                                                 "
+            <<"\n-------------------------------------------------------------------"
+            <<"\nscorestep: "<<scoreStep<<"                                         "
+            <<"\ndelayTime: "<<delayTime<<"                                         "
+            <<"\nnTail: "<<nTail<<"                                                 "
+            <<"\ndir: "<<dir<<"                                                     "
+            <<"\nX/Y: "<<x<<'/'<<y<<"                                               "
+            <<"\nfruitX/Y: "<<fruitX<<'/'<<fruitY<<"                                "
+            <<"\nportalWalls: "<<portalWalls<<"                                     "
+            <<"\n-------------------------------------------------------------------"
+            <<"\n.                                                                  "
+            <<std::endl;
+    }else{
+        std::cout
+            <<field
+            <<"\nidea:[https://youtu.be/E_-lMZDi7Uw]                                "
+            <<"\n[ESC/q] Exit  [r] DelScore  [p] Pause  [wasd] Move  [b] DebugInfo  "
+            <<"\nscore: "<<score<<"                                                 "
+            <<"\n-------------------------------------------------------------------"
+            <<"\n.                                                                  "
+            <<"\n.                                                                  "
+            <<"\n.                                                                  "
+            <<"\n.                                                                  "
+            <<"\n.                                                                  "
+            <<"\n.                                                                  "
+            <<"\n.                                                                  "
+            <<"\n.                                                                  "
+            <<"\n.                                                                  "
             <<std::endl;
     }
 }
@@ -116,7 +175,45 @@ void Input(){
             case 's':if(nTail==0||dir!=UP){dir=DOWN;}break;
             case 'd':if(nTail==0||dir!=LEFT){dir=RIGHT;}break;
             case 'b':_debugInfo=!_debugInfo;break;
-            case 'p':std::cout<<"\n## Pause ##"<<std::endl;_getch();break;
+            case 'p':
+                if(!screenClear(true)){exit(EXIT_FAILURE);}
+                if(_debugInfo){//~ print info under game
+                    std::cout
+                        <<field
+                        <<"\nidea:[https://youtu.be/E_-lMZDi7Uw]                                "
+                        <<"\n[ESC/q] Exit  [r] DelScore  [p] Pause  [wasd] Move  [b] DebugInfo  "
+                        <<"\nscore: "<<score<<"                                                 "
+                        <<"\n-------------------------------------------------------------------"
+                        <<"\nscorestep: "<<scoreStep<<"                                         "
+                        <<"\ndelayTime: "<<delayTime<<"                                         "
+                        <<"\nnTail: "<<nTail<<"                                                 "
+                        <<"\ndir: "<<dir<<"                                                     "
+                        <<"\nX/Y: "<<x<<'/'<<y<<"                                               "
+                        <<"\nfruitX/Y: "<<fruitX<<'/'<<fruitY<<"                                "
+                        <<"\nportalWalls: "<<portalWalls<<"                                     "
+                        <<"\n-------------------------------------------------------------------"
+                        <<"\n.          ##  PAUSED  ##  press any key to continue  ##           "
+                        <<std::endl;
+                }else{
+                    std::cout
+                        <<field
+                        <<"\nidea:[https://youtu.be/E_-lMZDi7Uw]                                "
+                        <<"\n[ESC/q] Exit  [r] DelScore  [p] Pause  [wasd] Move  [b] DebugInfo  "
+                        <<"\nscore: "<<score<<"                                                 "
+                        <<"\n-------------------------------------------------------------------"
+                        <<"\n.                                                                  "
+                        <<"\n.                                                                  "
+                        <<"\n.                                                                  "
+                        <<"\n.                                                                  "
+                        <<"\n.          ##  PAUSED  ##  press any key to continue  ##           "
+                        <<"\n.                                                                  "
+                        <<"\n.                                                                  "
+                        <<"\n.                                                                  "
+                        <<"\n.                                                                  "
+                        <<std::endl;
+                }
+                _getch();
+                break;
             case 'r':
                 fruitX=rand()%width;
                 fruitY=rand()%height;
@@ -128,7 +225,7 @@ void Input(){
                 break;
             case '':
             case 'q':
-                exit(0);
+                exit(EXIT_SUCCESS);
                 break;
             default:break;
         }
@@ -199,7 +296,7 @@ int toNum(char const*num){
 }
 int main(int argc, char const *argv[]){
     delayTimeOg=200;
-    for(int i=1;i<argc;i++){//~ run.exe -t 100 -p -w 30 -h 30
+    for(int i=1;i<argc;i++){//~ run.exe -t 100 -p -b
         if(argv[i][0]=='-'){
             switch(argv[i][1]){
                 case 't':
@@ -208,8 +305,7 @@ int main(int argc, char const *argv[]){
                     else if(delayTimeOg>60000){delayTimeOg=60000;}
                     break;
                 case 'p':portalWalls=true;break;
-                case 'w':break;
-                case 'h':break;
+                case 'b':_debugInfo=true;break;
                 default:break;
             }
         }
@@ -221,17 +317,49 @@ int main(int argc, char const *argv[]){
         Input();
         Logic();
         if(gameOver){
-            std::cout
-                <<"\n##  G a m e - O v e r  ##"
-                <<"\ntry again ? [y/n]"
-                <<std::endl;
+            if(!screenClear(true)){return EXIT_FAILURE;}
+            if(_debugInfo){//~ print info under game
+                std::cout
+                    <<field
+                    <<"\nidea:[https://youtu.be/E_-lMZDi7Uw]                                "
+                    <<"\n[ESC/q] Exit  [r] DelScore  [p] Pause  [wasd] Move  [b] DebugInfo  "
+                    <<"\nscore: "<<score<<"                                                 "
+                    <<"\n-------------------------------------------------------------------"
+                    <<"\nscorestep: "<<scoreStep<<"                                         "
+                    <<"\ndelayTime: "<<delayTime<<"                                         "
+                    <<"\nnTail: "<<nTail<<"                                                 "
+                    <<"\ndir: "<<dir<<"                                                     "
+                    <<"\nX/Y: "<<x<<'/'<<y<<"                                               "
+                    <<"\nfruitX/Y: "<<fruitX<<'/'<<fruitY<<"                                "
+                    <<"\nportalWalls: "<<portalWalls<<"                                     "
+                    <<"\n-------------------------------------------------------------------"
+                    <<"\n.          ##  G a m e - O v e r  ##  again ?  [y/n]  ##           "
+                    <<std::endl;
+            }else{
+                std::cout
+                    <<field
+                    <<"\nidea:[https://youtu.be/E_-lMZDi7Uw]                                "
+                    <<"\n[ESC/q] Exit  [r] DelScore  [p] Pause  [wasd] Move  [b] DebugInfo  "
+                    <<"\nscore: "<<score<<"                                                 "
+                    <<"\n-------------------------------------------------------------------"
+                    <<"\n.                                                                  "
+                    <<"\n.                                                                  "
+                    <<"\n.                                                                  "
+                    <<"\n.                                                                  "
+                    <<"\n.          ##  G a m e - O v e r  ##  again ?  [y/n]  ##           "
+                    <<"\n.                                                                  "
+                    <<"\n.                                                                  "
+                    <<"\n.                                                                  "
+                    <<"\n.                                                                  "
+                    <<std::endl;
+            }
             int _repeat=_getch();
             while(_repeat!='n'){
                 if(_repeat=='y'||_repeat=='r'){Setup();break;}
-                else if(_repeat==0x1b||_repeat=='q'){return 0;}
+                else if(_repeat==0x1b||_repeat=='q'){return EXIT_SUCCESS;}
                 else{_repeat=_getch();}
             }
         }
     }
-    return 0;
+    return EXIT_SUCCESS;
 }
