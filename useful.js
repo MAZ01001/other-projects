@@ -3,8 +3,8 @@
 /**
  * __inserts a string at a specific index__
  * @param {string} str - initial string
- * @param {number} i - zero-based index of `str`
- * @param {string} r - string to be inserted in `str` at `i`
+ * @param {number} i - (zero-based) index of `str` - can be negative
+ * @param {string} r - replacement string to be inserted in `str` at `i`
  * @param {number} d - delete count of characters in `str` at `i`
  * @returns {string} modified string
  * @throws {TypeError} if `i` or `d` are not whole numbers
@@ -12,14 +12,43 @@
  */
 function _string_insert(str,i=0,r='',d=0){
     str=String(str);
-    i=Math.abs(Number(i));
-    if(!Number.isInteger(i)){throw new TypeError('[i] is not a whole number');}
+    i=Number(i);
+    if(!Number.isInteger(i)){throw new TypeError('[i] is not a whole number.');}
     r=String(r);
     d=Number(d);
-    if(!Number.isInteger(d)){throw new TypeError('[d] is not a whole number');}
+    if(!Number.isInteger(d)){throw new TypeError('[d] is not a whole number.');}
     if(i<0){i=str.length+i;}
-    if(d<0){return str.substring(0,i+d)+r+str.substring(i);}
     return str.substring(0,i)+r+str.substring(i+d);
+}
+/**
+ * __object of how much each character appears in the string__\
+ * _or for only the given characters_
+ * @param {string} str - the string for analysis
+ * @param {string} chars - if given, searches only the amount for these characters - _default `''` = all_
+ * @returns {{string:number;string:number;string:number}} object with amount of apperance (`'a':8,'b':2,...`)
+ * @example _string_charStats('abzaacdd','abce');
+ * // {
+ * //   'a':3,
+ * //   'b':1,
+ * //   'c':1,
+ * //   'e':0,
+ * //   'other':3
+ * // }
+ */
+function _string_charStats(str,chars=''){
+    ////getUnique=> str.split('').sort().join('').replace(/([\s\S])\1+/,'$1').replace(/(([\s\S])\2*)/g,(m,a,z)=>`${z} - ${a.length}\n`);
+    str=String(str);
+    chars=String(chars);
+    let obj={};
+    if(chars===''){for(const char of str){obj[char]=(obj[char]+1)||1;}}
+    else{
+        for(const char of chars){obj[char]=0;}
+        for(const char of str){
+            if(chars.includes(char)){obj[char]++;}
+            else{obj['other']=(obj['other']+1)||1;}
+        }
+    }
+    return obj;
 }
 /**
  * __calculates new bounds/scale for given number `n`__ \
@@ -230,7 +259,7 @@ function _number_dec2frac(dec,loop_last=0,max_den=0,max_iter=1e6){
  * @param {number} last - padding to length after decimal point
  * @returns {string} padded number as string
  * @throws {TypeError} if `n` is not a number or `first` or `last` are not whole numbers
- * @example _number_padNum(1.23,3,5);//=> '+  1.23000'
+ * @example _number_padNum(1.23e2,3,5);//=> '+  1.23000e2'
  * @description
  * format:`[sign] [padded start ' '] [.] [padded end '0'] [e ~]`
 */

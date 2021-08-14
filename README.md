@@ -33,6 +33,7 @@
 >
 > + `_string`
 >   + `_insert(str,i=0,r='',d=0)` insert string in string at index and delete some characters
+>   + `_charStats(str,chars='')` analyses string of how much each character appears
 > + `_number`
 >   + `_mapRange(n,x,y,x2,y2,limit=false);` map number from one range to another
 >   + `_roundDecimal(n,dec=0);` rounds number to decimal place
