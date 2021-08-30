@@ -1,0 +1,82 @@
+body{
+    background-color:#000;
+    font-family:serif;
+    color:#0f0;
+}
+/*
+## normal black-green scrollbar ##
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:#080;border-radius:10px;}
+::-webkit-scrollbar-thumb:hover{background:#0F0F;}
+::-webkit-scrollbar-track{background:#000;}
+::-webkit-scrollbar-track-piece{background:#000;}
+::-webkit-scrollbar-corner{background-color:#000;}
+## advanced hidden-transparent scrollbar ##
+*/
+::-webkit-scrollbar{width:0.7em;height:0.7em;}
+::-webkit-scrollbar-thumb:window-inactive{border-color:#040F!important;}
+::-webkit-scrollbar-thumb:vertical{
+    background-color:#0000;
+    border-right:2px solid #080F;
+    border-radius:0;
+}
+::-webkit-scrollbar-thumb:vertical:hover{
+    background-color:#0F0F;
+    border:none;
+    border-top-left-radius:1em;
+    border-bottom-left-radius:1em;
+}
+::-webkit-scrollbar-thumb:horizontal{
+    background-color:#0000;
+    border-bottom:2px solid #080F;
+    border-radius:0;
+}
+::-webkit-scrollbar-thumb:horizontal:hover{
+    background-color:#0F0F;
+    border:none;
+    border-top-left-radius:1em;
+    border-top-right-radius:1em;
+}
+::-webkit-scrollbar-track{display:none;background-color:#0000;}
+::-webkit-scrollbar-track-piece{display:none;background-color:#0000;}
+::-webkit-scrollbar-corner{display:none;background-color:#0000;}
+.overflowscroll{
+    max-width:100vw;
+    max-height:100vh;
+    overflow:overlay;
+}
+.blurbg{
+    backdrop-filter:blur(3px);
+    background-color:#0008;
+}
+.notouch{pointer-events:none;}
+.offscreen{/* NOT {display:none;} */
+    opacity: 0;
+    position: fixed;
+    top: -2em;
+    left: -2em;
+    transform: translate(-100%,-100%);
+}
+.center{
+    position:fixed;
+    transform: translate(-50%,-50%);
+    left:50%;top:50%;
+}
+.flexcenter{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    vertical-align:middle;
+}
+/*
+3D Card with CSS & JS → MAZ01001.github.io\site\3d-card example.html
+
+## Variables ##
+[CSS]
+    :root{--var_color:#000;}
+    body{color:var(--var_color);}
+[JS]
+    SET → document.querySelector(':root').style.setProperty('--var_color','black');
+    GET → getComputedStyle(document.querySelector(':root')).getPropertyValue('--var_color');
+(https://www.w3schools.com/css/css3_variables_javascript.asp)
+*/

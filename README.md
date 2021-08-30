@@ -44,3 +44,9 @@
 >   + `_dec2frac(dec,loop_last=0,max_den=0,max_iter=1e6);` estimates a decimal number with a fraction
 >   + `_padNum(n,first=0,last=0);` pad number in respect to the decimal point
 >
+----
+>
+> ## black-green.css
+>
+> some style rules I often use and/or find useful
+>
