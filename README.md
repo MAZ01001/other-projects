@@ -34,15 +34,7 @@
 > + `_string`
 >   + `_insert(str,i=0,r='',d=0)` insert string in string at index and delete some characters
 >   + `_charStats(str,chars='')` analyses string of how much each character appears
-> + `_number`
->   + `_mapRange(n,x,y,x2,y2,limit=false);` map number from one range to another
->   + `_roundDecimal(n,dec=0);` rounds number to decimal place
->   + `_toPercent(n,x,y);` calculates percent of number in range ("progress")
->   + `_deg2rad(deg);` DEG to RAD
->   + `_rad2deg(rad);` RAD to DEG
->   + `_gcd(A,B);` calculates greatest common divisor
->   + `_dec2frac(dec,loop_last=0,max_den=0,max_iter=1e6);` estimates a decimal number with a fraction
->   + `_padNum(n,first=0,last=0);` pad number in respect to the decimal point
+> + _(moved `_number_*` to `Math-Js/functions.js`)_
 >
 ----
 >
