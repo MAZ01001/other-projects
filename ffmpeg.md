@@ -1,0 +1,162 @@
+# Some useful [FFmpeg](https://ffmpeg.org/) commands
+
+## official [documentation](https://ffmpeg.org/documentation.html)
+
++ [FFmpeg - all](https://ffmpeg.org/ffmpeg-all.html)
++ [FFplay - all](https://ffmpeg.org/ffplay-all.html)
++ [FFprobe - all](https://ffmpeg.org/ffprobe-all.html)
+
+## Hide all but stats when running a command
+
+    ffmpeg -hide_banner -loglevel [error|warning|info] -stats [...]
+
+## Convert MP4 to M4A (video to audio)
+
++ no video = smaller file size
++ metadata and subtitles are preserved
++ no conversion to MP3, uses original AAC audio from MP4 file
++ same type =  can be played by anything that can play MP4 (audio)
+
+      ffmpeg -i ".\INPUT.mp4" -c copy -map 0:a -map 0:s? ".\OUTPUT.m4a"
+
+## Extracting metadata to file
+
+    ffmpeg -i ".\INPUT.mp4" -f ffmetadata ".\FFMETADATAFILE.txt"
+
+### Edit metadata file
+
+    ;FFMETADATA1
+     [...]
+    title=Video Title
+    artist=Artist Name
+    description=Text\
+    Line two\
+    \
+    \
+    Line five\
+    Line with Û̕͝͡n̊̑̓̊i͚͚ͬ́c̗͕̈́̀o̵̯ͣ͊ḑ̴̱̐ḛ̯̓̒\
+     [...]
+    Line twenty
+
++ adding chapters _(order does not matter so easiest is appent to end of file)_
+
+      [CHAPTER]
+      TIMEBASE=1/1000
+      START=0
+      END=10000
+      title=0 to 10sec of the video
+      [CHAPTER]
+      TIMEBASE=1/1000
+      START=10000
+      END=20000
+      title=10sec to 20sec of the video
+
+  + TIMEBASE - 1/1000 _(of a sec)_ = milliseconds for setting start/end
+    + the actual point is set to the next nearest frame that exists
+    + only on re-encoding _(during reinsertion)_ it will be exactly after that amount of time
+  + START - start of chapter in milliseconds _(or according to TIMEBASE)_
+  + END - end of chapter in milliseconds _(or according to TIMEBASE)_
+  + title - title of this chapter
+
+### Reinserting (edited) metadata
+
+    ffmpeg -i ".\INPUT.mp4" -i ".\FFMETADATAFILE.txt" -map_metadata 1 -codec copy ".\OUTPUT.mp4"
+
++ empty lines in metadata file will be ignored
+  and order doesn't matter exept for the ";FFMETADATA1" in the first line
+
+## Add thumbail
+
+    ffmpeg -i ".\INPUT.mp4" -i ".\IMAGE.png" -map 0 -map 1 -c copy -c:v:1 png - disposition:v:1 attached_pic ".\OUTPUT.mp4"
+
+## Add subtitles
+
+    ffmpeg -i ".\INPUT.mp4" -i ".\SUB.srt" -c copy -c:s mov_text ".\OUTPUT.mp4"
+    ffmpeg -i ".\INPUT.mp4" -i ".\SUB.srt" -c copy ".\OUTPUT.mp4"
+
+## Extract frames
+
+    ffmpeg -i ".\INPUT.mp4" ".\_dump\frame%03d.png"
+
++ "frame%03d.png" = frame000.png / frame001.png / frame050.png / frame1000.png
++ jpeg slow - bmp large
++ _(subfolder must be created first)_
++ every x frames x pictures
+
+      ffmpeg [-r 1] -i ".\INPUT.mp4" [-r 1] ".\_dump\frame%03d.png"
+
+  + _(first and secod "-r 1")_
+  + if only first is omitted then every 1/x sec a pic
+  + if both are omitted then all frames
+  + or use -ss -t to give timeframe of extraction
+
+### Create video from frames
+
+    ffmpeg -framerate 24 -i [".\INPUT%03d.jpeg"|".\INPUT*.png"] ".\OUTPUT.mp4"
+
+#### Watch short video as a loop
+
+    ffplay -loop -1 ".\INPUT.mp4"
+
++ a window will show the video looping infinitly
+  + [controlls](https://ffmpeg.org/ffplay.html#While-playing)
+
+## compress video
+
++ need re encoding for compression _(when in doubt, choose same video-codec as input video)_
++ [-crf] - lower is better because more bitrate but higher file size
++ h.264 18-23 _(very good quality)_
+
+      ffmpeg -i ".\INPUT.mp4" -vcodec libx264 -crf 18 ".\OUTPUT.mp4"
+
++ h.265 24-30 _(very good quality)_
+
+      ffmpeg -i ".\INPUT.mp4" -vcodec libx265 -crf 24 ".\OUTPUT.mp4"
+
+## cut video
+
++ start at 1sec and stop at 10sec
+
+      ffmpeg -ss 0:0:1 -to 0:0:10 -i ".\INPUT.mp4" -c copy ".\OUTPUT.mp4"
+
++ start at 10sec and stop after 10sec
+
+      ffmpeg -ss 0:0:10 -t 0:0:10 -i ".\INPUT.mp4" -c copy ".\OUTPUT.mp4"
+
++ limit output to 30sec total
+
+      ffmpeg -i ".\INPUT.mp4" -c copy -t 30 ".\OUTPUT.mp4"
+
+## loop video
+
++ loop video infinitly but stop after 30sec _(loop up to 30sec)_
+
+      ffmpeg -stream_loop -1 -i ".\INPUT.mp4" -c copy -t 30 ".\OUTPUT.mp4"
+
++ loop video to length of audio
+
+      ffmpeg  -stream_loop -1 -i ".\INPUT.mp4" -i ".\INPUT.mp3" -shortest -map 0:v -map 1:a ".\OUTPUT.mp4"
+
++ loop audio to length of video
+
+      ffmpeg  -i ".\INPUT.mp4" -stream_loop -1 -i ".\INPUT.mp3" -shortest -map 0:v -map 1:a ".\OUTPUT.mp4"
+
+## create/download video with m3u8 playlist
+
+    ffmpeg -protocol_whitelist file,http,https,tcp,tls,crypto -i [".\INPUT.m3u8"|"https://INPUT.m3u8"] -c copy ".\OUTPUT.mp4"
+
+## find silence parts in video
+
+    ffmpeg -i ".\INPUT.mp4" -af silencedetect=noise=-70dB:d=240 -f null - 2> ".\LOG.txt"
+
++ [noise=-70dB] = -70dB or quieter
++ [d=240] = 240sec/4min minimum silence duration for detect
++ look for "[silencedetect*" lines in log file like:
+
+      [silencedetect @ 0000000000******] silence_start: 01:00:02.500
+      [silencedetect @ 0000000000******] silence_end: 01:10:02.500 | silence_duration: 00:09:59.989
+      [silencedetect @ 000000000*******] silence_start: 02:00:02.500
+      [silencedetect @ 000000000*******] silence_end: 02:10:02.500 | silence_duration: 00:09:59.989
+      [...]
+
+  + this may be quite slow mind you

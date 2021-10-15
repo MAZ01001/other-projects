@@ -15,7 +15,7 @@
 >     |   |      [F]  |
 >     +---------------+
 >
-> A Windows-console Snake game written in C++
+> A Windows console Snake game which's written in C++
 >
 > + Compile (with MinGW) → `g++ .\snake_cmd-game.cpp -o .\run`
 > + Start (in Windows-cmd) → `.\run.exe -t 200 -p`
@@ -40,5 +40,11 @@
 >
 > ## black-green.css
 >
-> some style rules I often use and/or find useful
+> some style rules I find useful and nice-looking
+>
+----
+>
+> ## ffmpeg.md
+>
+> a more or less detailed list of some useful FFmpeg commands
 >
