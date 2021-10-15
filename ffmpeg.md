@@ -8,7 +8,18 @@
 
 ## Hide all but stats when running a command
 
-    ffmpeg -hide_banner -loglevel [error|warning|info] -stats [...]
+    ffmpeg -hide_banner -v level+[quiet|error|warning|info|verbose] -stats [...]
+
++ [-hide_banner] - hides the gigantic FFmpeg version/info banner
++ [-v|-loglevel]
+  + [level] - show what log_level each log is
+  + [quiet] - show nothing
+  + [error] - only show errors _(incl. recoverable errors)_
+  + [warning] - only show warnings and errors _(I usually use this one)_
+  + [info] - show above plus informative messages like file metadata _(default)_
+  + [verbose] - just like info but more verbose
++ [-stats] - show stats like how far encoding is live
+  + [-nostats] - for no live stats
 
 ## Convert MP4 to M4A (video to audio)
 
@@ -38,7 +49,7 @@
      [...]
     Line twenty
 
-+ adding chapters _(order does not matter so easiest is appent to end of file)_
++ adding chapters _(order does not matter so easiest is append to end of file)_
 
       [CHAPTER]
       TIMEBASE=1/1000
@@ -53,7 +64,7 @@
 
   + TIMEBASE - 1/1000 _(of a sec)_ = milliseconds for setting start/end
     + the actual point is set to the next nearest frame that exists
-    + only on re-encoding _(during reinsertion)_ it will be exactly after that amount of time
+    + only on re-encoding _(during reinsertion)_ it will be exact after that amount of time
   + START - start of chapter in milliseconds _(or according to TIMEBASE)_
   + END - end of chapter in milliseconds _(or according to TIMEBASE)_
   + title - title of this chapter
@@ -63,9 +74,9 @@
     ffmpeg -i ".\INPUT.mp4" -i ".\FFMETADATAFILE.txt" -map_metadata 1 -codec copy ".\OUTPUT.mp4"
 
 + empty lines in metadata file will be ignored
-  and order doesn't matter exept for the ";FFMETADATA1" in the first line
+  and order doesn't matter except for the ";FFMETADATA1" in the first line
 
-## Add thumbail
+## Add thumbnail
 
     ffmpeg -i ".\INPUT.mp4" -i ".\IMAGE.png" -map 0 -map 1 -c copy -c:v:1 png - disposition:v:1 attached_pic ".\OUTPUT.mp4"
 
@@ -85,10 +96,10 @@
 
       ffmpeg [-r 1] -i ".\INPUT.mp4" [-r 1] ".\_dump\frame%03d.png"
 
-  + _(first and secod "-r 1")_
+  + _(first and second "-r 1")_
   + if only first is omitted then every 1/x sec a pic
   + if both are omitted then all frames
-  + or use -ss -t to give timeframe of extraction
+  + or use -ss -t to give the timeframe for extraction
 
 ### Create video from frames
 
@@ -103,8 +114,8 @@
 
 ## compress video
 
-+ need re encoding for compression _(when in doubt, choose same video-codec as input video)_
-+ [-crf] - lower is better because more bitrate but higher file size
++ need re-encoding for compression _(when in doubt, choose the same video-codec as input video)_
++ [-crf] - lower is better because more bitrate but also a higher file size
 + h.264 18-23 _(very good quality)_
 
       ffmpeg -i ".\INPUT.mp4" -vcodec libx264 -crf 18 ".\OUTPUT.mp4"
@@ -129,7 +140,7 @@
 
 ## loop video
 
-+ loop video infinitly but stop after 30sec _(loop up to 30sec)_
++ loop video infinitely but stop after 30sec _(loop up to 30sec)_
 
       ffmpeg -stream_loop -1 -i ".\INPUT.mp4" -c copy -t 30 ".\OUTPUT.mp4"
 
@@ -158,5 +169,3 @@
       [silencedetect @ 000000000*******] silence_start: 02:00:02.500
       [silencedetect @ 000000000*******] silence_end: 02:10:02.500 | silence_duration: 00:09:59.989
       [...]
-
-  + this may be quite slow mind you
