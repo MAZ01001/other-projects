@@ -82,8 +82,43 @@
 
 ## Add subtitles
 
-    ffmpeg -i ".\INPUT.mp4" -i ".\SUB.srt" -c copy -c:s mov_text ".\OUTPUT.mp4"
-    ffmpeg -i ".\INPUT.mp4" -i ".\SUB.srt" -c copy ".\OUTPUT.mp4"
++ adding subtitles as an extra stream so they can be turned on and off
+  + must use a player that supports this like [VLC](https://www.videolan.org/vlc/index.en_GB.html)
++ ... for mp4 output
+
+      ffmpeg -i ".\INPUT.mp4" -i ".\SUB.srt" -c copy -c:s mov_text ".\OUTPUT.mp4"
+
++ ... for mkv output
+
+      ffmpeg -i ".\INPUT.mp4" -i ".\SUB.srt" -c copy ".\OUTPUT.mkv"
+
++ multiple subtitle files
+
+      ffmpeg -i ".\INPUT.mp4" -i ".\SUB_ENG.srt" -i ".\SUB_GER.srt" -map 0:0 -map 1:0 -map 2:0 -c copy -c:s mov_text ".\OUTPUT.mp4"
+
+  + with language codes
+
+        ffmpeg -i ".\INPUT.mp4" -i ".\SUB_ENG.srt" -i ".\SUB_GER.srt" -map 0:0 -map 1:0 -map 2:0 -c copy -c:s mov_text -metadata:s:s:0 language=eng -metadata:s:s:1 language=ger ".\OUTPUT.mp4"
+
+### subtitle file format
+
+    1
+    00:00:00,000 --> 00:00:03,000
+    hello there
+
+    2
+    00:00:04,000 --> 00:00:08,000
+    general kenobi
+
+    3
+    00:00:10,000 --> 00:01:00,000
+    multi
+    line
+    subtitles
+
++ unicode can be used - tested with z̧̢̛̻̱̝͖ͤͯͪ̏ͤ̀ͩ̂̅͒̕͞ͅa̵̸̡̯̼̠͑̑ͫ̔̉̈̉͊ͥ̍̿̂͝͝l̵̥̮̳̖̟̗ͧ̆ͣ͋͋̐̌͊ͩ̇̋̀̚g̴̴͉̲͖͉̱̪̙̣͙̩̪͈̈́ͬ̎̄̈͠ó̵̰̼͈͗̔͌ͩ̽̌̒̓ͨ̕͝ text and it "pushed" the subtitles of screen - big line height
++ displayed like in file
+  + new line in srt = new line in video
 
 ## Extract frames
 
@@ -169,3 +204,10 @@
       [silencedetect @ 000000000*******] silence_start: 02:00:02.500
       [silencedetect @ 000000000*******] silence_end: 02:10:02.500 | silence_duration: 00:09:59.989
       [...]
+
+## my current FFmpeg version
+
+    ffmpeg -version
+
++ ffmpeg version 4.2.2 Copyright (c) 2000-2019 the FFmpeg developers
++ built with gcc 9.2.1 (GCC) 20200122
