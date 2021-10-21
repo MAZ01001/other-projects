@@ -8,14 +8,14 @@
 
 ## Hide all but stats when running a command
 
-    ffmpeg -hide_banner -v level+[quiet|error|warning|info|verbose] -stats [...]
+    ffmpeg -v level+[quiet|error|warning|info|verbose] -stats [...]
 
-+ [-hide_banner] - hides the gigantic FFmpeg version/info banner
 + [-v|-loglevel]
   + [level] - show what log_level each log is
+    + like "[info] ..." or "[warning] ..."or "[error] ..."
   + [quiet] - show nothing
   + [error] - only show errors _(incl. recoverable errors)_
-  + [warning] - only show warnings and errors _(I usually use this one)_
+  + [warning] - only show warnings and errors _(I usually use this one 'cause it also hides the big "config-banner")_
   + [info] - show above plus informative messages like file metadata _(default)_
   + [verbose] - just like info but more verbose
 + [-stats] - show stats like how far encoding is live
