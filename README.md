@@ -34,7 +34,7 @@
 > + `_string`
 >   + `_insert(str,i=0,r='',d=0)` insert string in string at index and delete some characters
 >   + `_charStats(str,chars='')` analyses string of how much each character appears
-> + _(moved `_number_*` to [`Math-Js/functions.js`](https://github.com/MAZ01001/Math-Js/blob/main/functions.js))_
+> + _(moved `_number_*` to [`Math-Js/functions.js`](https://github.com/MAZ01001/Math-Js#functionsjs))_
 >
 ----
 >
