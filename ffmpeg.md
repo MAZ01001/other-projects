@@ -1,32 +1,55 @@
 # Some useful [FFmpeg](https://ffmpeg.org/) commands
 
+## Table of Contents
+
+- [Some useful FFmpeg commands](#some-useful-ffmpeg-commands)
+  - [Table of Contents](#table-of-contents)
+  - [official documentation](#official-documentation)
+  - [Hide all but stats when running a command](#hide-all-but-stats-when-running-a-command)
+  - [Convert MP4 to M4A (video to audio)](#convert-mp4-to-m4a-video-to-audio)
+  - [Extracting metadata to file](#extracting-metadata-to-file)
+    - [Edit metadata file](#edit-metadata-file)
+    - [Reinserting (edited) metadata](#reinserting-edited-metadata)
+  - [Add thumbnail](#add-thumbnail)
+  - [Add subtitles](#add-subtitles)
+    - [subtitle file format](#subtitle-file-format)
+  - [Extract frames](#extract-frames)
+    - [Create video from frames](#create-video-from-frames)
+      - [Watch short video as a loop](#watch-short-video-as-a-loop)
+  - [compress video](#compress-video)
+  - [cut video](#cut-video)
+  - [loop video](#loop-video)
+  - [create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist)
+  - [find silence parts in video](#find-silence-parts-in-video)
+  - [my current FFmpeg version](#my-current-ffmpeg-version)
+
 ## official [documentation](https://ffmpeg.org/documentation.html)
 
-+ [FFmpeg - all](https://ffmpeg.org/ffmpeg-all.html)
-+ [FFplay - all](https://ffmpeg.org/ffplay-all.html)
-+ [FFprobe - all](https://ffmpeg.org/ffprobe-all.html)
+- [FFmpeg - all](https://ffmpeg.org/ffmpeg-all.html)
+- [FFplay - all](https://ffmpeg.org/ffplay-all.html)
+- [FFprobe - all](https://ffmpeg.org/ffprobe-all.html)
 
 ## Hide all but stats when running a command
 
     ffmpeg -v level+[quiet|error|warning|info|verbose] -stats [...]
 
-+ [-v|-loglevel]
-  + [level] - show what log_level each log is
-    + like "[info] ..." or "[warning] ..."or "[error] ..."
-  + [quiet] - show nothing
-  + [error] - only show errors _(incl. recoverable errors)_
-  + [warning] - only show warnings and errors _(I usually use this one 'cause it also hides the big "config-banner")_
-  + [info] - show above plus informative messages like file metadata _(default)_
-  + [verbose] - just like info but more verbose
-+ [-stats] - show stats like how far encoding is live
-  + [-nostats] - for no live stats
+- [-v|-loglevel]
+  - [level] - show what log_level each log is
+    - like "[info] ..." or "[warning] ..."or "[error] ..."
+  - [quiet] - show nothing
+  - [error] - only show errors _(incl. recoverable errors)_
+  - [warning] - only show warnings and errors _(I usually use this one 'cause it also hides the big "config-banner")_
+  - [info] - show above plus informative messages like file metadata _(default)_
+  - [verbose] - just like info but more verbose
+- [-stats] - show stats like how far encoding is live
+  - [-nostats] - for no live stats
 
 ## Convert MP4 to M4A (video to audio)
 
-+ no video = smaller file size
-+ metadata and subtitles are preserved
-+ no conversion to MP3, uses original AAC audio from MP4 file
-+ same type =  can be played by anything that can play MP4 (audio)
+- no video = smaller file size
+- metadata and subtitles are preserved
+- no conversion to MP3, uses original audio codec from MP4 file
+- same audio codec =  can be played by anything that can play MP4 (audio)
 
       ffmpeg -i ".\INPUT.mp4" -c copy -map 0:a -map 0:s? ".\OUTPUT.m4a"
 
@@ -49,7 +72,7 @@
      [...]
     Line twenty
 
-+ adding chapters _(order does not matter so easiest is append to end of file)_
+- adding chapters _(order does not matter so easiest is append to end of file)_
 
       [CHAPTER]
       TIMEBASE=1/1000
@@ -62,18 +85,18 @@
       END=20000
       title=10sec to 20sec of the video
 
-  + TIMEBASE - 1/1000 _(of a sec)_ = milliseconds for setting start/end
-    + the actual point is set to the next nearest frame that exists
-    + only on re-encoding _(during reinsertion)_ it will be exact after that amount of time
-  + START - start of chapter in milliseconds _(or according to TIMEBASE)_
-  + END - end of chapter in milliseconds _(or according to TIMEBASE)_
-  + title - title of this chapter
+  - TIMEBASE - 1/1000 _(of a sec)_ = milliseconds for setting start/end
+    - the actual point is set to the next nearest frame that exists
+    - only on re-encoding _(during reinsertion)_ it will be exact after that amount of time
+  - START - start of chapter in milliseconds _(or according to TIMEBASE)_
+  - END - end of chapter in milliseconds _(or according to TIMEBASE)_
+  - title - title of this chapter
 
 ### Reinserting (edited) metadata
 
     ffmpeg -i ".\INPUT.mp4" -i ".\FFMETADATAFILE.txt" -map_metadata 1 -codec copy ".\OUTPUT.mp4"
 
-+ empty lines in metadata file will be ignored
+- empty lines in metadata file will be ignored
   and order doesn't matter except for the ";FFMETADATA1" in the first line
 
 ## Add thumbnail
@@ -82,21 +105,21 @@
 
 ## Add subtitles
 
-+ adding subtitles as an extra stream so they can be turned on and off
-  + must use a player that supports this like [VLC](https://www.videolan.org/vlc/index.en_GB.html)
-+ ... for mp4 output
+- adding subtitles as an extra stream so they can be turned on and off
+  - must use a player that supports this like [VLC](https://www.videolan.org/vlc/index.en_GB.html)
+- ... for mp4 output
 
       ffmpeg -i ".\INPUT.mp4" -i ".\SUB.srt" -c copy -c:s mov_text ".\OUTPUT.mp4"
 
-+ ... for mkv output
+- ... for mkv output
 
       ffmpeg -i ".\INPUT.mp4" -i ".\SUB.srt" -c copy ".\OUTPUT.mkv"
 
-+ multiple subtitle files
+- multiple subtitle files
 
       ffmpeg -i ".\INPUT.mp4" -i ".\SUB_ENG.srt" -i ".\SUB_GER.srt" -map 0:0 -map 1:0 -map 2:0 -c copy -c:s mov_text ".\OUTPUT.mp4"
 
-  + with language codes
+  - with language codes
 
         ffmpeg -i ".\INPUT.mp4" -i ".\SUB_ENG.srt" -i ".\SUB_GER.srt" -map 0:0 -map 1:0 -map 2:0 -c copy -c:s mov_text -metadata:s:s:0 language=eng -metadata:s:s:1 language=ger ".\OUTPUT.mp4"
 
@@ -116,25 +139,25 @@
     line
     subtitles
 
-+ unicode can be used - tested with z̧̢̛̻̱̝͖ͤͯͪ̏ͤ̀ͩ̂̅͒̕͞ͅa̵̸̡̯̼̠͑̑ͫ̔̉̈̉͊ͥ̍̿̂͝͝l̵̥̮̳̖̟̗ͧ̆ͣ͋͋̐̌͊ͩ̇̋̀̚g̴̴͉̲͖͉̱̪̙̣͙̩̪͈̈́ͬ̎̄̈͠ó̵̰̼͈͗̔͌ͩ̽̌̒̓ͨ̕͝ text and it "pushed" the subtitles of screen - big line height
-+ displayed like in file
-  + new line in srt = new line in video
+- Unicode can be used - tested with z̧̢̛̻̱̝͖ͤͯͪ̏ͤ̀ͩ̂̅͒̕͞ͅa̵̸̡̯̼̠͑̑ͫ̔̉̈̉͊ͥ̍̿̂͝͝l̵̥̮̳̖̟̗ͧ̆ͣ͋͋̐̌͊ͩ̇̋̀̚g̴̴͉̲͖͉̱̪̙̣͙̩̪͈̈́ͬ̎̄̈͠ó̵̰̼͈͗̔͌ͩ̽̌̒̓ͨ̕͝ text and it "pushed" the subtitles of screen - big line height
+- displayed like in file
+  - new line in SRT = new line in video
 
 ## Extract frames
 
     ffmpeg -i ".\INPUT.mp4" ".\_dump\frame%03d.png"
 
-+ "frame%03d.png" = frame000.png / frame001.png / frame050.png / frame1000.png
-+ jpeg slow - bmp large
-+ _(subfolder must be created first)_
-+ every x frames x pictures
+- "frame%03d.png" = frame000.png / frame001.png / frame050.png / frame1000.png
+- jpeg slow - bmp large
+- _(subfolder must be created first)_
+- every x frames x pictures
 
       ffmpeg [-r 1] -i ".\INPUT.mp4" [-r 1] ".\_dump\frame%03d.png"
 
-  + _(first and second "-r 1")_
-  + if only first is omitted then every 1/x sec a pic
-  + if both are omitted then all frames
-  + or use -ss -t to give the timeframe for extraction
+  - _(first and second "-r 1")_
+  - if only first is omitted then every 1/x sec a pic
+  - if both are omitted then all frames
+  - or use -ss -t to give the timeframe for extraction
 
 ### Create video from frames
 
@@ -144,46 +167,46 @@
 
     ffplay -loop -1 ".\INPUT.mp4"
 
-+ a window will show the video looping infinitly
-  + [controlls](https://ffmpeg.org/ffplay.html#While-playing)
+- a window will show the video looping infinitly
+  - [controlls](https://ffmpeg.org/ffplay.html#While-playing)
 
 ## compress video
 
-+ need re-encoding for compression _(when in doubt, choose the same video-codec as input video)_
-+ [-crf] - lower is better because more bitrate but also a higher file size
-+ h.264 18-23 _(very good quality)_
+- need re-encoding for compression _(when in doubt, choose the same video-codec as input video)_
+- [-crf] - lower is better because more bitrate but also a higher file size
+- h.264 18-23 _(very good quality)_
 
       ffmpeg -i ".\INPUT.mp4" -vcodec libx264 -crf 18 ".\OUTPUT.mp4"
 
-+ h.265 24-30 _(very good quality)_
+- h.265 24-30 _(very good quality)_
 
       ffmpeg -i ".\INPUT.mp4" -vcodec libx265 -crf 24 ".\OUTPUT.mp4"
 
 ## cut video
 
-+ start at 1sec and stop at 10sec
+- start at 1sec and stop at 10sec
 
       ffmpeg -ss 0:0:1 -to 0:0:10 -i ".\INPUT.mp4" -c copy ".\OUTPUT.mp4"
 
-+ start at 10sec and stop after 10sec
+- start at 10sec and stop after 10sec
 
       ffmpeg -ss 0:0:10 -t 0:0:10 -i ".\INPUT.mp4" -c copy ".\OUTPUT.mp4"
 
-+ limit output to 30sec total
+- limit output to 30sec total
 
       ffmpeg -i ".\INPUT.mp4" -c copy -t 30 ".\OUTPUT.mp4"
 
 ## loop video
 
-+ loop video infinitely but stop after 30sec _(loop up to 30sec)_
+- loop video infinitely but stop after 30sec _(loop up to 30sec)_
 
       ffmpeg -stream_loop -1 -i ".\INPUT.mp4" -c copy -t 30 ".\OUTPUT.mp4"
 
-+ loop video to length of audio
+- loop video to length of audio
 
       ffmpeg  -stream_loop -1 -i ".\INPUT.mp4" -i ".\INPUT.mp3" -shortest -map 0:v -map 1:a ".\OUTPUT.mp4"
 
-+ loop audio to length of video
+- loop audio to length of video
 
       ffmpeg  -i ".\INPUT.mp4" -stream_loop -1 -i ".\INPUT.mp3" -shortest -map 0:v -map 1:a ".\OUTPUT.mp4"
 
@@ -195,9 +218,9 @@
 
     ffmpeg -i ".\INPUT.mp4" -af silencedetect=noise=-70dB:d=240 -f null - 2> ".\LOG.txt"
 
-+ [noise=-70dB] = -70dB or quieter
-+ [d=240] = 240sec/4min minimum silence duration for detect
-+ look for "[silencedetect*" lines in log file like:
+- [noise=-70dB] = -70dB or quieter
+- [d=240] = 240sec/4min minimum silence duration for detect
+- look for "[silencedetect*" lines in log file like:
 
       [silencedetect @ 0000000000******] silence_start: 01:00:02.500
       [silencedetect @ 0000000000******] silence_end: 01:10:02.500 | silence_duration: 00:09:59.989
@@ -209,5 +232,5 @@
 
     ffmpeg -version
 
-+ ffmpeg version 4.2.2 Copyright (c) 2000-2019 the FFmpeg developers
-+ built with gcc 9.2.1 (GCC) 20200122
+- ffmpeg version 4.2.2 Copyright (c) 2000-2019 the FFmpeg developers
+- built with gcc 9.2.1 (GCC) 20200122
