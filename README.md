@@ -5,6 +5,11 @@
 
 ( other languages than javascript :o )
 
+- [[snake_cmd-game.cpp]](#snakecmd-gamecpp)
+- [[useful.js]](#usefuljs)
+- [[black-green.css]](#black-greencss)
+- [[ffmpeg.md]](#ffmpegmd)
+
 ----
 >
 > ## [snake_cmd-game.cpp](https://github.com/MAZ01001/other-projects/blob/main/snake_cmd-game.cpp)
