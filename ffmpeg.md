@@ -19,6 +19,7 @@
   - [compress video](#compress-video)
   - [cut video](#cut-video)
   - [loop video](#loop-video)
+  - [reverse video](#reverse-video)
   - [create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist)
   - [find silence parts in video](#find-silence-parts-in-video)
   - [my current FFmpeg version](#my-current-ffmpeg-version)
@@ -209,6 +210,16 @@
 - loop audio to length of video
 
       ffmpeg  -i ".\INPUT.mp4" -stream_loop -1 -i ".\INPUT.mp3" -shortest -map 0:v -map 1:a ".\OUTPUT.mp4"
+
+## reverse video
+
+- video
+
+      ffmpeg -i ".\INPUT.mp4" -vf reverse ".\OUTPUT.mp4"
+
+- audio
+
+      ffmpeg -i ".\INPUT.mp4" -af areverse ".\OUTPUT.mp4"
 
 ## create/download video with m3u8 playlist
 
