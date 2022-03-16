@@ -5,7 +5,7 @@
 
 ( other languages than javascript :o )
 
-- [[snake_cmd-game.cpp]](#snakecmd-gamecpp)
+- [[snake_cmd-game.cpp]](#snake_cmd-gamecpp)
 - [[useful.js]](#usefuljs)
 - [[black-green.css]](#black-greencss)
 - [[ffmpeg.md]](#ffmpegmd)
@@ -22,13 +22,13 @@
 >
 > A Windows console Snake game which's written in C++
 >
-> + Compile (with MinGW) → `g++ .\snake_cmd-game.cpp -o .\run`
-> + Start (in Windows-cmd) → `.\run.exe -t 200 -p`
->   + Extra flags:
->     + `-t 100` ← Sets the millisecond delay between each frame/calculation. Default is 200.
->     + `-p` ← Will enable "portal walls" which makes the snake reappear on the other side instead of game over.
->   + Other keys and what they do, like `[wasd] move` are on-screen underneath the game.
->   + The playable field is default 30*30 cells big. Wich is only changeable before compiling.
+> - Compile (with MinGW) → `g++ .\snake_cmd-game.cpp -o .\run`
+> - Start (in Windows-cmd) → `.\run.exe -t 200 -p`
+>   - Extra flags:
+>     - `-t 100` ← Sets the millisecond delay between each frame/calculation. Default is 200.
+>     - `-p` ← Will enable "portal walls" which makes the snake reappear on the other side instead of game over.
+>   - Other keys and what they do, like `[wasd] move` are on-screen underneath the game.
+>   - The playable field is default 30*30 cells big. Wich is only changeable before compiling.
 >
 ----
 >
@@ -36,10 +36,10 @@
 >
 > some useful JavaScript functions
 >
-> + `_string`
->   + `_insert(str,i=0,r='',d=0)` insert string in string at index and delete some characters
->   + `_charStats(str,chars='')` analyses string of how much each character appears
-> + _(moved `_number_*` to [`Math-Js/functions.js`](https://github.com/MAZ01001/Math-Js#functionsjs))_
+> - `_string`
+>   - `_insert(str,i=0,r='',d=0)` insert string in string at index and delete some characters
+>   - `_charStats(str,chars='')` analyses string of how much each character appears
+> - _(moved `_number_*` to [`Math-Js/functions.js`](https://github.com/MAZ01001/Math-Js#functionsjs))_
 >
 ----
 >
