@@ -193,6 +193,11 @@
 
       ffmpeg -ss 0:0:10 -t 0:0:10 -i ".\INPUT.mp4" -c copy ".\OUTPUT.mp4"
 
+> NOTE \
+> with `-ss`, `-to`, and `-t` ffmpeg picks the nearest frame and not at the exact timestamp \
+> if exact time is needed add `-vcodec libx264` or `-c:v libx264` after `-c copy` to recompile the video to the exact timestamps _(takes longer)_ \
+> also the timestamp is in format `[[H:]m:]s[.ms]` so default is seconds
+
 - limit output to 30sec total
 
       ffmpeg -i ".\INPUT.mp4" -c copy -t 30 ".\OUTPUT.mp4"
