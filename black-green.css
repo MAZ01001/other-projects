@@ -13,29 +13,29 @@ body{
 ::-webkit-scrollbar-corner{background-color:#000;}
 ## advanced hidden-transparent scrollbar ##
 */
-::-webkit-scrollbar{width:0.7em;height:0.7em;}
+::-webkit-scrollbar{width:1.2rem;height:1.2rem;}
 ::-webkit-scrollbar-thumb:window-inactive{border-color:#040F!important;}
 ::-webkit-scrollbar-thumb:vertical{
     background-color:#0000;
-    border-right:2px solid #080F;
+    border-right:.5rem solid #080F;
     border-radius:0;
 }
 ::-webkit-scrollbar-thumb:vertical:hover{
     background-color:#0F0F;
     border:none;
-    border-top-left-radius:1em;
-    border-bottom-left-radius:1em;
+    border-top-left-radius:1rem;
+    border-bottom-left-radius:1rem;
 }
 ::-webkit-scrollbar-thumb:horizontal{
     background-color:#0000;
-    border-bottom:2px solid #080F;
+    border-bottom:.5rem solid #080F;
     border-radius:0;
 }
 ::-webkit-scrollbar-thumb:horizontal:hover{
     background-color:#0F0F;
     border:none;
-    border-top-left-radius:1em;
-    border-top-right-radius:1em;
+    border-top-left-radius:1rem;
+    border-top-right-radius:1rem;
 }
 ::-webkit-scrollbar-track{display:none;background-color:#0000;}
 ::-webkit-scrollbar-track-piece{display:none;background-color:#0000;}
@@ -70,12 +70,12 @@ body{
 }
 @keyframes animPulseColor{50%{fill: #070;}}
 .pulseColor{animation: animPulseColor 3s infinite;}
-.fadeInOutBase{/* trigger fade in → JS : element.classList.remove("fadeOutTrigger"); */
+.fadeInOutBase{/* trigger fade in → JS : element.classList.remove("fadeInOutTrigger"); */
     opacity: 1;visibility: visible;
     transition: opacity 500ms ease-out;/* fade in (fast→slow) */
     pointer-events: visible;
 }
-.fadeInOutTrigger{/* trigger fade out → JS : element.classList.add("fadeOutTrigger"); */
+.fadeInOutTrigger{/* trigger fade out → JS : element.classList.add("fadeInOutTrigger"); */
     opacity: 0;visibility: hidden;
     transition: opacity 500ms ease-in,/* fade out (slow→fast) */
         visibility 0s linear 500ms;
@@ -97,14 +97,14 @@ select:hover,button:hover,textarea:hover,input[type="button"]:hover,input[type="
 select:focus,button:focus,textarea:focus,input[type="button"]:focus,input[type="number"]:focus{border-color: #0a0;}
 select:active,button:active,textarea:active,input[type="button"]:active,input[type="number"]:active{border-color: #0f0 !important;}
 /*
-3D Card with CSS & JS → MAZ01001.github.io\site\3d-card example.html
+    3D Card with CSS & JS → MAZ01001.github.io\site\3d-card example.html
 
-## Variables ##
-[CSS]
-    :root{--var_color:#000;}
-    body{color:var(--var_color);}
-[JS]
-    SET → document.querySelector(':root').style.setProperty('--var_color','black');
-    GET → getComputedStyle(document.querySelector(':root')).getPropertyValue('--var_color');
-(https://www.w3schools.com/css/css3_variables_javascript.asp)
+    ## Variables ##
+    [CSS]
+        :root{--var_color:#000;}
+        body{color:var(--var_color);}
+    [JS]
+        SET → document.querySelector(':root').style.setProperty('--var_color','black');
+        GET → getComputedStyle(document.querySelector(':root')).getPropertyValue('--var_color');
+    (https://www.w3schools.com/css/css3_variables_javascript.asp)
 */
