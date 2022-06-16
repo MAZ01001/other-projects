@@ -101,8 +101,8 @@ select:active,button:active,textarea:active,input[type="button"]:active,input[ty
 
     ## Variables ##
     [CSS]
-        :root{--var_color:#000;}
-        body{color:var(--var_color);}
+        INI → :root{--var_color:#000;}
+        USE → body{color:var(--var_color);}
     [JS]
         SET → document.querySelector(':root').style.setProperty('--var_color','black');
         GET → getComputedStyle(document.querySelector(':root')).getPropertyValue('--var_color');
