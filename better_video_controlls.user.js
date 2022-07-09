@@ -5,12 +5,12 @@
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controllsuserjs
 // @updateURL    https://github.com/MAZ01001/other-projects/blob/main/better_video_controlls.user.js
+// @downloadURL  https://github.com/MAZ01001/other-projects/blob/main/better_video_controlls.user.js
 // @include      *
 // @match        /^[^:/#?]*:\/\/([^#?/]*\.)?.*\..*(:[0-9]{1,5})?\/.*$/
 // @match        /^file:\/\/\/.*\..*$/
 // @run-at       document-end
-// @no_frames    true
-// @tab_types    incognito+normal
+// @noframes     true
 // ==/UserScript==
 
 //~ set some (local) variables
