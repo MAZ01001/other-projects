@@ -1,14 +1,15 @@
 // ==UserScript==
-// @name         better video controlls
-// @version      0.98
-// @description  various keyboard controlls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
+// @name         better video controls
+// @version      0.98.2
+// @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
-// @source       https://github.com/MAZ01001/other-projects#better_video_controllsuserjs
-// @updateURL    https://github.com/MAZ01001/other-projects/blob/main/better_video_controlls.user.js
-// @downloadURL  https://github.com/MAZ01001/other-projects/blob/main/better_video_controlls.user.js
+// @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
+// @updateURL    https://github.com/MAZ01001/other-projects/blob/main/better_video_controls.user.js
+// @downloadURL  https://github.com/MAZ01001/other-projects/blob/main/better_video_controls.user.js
 // @include      *
 // @match        /^[^:/#?]*:\/\/([^#?/]*\.)?.*\..*(:[0-9]{1,5})?\/.*$/
 // @match        /^file:\/\/\/.*\..*$/
+// @exclude      /^[^:/#?]*:\/\/([^#?/]*\.)?youtube\.com(:[0-9]{1,5})?\/.*$/
 // @run-at       document-end
 // @noframes     true
 // ==/UserScript==
@@ -21,7 +22,7 @@ let _bvc_hint_timeout=null,
     /** @type {boolean} - `true` if the event listener is on and `false` if off */
     _bvc_state=false;
 //~ set a name and some styling for the hint element
-_bvc_hint.dataset.name="better-video-controlls hint";
+_bvc_hint.dataset.name="better-video-controls hint";
 _bvc_hint.style.position="fixed";
 _bvc_hint.style.visibility="none";
 _bvc_hint.style.borderRadius=".5rem";
@@ -31,11 +32,11 @@ _bvc_hint.style.fontSize="x-large";
 _bvc_hint.style.pointerEvents="none";
 //~ main functions
 /**
- * __keyboard shortcuts for video element__ \
+ * __keyboard controls for video element__ \
  * `keypress` eventlistener on document \
- * _(shortcuts for video element with mouse hover ie. css:`video:hover`)_
+ * _(controls for video element with mouse hover ie. css:`video:hover`)_
  * @param {KeyboardEvent} ev - keyboard event `keypress`
- * @description __Keyboard shortcuts with `{key}` of `KeyboardEvent`__
+ * @description __Keyboard controls with `{key}` of `KeyboardEvent`__
  * - `0` - `9`          → skip to ` `% of total duration (ie. key `8` skips to 80% of the video)
  * - `.`                → (while paused) next frame (1/60 sec)
  * - `,`                → (while paused) previous frame (1/60 sec)
@@ -155,7 +156,7 @@ function bvc_keyboard_event_listener(ev){
     }
 }
 /**
- * __toggle the better video controlls keyboard event listener on/off__
+ * __toggle the better video controls keyboard event listener on/off__
  * @param {?boolean} force_state if set forces the state to on on `true` and off on `false`
  * @returns {boolean} `true` if currently on and `false` if turned off
  */
@@ -171,11 +172,11 @@ function bvc_toggle_eventlistener(force_state){
     }
     return _bvc_state;
 }
-//~ append hint element, turn on bvc and log controlls and toggle function
+//~ append hint element, turn on bvc and log controls and toggle function
 document.body.appendChild(_bvc_hint);
 bvc_toggle_eventlistener(true);
 console.log(
-    "%cbetter-video-controlls loaded\n%ccontrolls:\n%c%s\n%cfunction for toggle on/off: %O",
+    "%cbetter-video-controls loaded\n%ccontrols:\n%c%s\n%cfunction for toggle on/off: %O",
     "background-color:#000;color:#0f0;font-size:larger;",
     "background-color:#000;color:#fff;",
     "background-color:#000;color:#0a0;font-family:consolas,monospace;",
