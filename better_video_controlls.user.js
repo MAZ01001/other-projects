@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.98.2
+// @version      0.98.4
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -24,6 +24,7 @@ let _bvc_hint_timeout=null,
 //~ set a name and some styling for the hint element
 _bvc_hint.dataset.name="better-video-controls hint";
 _bvc_hint.style.position="fixed";
+_bvc_hint.style.transform="translate(-50%,-50%)";
 _bvc_hint.style.visibility="none";
 _bvc_hint.style.borderRadius=".5rem";
 _bvc_hint.style.backgroundColor="#000";
@@ -69,25 +70,25 @@ function bvc_keyboard_event_listener(ev){
                 if(_video_.paused){
                     _video_.currentTime+=1/60;
                     _bvc_hint.innerText="next frame (skiped 1/60 sec ahead)";
-                }else{changed=false;}
+                }else{_bvc_hint.innerText="pause video for frame-by-frame";}
             break;
             case',':
                 if(_video_.paused){
                     _video_.currentTime-=1/60;
                     _bvc_hint.innerText="previous frame (skiped 1/60 sec back)";
-                }else{changed=false;}
+                }else{_bvc_hint.innerText="pause video for frame-by-frame";}
             break;
             case':':
                 if(_video_.playbackRate<3){
                     _video_.playbackRate=Number.parseFloat((_video_.playbackRate+0.1).toFixed(4));
                     _bvc_hint.innerText=`speed increased to ${_video_.playbackRate}`;
-                }else{changed=false;}
+                }else{_bvc_hint.innerText=`speed already max (${_video_.playbackRate})`;}
             break;
             case';':
                 if(_video_.playbackRate>0.1){
                     _video_.playbackRate=Number.parseFloat((_video_.playbackRate-0.1).toFixed(4));
                     _bvc_hint.innerText=`speed decreased to ${_video_.playbackRate}`;
-                }else{changed=false;}
+                }else{_bvc_hint.innerText=`speed already min (${_video_.playbackRate})`;}
             break;
             case'M':
                 _video_.playbackRate=_video_.defaultPlaybackRate;
@@ -109,14 +110,14 @@ function bvc_keyboard_event_listener(ev){
             case'+':case'ArrowUp':
                 if(_video_.volume<1){
                     _video_.volume=Number.parseFloat((_video_.volume+0.1).toFixed(4));
-                    _bvc_hint.innerText=`volume increased to ${_video_.volume}`;
-                }else{changed=false;}
+                    _bvc_hint.innerText=`volume increased to ${_video_.volume*100} %`;
+                }else{_bvc_hint.innerText=`volume already max (${_video_.volume*100} %)`;}
             break;
             case'-':case'ArrowDown':
                 if(_video_.volume>0){
                     _video_.volume=Number.parseFloat((_video_.volume-0.1).toFixed(4));
-                    _bvc_hint.innerText=`volume decreased to ${_video_.volume}`;
-                }else{changed=false;}
+                    _bvc_hint.innerText=`volume decreased to ${_video_.volume*100} %`;
+                }else{_bvc_hint.innerText=`volume already min (${_video_.volume*100} %)`;}
             break;
             case'm':
                 if(_video_.volume>0){
@@ -131,22 +132,30 @@ function bvc_keyboard_event_listener(ev){
                 if(document.fullscreenEnabled){
                     if(!document.fullscreenElement){_video_.requestFullscreen({navigationUI:'hide'});}
                     else if(document.fullscreenElement===_video_){document.exitFullscreen();}
-                }else{changed=false;}
+                    changed=false;
+                }else{_bvc_hint.innerText="fullscreen not supported";}
             break;
             case'p':
                 if(document.pictureInPictureEnabled){
                     if(!document.pictureInPictureElement){_video_.requestPictureInPicture();}
                     else if(document.pictureInPictureElement===_video_){document.exitPictureInPicture();}
-                }else{changed=false;}
+                    changed=false;
+                }else{_bvc_hint.innerText="picture-in-picture not supported";}
             break;
-            case't':_bvc_hint.innerText=`time: ${_video_.currentTime} / ${_video_.duration} seconds`;break;
+            case't':
+                _bvc_hint.innerText=`time: ${_video_.currentTime} / `;
+                if(_video_.duration===Infinity){_bvc_hint.innerText+="live";}
+                else if(Number.isNaN(_video_.duration)){_bvc_hint.innerText+="???";}
+                else{_bvc_hint.innerText+=`${_video_.duration} -${(_video_.duration-_video_.currentTime).toFixed(4)}`;}
+                _bvc_hint.innerText+=" (seconds)";
+            break;
             default:changed=false;break;
         }
         if(changed){
             if(_bvc_hint_timeout!==null){clearTimeout(_bvc_hint_timeout);}
-            const _bb_video_=_video_.getBoundingClientRect();
-            _bvc_hint.style.top=`${_bb_video_.top+Math.floor(_bb_video_.height*.5)}px`;
-            _bvc_hint.style.left=`${_bb_video_.left+Math.floor(_bb_video_.width*.5)}px`;
+            const{top,left,height,width}=_video_.getBoundingClientRect();
+            _bvc_hint.style.top=`${top+Math.floor(height*.5)}px`;
+            _bvc_hint.style.left=`${left+Math.floor(width*.5)}px`;
             _bvc_hint.style.visibility="visible";
             _bvc_hint_timeout=setTimeout(()=>{
                 _bvc_hint.style.visibility="hidden";
