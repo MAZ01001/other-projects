@@ -101,10 +101,14 @@ select:active,button:active,textarea:active,input[type="button"]:active,input[ty
 
     ## Variables ##
     [CSS]
-        INI → :root{--var_color:#000;}
-        USE → body{color:var(--var_color);}
+        global  → :root{--var_color:#000;}
+                → div#a1{color:var(--var_color);}
+        local   → div#a1{--var_color:#000;color:var(--var_color);}
     [JS]
-        SET → document.querySelector(':root').style.setProperty('--var_color','black');
-        GET → getComputedStyle(document.querySelector(':root')).getPropertyValue('--var_color');
-    (https://www.w3schools.com/css/css3_variables_javascript.asp)
+        global:
+            SET → document.documentElement.style.setProperty('--var_color','black');
+            GET → getComputedStyle(document.documentElement).getPropertyValue('--var_color');
+        local:
+            use `document.body.querySelector('div#a1')` instead of `document.documentElement` (':root'/<html>)
+    [more info] https://www.w3schools.com/css/css3_variables_javascript.asp
 */
