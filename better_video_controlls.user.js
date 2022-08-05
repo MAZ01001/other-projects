@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.98.5
+// @version      0.98.6
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -143,11 +143,11 @@ function bvc_keyboard_event_listener(ev){
                 }else{_bvc_hint.innerText="picture-in-picture not supported";}
             break;
             case't':
-                _bvc_hint.innerText=`time: ${_video_.currentTime} / `;
-                if(_video_.duration===Infinity){_bvc_hint.innerText+="live";}
-                else if(Number.isNaN(_video_.duration)){_bvc_hint.innerText+="???";}
-                else{_bvc_hint.innerText+=`${_video_.duration} -${(_video_.duration-_video_.currentTime).toFixed(4)}`;}
-                _bvc_hint.innerText+=" (seconds)";
+                let time=`time: ${_video_.currentTime} / `;
+                if(_video_.duration===Infinity){time+="live";}
+                else if(Number.isNaN(_video_.duration)){time+="???";}
+                else{time+=`${_video_.duration} -${(_video_.duration-_video_.currentTime).toFixed(4)}`;}
+                _bvc_hint.innerText=`${time} (seconds)`;
             break;
             default:changed=false;break;
         }
