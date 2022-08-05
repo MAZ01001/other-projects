@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.98.7
+// @version      0.98.8
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -70,25 +70,25 @@ function bvc_keyboard_event_listener(ev){
                 if(_video_.paused){
                     _video_.currentTime+=1/60;
                     text="next frame (skiped 1/60 sec ahead)";
-                }else{text="pause video for frame-by-frame";}
+                }else text="pause video for frame-by-frame";
             break;
             case',':
                 if(_video_.paused){
                     _video_.currentTime-=1/60;
                     text="previous frame (skiped 1/60 sec back)";
-                }else{text="pause video for frame-by-frame";}
+                }else text="pause video for frame-by-frame";
             break;
             case':':
                 if(_video_.playbackRate<3){
                     _video_.playbackRate=Number.parseFloat((_video_.playbackRate+0.1).toFixed(4));
                     text=`speed increased to ${_video_.playbackRate}`;
-                }else{text=`speed already max (${_video_.playbackRate})`;}
+                }else text=`speed already max (${_video_.playbackRate})`;
             break;
             case';':
                 if(_video_.playbackRate>0.1){
                     _video_.playbackRate=Number.parseFloat((_video_.playbackRate-0.1).toFixed(4));
                     text=`speed decreased to ${_video_.playbackRate}`;
-                }else{text=`speed already min (${_video_.playbackRate})`;}
+                }else text=`speed already min (${_video_.playbackRate})`;
             break;
             case'M':
                 _video_.playbackRate=_video_.defaultPlaybackRate;
@@ -103,21 +103,21 @@ function bvc_keyboard_event_listener(ev){
                 text="skiped ahead 5 sec";
             break;
             case'k':
-                if(_video_.paused){_video_.play();}
-                else{_video_.pause();}
+                if(_video_.paused)_video_.play();
+                else _video_.pause();
                 text=`video ${_video_.paused?"paused":"resumed"}`;
             break;
             case'+':case'ArrowUp':
                 if(_video_.volume<1){
                     _video_.volume=Number.parseFloat((_video_.volume+0.1).toFixed(4));
                     text=`volume increased to ${_video_.volume*100} %`;
-                }else{text=`volume already max (${_video_.volume*100} %)`;}
+                }else text=`volume already max (${_video_.volume*100} %)`;
             break;
             case'-':case'ArrowDown':
                 if(_video_.volume>0){
                     _video_.volume=Number.parseFloat((_video_.volume-0.1).toFixed(4));
                     text=`volume decreased to ${_video_.volume*100} %`;
-                }else{text=`volume already min (${_video_.volume*100} %)`;}
+                }else text=`volume already min (${_video_.volume*100} %)`;
             break;
             case'm':
                 if(_video_.volume>0){
@@ -130,28 +130,26 @@ function bvc_keyboard_event_listener(ev){
             break;
             case'f':
                 if(document.fullscreenEnabled){
-                    if(!document.fullscreenElement){_video_.requestFullscreen({navigationUI:'hide'});}
-                    else if(document.fullscreenElement===_video_){document.exitFullscreen();}
-                    changed=false;
-                }else{text="fullscreen not supported";}
+                    if(!document.fullscreenElement)_video_.requestFullscreen({navigationUI:'hide'});
+                    else if(document.fullscreenElement===_video_)document.exitFullscreen();
+                }else text="fullscreen not supported";
             break;
             case'p':
                 if(document.pictureInPictureEnabled){
-                    if(!document.pictureInPictureElement){_video_.requestPictureInPicture();}
-                    else if(document.pictureInPictureElement===_video_){document.exitPictureInPicture();}
-                    changed=false;
-                }else{text="picture-in-picture not supported";}
+                    if(!document.pictureInPictureElement)_video_.requestPictureInPicture();
+                    else if(document.pictureInPictureElement===_video_)document.exitPictureInPicture();
+                }else text="picture-in-picture not supported";
             break;
             case't':
                 text=`time: ${_video_.currentTime} / `;
-                if(_video_.duration===Infinity){text+="live";}
-                else if(Number.isNaN(_video_.duration)){text+="???";}
-                else{text+=`${_video_.duration} -${(_video_.duration-_video_.currentTime).toFixed(4)}`;}
+                if(_video_.duration===Infinity)text+="live";
+                else if(Number.isNaN(_video_.duration))text+="???";
+                else text+=`${_video_.duration} -${(_video_.duration-_video_.currentTime).toFixed(4)}`;
                 text+=" (seconds)";
             break;
         }
         if(text!==""){
-            if(_bvc_hint_timeout!==null){clearTimeout(_bvc_hint_timeout);}
+            if(_bvc_hint_timeout!==null)clearTimeout(_bvc_hint_timeout);
             _bvc_hint.innerText=text;
             const{top,left,height,width}=_video_.getBoundingClientRect();
             _bvc_hint.style.top=`${top+Math.floor(height*.5)}px`;
@@ -175,8 +173,8 @@ function bvc_toggle_eventlistener(force_state){
         (force_state===undefined||force_state===null)
         ||(Boolean(force_state)!==_bvc_state)
     ){
-        if(_bvc_state){document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:true});}
-        else{document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:true});}
+        if(_bvc_state)document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
+        else document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
         _bvc_state=!_bvc_state;
     }
     return _bvc_state;
