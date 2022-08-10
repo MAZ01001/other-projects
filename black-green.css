@@ -112,3 +112,9 @@ select:active,button:active,textarea:active,input[type="button"]:active,input[ty
             use `document.body.querySelector('div#a1')` instead of `document.documentElement` (':root'/<html>)
     [more info] https://www.w3schools.com/css/css3_variables_javascript.asp
 */
+.select_red::selection{background-color: #d00;color: #fff;}
+.select_green::selection{background-color: #000;color: #0f0;}
+.select_blue::selection{background-color: #00f;color: #fff;}
+.select_black::selection{background-color: #000;color: #fff;}
+.select_white::selection{background-color: #fff;color: #000;}
+.select_gold::selection{background-color: #f90;color: #000;}
