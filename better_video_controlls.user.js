@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.98.8
+// @version      0.98.9
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -16,7 +16,9 @@
 
 //~ set some (local) variables
 /** @type {HTMLDivElement} - the `_bvc_hint` element for showing the action done on keypress */
-const _bvc_hint=document.createElement('div');
+const _bvc_hint=document.createElement('div'),
+    /** @type {number[]} - current mouse x and y position on page (sealed array) */
+    _bvc_mouse=Object.seal([0,0]);
 /** @type {number|null} - timeout for visibility of `_bvc_hint` */
 let _bvc_hint_timeout=null,
     /** @type {boolean} - `true` if the event listener is on and `false` if off */
@@ -31,6 +33,8 @@ _bvc_hint.style.backgroundColor="#000";
 _bvc_hint.style.color="#0f0";
 _bvc_hint.style.fontSize="x-large";
 _bvc_hint.style.pointerEvents="none";
+//~ track mouse movement
+document.addEventListener("mousemove",e=>_bvc_mouse=[e.pageX,e.pageY],{passive:true});
 //~ main functions
 /**
  * __keyboard controls for video element__ \
@@ -53,12 +57,22 @@ _bvc_hint.style.pointerEvents="none";
  * - `f`                → toggle fullscreen mode
  * - `p`                → toggle picture-in-picture mode
  * - `t`                → displays exact time and duration
+ * - `u`                → displays current source url
  */
 function bvc_keyboard_event_listener(ev){
     'use strict';
-    /** @type {HTMLVideoElement} - html video element that has the mouse hovering over it */
-    const _video_=document.body.querySelector('video:hover');
-    if(_video_){
+    /** @type {HTMLVideoElement} - html video element that has the mouse ~hovering~ over it */
+    const _video_=(()=>{
+        for(const vid of document.body.getElementsByTagName("video")){
+            const{top,bottom,left,right}=vid.getBoundingClientRect();
+            if(
+                _bvc_mouse[0]>=left&&_bvc_mouse[0]<=right&&
+                _bvc_mouse[1]>=top&& _bvc_mouse[1]<=bottom
+            )return vid;
+        }
+        return null;
+    })();
+    if(_video_!==null){
         let text="";
         switch(ev.key){
             case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
@@ -147,6 +161,7 @@ function bvc_keyboard_event_listener(ev){
                 else text+=`${_video_.duration} -${(_video_.duration-_video_.currentTime).toFixed(4)}`;
                 text+=" (seconds)";
             break;
+            case'u':text=`url: ${_video_.currentSrc}`;break;
         }
         if(text!==""){
             if(_bvc_hint_timeout!==null)clearTimeout(_bvc_hint_timeout);
@@ -158,7 +173,7 @@ function bvc_keyboard_event_listener(ev){
             _bvc_hint_timeout=setTimeout(()=>{
                 _bvc_hint.style.visibility="hidden";
                 _bvc_hint_timeout=null;
-            },2000);
+            },2500);
         }
     }
 }
@@ -203,6 +218,7 @@ console.log(
         "   `f`                → toggle fullscreen mode                                                 ",
         "   `p`                → toggle picture-in-picture mode                                         ",
         "   `t`                → displays exact time and duration                                       ",
+        "   `u`                → displays current source url                                            ",
     ].join('\n'),
     "background-color:#000;color:#fff;",
     bvc_toggle_eventlistener,
