@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.98.9
+// @version      0.98.92
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -33,9 +33,16 @@ _bvc_hint.style.backgroundColor="#000";
 _bvc_hint.style.color="#0f0";
 _bvc_hint.style.fontSize="x-large";
 _bvc_hint.style.pointerEvents="none";
-//~ track mouse movement
-document.addEventListener("mousemove",e=>_bvc_mouse=[e.pageX,e.pageY],{passive:true});
 //~ main functions
+/**
+ * __track mouse position on page__
+ * @param {MouseEvent} ev - mouse event `mousemove`
+ */
+function bvc_mousemove_event_listener(ev){
+    "use strict";
+    _bvc_mouse[0]=ev.pageX;
+    _bvc_mouse[1]=ev.pageY;
+}
 /**
  * __keyboard controls for video element__ \
  * `keypress` eventlistener on document \
@@ -60,7 +67,7 @@ document.addEventListener("mousemove",e=>_bvc_mouse=[e.pageX,e.pageY],{passive:t
  * - `u`                → displays current source url
  */
 function bvc_keyboard_event_listener(ev){
-    'use strict';
+    "use strict";
     /** @type {HTMLVideoElement} - html video element that has the mouse ~hovering~ over it */
     const _video_=(()=>{
         for(const vid of document.body.getElementsByTagName("video")){
@@ -183,13 +190,18 @@ function bvc_keyboard_event_listener(ev){
  * @returns {boolean} `true` if currently on and `false` if turned off
  */
 function bvc_toggle_eventlistener(force_state){
-    'use strict';
+    "use strict";
     if(
         (force_state===undefined||force_state===null)
         ||(Boolean(force_state)!==_bvc_state)
     ){
-        if(_bvc_state)document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
-        else document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
+        if(_bvc_state){
+            document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
+            document.removeEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
+        }else{
+            document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
+            document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
+        }
         _bvc_state=!_bvc_state;
     }
     return _bvc_state;
