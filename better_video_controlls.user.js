@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.98.94
+// @version      0.98.95
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controllsuserjs
@@ -72,10 +72,10 @@ function bvc_keyboard_event_listener(ev){
     /** @type {HTMLVideoElement} - html video element that has the mouse ~hovering~ over it */
     const _video_=(()=>{
         for(const vid of document.body.getElementsByTagName("video")){
-            const{top,bottom,left,right}=vid.getBoundingClientRect();
+            const bb=vid.getBoundingClientRect();
             if(
-                _bvc_mouse[0]>=left&&_bvc_mouse[0]<=right&&
-                _bvc_mouse[1]>=top&& _bvc_mouse[1]<=bottom
+                _bvc_mouse[0]>=bb.left&&_bvc_mouse[0]<=bb.right&&
+                _bvc_mouse[1]>=bb.top&& _bvc_mouse[1]<=bb.bottom
             )return vid;
         }
         return null;
