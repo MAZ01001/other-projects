@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.98.92
+// @version      0.98.93
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -33,6 +33,7 @@ _bvc_hint.style.backgroundColor="#000";
 _bvc_hint.style.color="#0f0";
 _bvc_hint.style.fontSize="x-large";
 _bvc_hint.style.pointerEvents="none";
+_bvc_hint.style.zIndex="1000000";
 //~ main functions
 /**
  * __track mouse position on page__
