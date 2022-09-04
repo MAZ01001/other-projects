@@ -80,6 +80,7 @@
 >     [f]                               → toggle fullscreen mode
 >     [p]                               → toggle picture-in-picture mode
 >     [t]                               → displays exact time and duration
+>     [u]                               → displays current source url
 >
 > </details>
 >
