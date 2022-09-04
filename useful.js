@@ -1,5 +1,6 @@
 /* some useful js functions */
 
+//~ string
 /**
  * __inserts a string at a specific index__
  * @param {string} str - initial string
@@ -8,9 +9,9 @@
  * @param {number} d - delete count of characters in `str` at `i`
  * @returns {string} modified string
  * @throws {TypeError} if `i` or `d` are not whole numbers
- * @example _string_insert('Hello#World!',-6,', ',-1);//=> 'Hello, World!'
+ * @example strInsert('Hello#World!',-6,', ',-1);//=> 'Hello, World!'
  */
-function _string_insert(str,i=0,r='',d=0){
+function strInsert(str,i=0,r='',d=0){
     str=String(str);
     i=Number(i);
     if(!Number.isInteger(i)){throw new TypeError('[i] is not a whole number.');}
@@ -26,7 +27,7 @@ function _string_insert(str,i=0,r='',d=0){
  * @param {string} str - the string for analysis
  * @param {string} chars - if given, searches only the amount for these characters - _default `''` = all_
  * @returns {{string:number;string:number;string:number}} object with amount of apperance (`'a':8,'b':2,...`)
- * @example _string_charStats('abzaacdd','abce');
+ * @example strCharStats('abzaacdd','abce');
  * // {
  * //   'a':3,
  * //   'b':1,
@@ -35,7 +36,7 @@ function _string_insert(str,i=0,r='',d=0){
  * //   'other':3
  * // }
  */
-function _string_charStats(str,chars=''){
+function strCharStats(str,chars=''){
     ////getUnique=> str.split('').sort().join('').replace(/([\s\S])\1+/,'$1').replace(/(([\s\S])\2*)/g,(m,a,z)=>`${z} - ${a.length}\n`);
     str=String(str);
     chars=String(chars);
@@ -50,4 +51,7 @@ function _string_charStats(str,chars=''){
     }
     return obj;
 }
-////moved _number_* functions to Math-Js/functions.js
+
+//~ number
+//// see https://github.com/MAZ01001/Math-Js/blob/main/functions.js
+
