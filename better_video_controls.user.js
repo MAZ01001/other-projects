@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.98.96
+// @version      0.98.97
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -212,9 +212,9 @@ function bvc_toggle_eventlistener(force_state){
 //~ append hint element, turn on bvc and log controls and toggle function
 document.body.appendChild(_bvc_hint);
 bvc_toggle_eventlistener(true);
+console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01001");
 console.log(
-    "%cbetter-video-controls loaded\n%ccontrols:\n%c%s\n%cfunction for toggle on/off: %O",
-    "background-color:#000;color:#0f0;font-size:larger;",
+    "%ccontrols:\n%c%s",
     "background-color:#000;color:#fff;",
     "background-color:#000;color:#0a0;font-family:consolas,monospace;",
     [
@@ -240,7 +240,18 @@ console.log(
         " [p]                            |  toggle picture-in-picture mode                                        ",
         " [t]                            |  displays exact time and duration                                      ",
         " [u]                            |  displays current source url                                           ",
-    ].join('\n'),
+    ].join('\n')
+);
+console.log(
+    "%cfunction for on/off toggle: %O",
     "background-color:#000;color:#fff;",
     bvc_toggle_eventlistener,
 );
+console.log(
+    "%cRight-click on the above function and select \"%cStore function as global variable%c\".\nThen you can call it with that variable like %ctemp1();",
+    "background-color:#000;color:#fff;",
+    "background-color:#000;color:#0a0;",
+    "background-color:#000;color:#fff;",
+    "background-color:#000;color:#0a0;font-family:consolas,monospace;"
+);
+console.groupEnd();
