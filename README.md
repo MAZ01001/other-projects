@@ -9,7 +9,7 @@
 - [[useful.js]](#usefuljs)
 - [[black-green.css]](#black-greencss)
 - [[ffmpeg.md]](#ffmpegmd)
-- [[better_video_controlls.user.js]](#better_video_controllsuserjs)
+- [[better_video_controls.user.js]](#better_video_controlsuserjs)
 
 ----
 >
@@ -56,7 +56,7 @@
 >
 ----
 >
-> ## [better_video_controlls.user.js](https://github.com/MAZ01001/other-projects/blob/main/better_video_controlls.user.js)
+> ## [better_video_controls.user.js](https://github.com/MAZ01001/other-projects/blob/main/better_video_controls.user.js)
 >
 > A [tampermonkey](https://www.tampermonkey.net/) userscript to control html video elements with the keyboard.
 > Oriented on [YouTube](https://www.youtube.com/) keyboard shortcuts.
@@ -68,7 +68,7 @@
 > That means when there's already control for fast forwarding, it'll trigger double, skipping more than intended.
 >
 > The following table will also be logged to the console, including a function to toggle the event listeners on/off.
-> <details open><summary>keyboard controlls</summary>
+> <details open><summary>keyboard controls</summary>
 >
 >      Keyboard (intended for QWERTZ) | Function
 >     --------------------------------+------------------------------------------------------------------------
