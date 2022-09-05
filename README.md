@@ -58,29 +58,40 @@
 >
 > ## [better_video_controlls.user.js](https://github.com/MAZ01001/other-projects/blob/main/better_video_controlls.user.js)
 >
-> A [tampermonkey](https://www.tampermonkey.net/) userscript for keyboard controlls for video elements \
-> Oriented on the keyboard controlls on [YouTube](https://www.youtube.com/)-s video player \
-> _Controlls work for the video element that has the mouse hovering over it ( when a key is pressed )_ \
-> It shows a "hint"-element on what action was performed over the video element ( hides after 2sec ) \
-> Also logs controlls and a function to toggle the event listener on/off to the console
+> A [tampermonkey](https://www.tampermonkey.net/) userscript to control html video elements with the keyboard.
+> Oriented on [YouTube](https://www.youtube.com/) keyboard shortcuts.
+>
+> When a key is pressed, the (first) video element under the mouse pointer found is the one that gets controlled.
+> It shows a popup for 2 sec on what action was performed.
+>
+> __Note__: The default behavior of key presses won't be prevented.
+> That means when there's already control for fast forwarding, it'll trigger double, skipping more than intended.
+>
+> The following table will also be logged to the console, including a function to toggle the event listeners on/off.
 > <details open><summary>keyboard controlls</summary>
 >
->     [0] - [9]                         → skip to % of total duration ( example: [8] skips to 80% of the video )
->     [.]                               → ( while paused ) next frame ( 1/60 sec )
->     [,]                               → ( while paused ) previous frame ( 1/60 sec )
->     [:] ( intended as [shift] [.] )   → decrease playback speed by 0.1
->     [;] ( intended as [shift] [,] )   → increase playback speed by 0.1
->     [M] ( intended as [shift] [m] )   → reset playback speed
->     [j] / [ArrowLeft]                 → rewind 10 seconds
->     [l] / [ArrowRight]                → fast forward 10 seconds
->     [k]                               → pause / play video
->     [+] / [ArrowUp]                   → increase volume by 10%
->     [-] / [ArrowDown]                 → lower volume by 10%
->     [m]                               → mute / unmute video
->     [f]                               → toggle fullscreen mode
->     [p]                               → toggle picture-in-picture mode
->     [t]                               → displays exact time and duration
->     [u]                               → displays current source url
+>      Keyboard (intended for QWERTZ) | Function
+>     --------------------------------+------------------------------------------------------------------------
+>      [0] - [9]                      |  skip to []% of total duration (ie. key [8] skips to 80% of the video)
+>      [.]                            |  (while paused) next frame (1/60 sec)
+>      [,]                            |  (while paused) previous frame (1/60 sec)
+>      [:] ( [shift] [.] )            |  decrease playback speed by 10%
+>      [;] ( [shift] [,] )            |  increase playback speed by 10%
+>     --------------------------------+------------------------------------------------------------------------
+>      [j] / [ArrowLeft]              |  rewind 5 seconds
+>      [l] / [ArrowRight]             |  fast forward 5 seconds
+>      [J] ( [shift] [j] )            |  rewind 30 seconds
+>      [l] ( [shift] [l] )            |  fast forward 30 seconds
+>      [k]                            |  pause / play video
+>     --------------------------------+------------------------------------------------------------------------
+>      [+] / [ArrowUp]                |  increase volume by 10%
+>      [-] / [ArrowDown]              |  lower volume by 10%
+>      [m]                            |  mute / unmute video
+>     --------------------------------+------------------------------------------------------------------------
+>      [f]                            |  toggle fullscreen mode
+>      [p]                            |  toggle picture-in-picture mode
+>      [t]                            |  displays exact time and duration
+>      [u]                            |  displays current source url
 >
 > </details>
 >

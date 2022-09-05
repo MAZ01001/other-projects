@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.98.95
+// @version      0.98.96
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controllsuserjs
@@ -31,6 +31,7 @@ _bvc_hint.style.visibility="none";
 _bvc_hint.style.borderRadius=".5rem";
 _bvc_hint.style.backgroundColor="#000";
 _bvc_hint.style.color="#0f0";
+_bvc_hint.style.fontFamily="consolas monospace";
 _bvc_hint.style.fontSize="x-large";
 _bvc_hint.style.pointerEvents="none";
 _bvc_hint.style.zIndex="1000000";
@@ -53,11 +54,12 @@ function bvc_mousemove_event_listener(ev){
  * - `0` - `9`          → skip to ` `% of total duration (ie. key `8` skips to 80% of the video)
  * - `.`                → (while paused) next frame (1/60 sec)
  * - `,`                → (while paused) previous frame (1/60 sec)
- * - `:` (`shift` `.`)  → decrease playback speed by 0.1
- * - `;` (`shift` `,`)  → increase playback speed by 0.1
- * - `M` (`shift` `m`)  → reset playback speed
- * - `j` / `ArrowLeft`  → rewind 10 seconds
- * - `l` / `ArrowRight` → fast forward 10 seconds
+ * - `:` (`shift` `.`)  → decrease playback speed by 10%
+ * - `;` (`shift` `,`)  → increase playback speed by 10%
+ * - `j` / `ArrowLeft`  → rewind 5 seconds
+ * - `l` / `ArrowRight` → fast forward 5 seconds
+ * - `j` (`shift` `j`)  → rewind 30 seconds
+ * - `l` (`shift` `l`)  → fast forward 30 seconds
  * - `k`                → pause / play video
  * - `+` / `ArrowUp`    → increase volume by 10%
  * - `-` / `ArrowDown`  → lower volume by 10%
@@ -72,10 +74,10 @@ function bvc_keyboard_event_listener(ev){
     /** @type {HTMLVideoElement} - html video element that has the mouse ~hovering~ over it */
     const _video_=(()=>{
         for(const vid of document.body.getElementsByTagName("video")){
-            const bb=vid.getBoundingClientRect();
+            const{top,bottom,left,right}=vid.getBoundingClientRect();
             if(
-                _bvc_mouse[0]>=bb.left&&_bvc_mouse[0]<=bb.right&&
-                _bvc_mouse[1]>=bb.top&& _bvc_mouse[1]<=bb.bottom
+                _bvc_mouse[0]>=left&&_bvc_mouse[0]<=right&&
+                _bvc_mouse[1]>=top&& _bvc_mouse[1]<=bottom
             )return vid;
         }
         return null;
@@ -103,18 +105,14 @@ function bvc_keyboard_event_listener(ev){
             case':':
                 if(_video_.playbackRate<3){
                     _video_.playbackRate=Number.parseFloat((_video_.playbackRate+0.1).toFixed(4));
-                    text=`speed increased to ${_video_.playbackRate}`;
-                }else text=`speed already max (${_video_.playbackRate})`;
+                    text=`speed increased to ${_video_.playbackRate*100} %`;
+                }else text=`speed already max (${_video_.playbackRate*100} %)`;
             break;
             case';':
                 if(_video_.playbackRate>0.1){
                     _video_.playbackRate=Number.parseFloat((_video_.playbackRate-0.1).toFixed(4));
-                    text=`speed decreased to ${_video_.playbackRate}`;
-                }else text=`speed already min (${_video_.playbackRate})`;
-            break;
-            case'M':
-                _video_.playbackRate=_video_.defaultPlaybackRate;
-                text=`reset speed to ${_video_.playbackRate}`;
+                    text=`speed decreased to ${_video_.playbackRate*100} %`;
+                }else text=`speed already min (${_video_.playbackRate*100} %)`;
             break;
             case'j':case'ArrowLeft':
                 _video_.currentTime-=5;
@@ -123,6 +121,14 @@ function bvc_keyboard_event_listener(ev){
             case'l':case'ArrowRight':
                 _video_.currentTime+=5;
                 text="skiped ahead 5 sec";
+            break;
+            case'J':
+                _video_.currentTime-=30;
+                text="skiped back 30 sec";
+            break;
+            case'L':
+                _video_.currentTime+=30;
+                text="skiped ahead 30 sec";
             break;
             case'k':
                 if(_video_.paused)_video_.play();
@@ -134,21 +140,18 @@ function bvc_keyboard_event_listener(ev){
                     _video_.volume=Number.parseFloat((_video_.volume+0.1).toFixed(4));
                     text=`volume increased to ${_video_.volume*100} %`;
                 }else text=`volume already max (${_video_.volume*100} %)`;
+                _video_.muted=_video_.volume<=0;
             break;
             case'-':case'ArrowDown':
                 if(_video_.volume>0){
                     _video_.volume=Number.parseFloat((_video_.volume-0.1).toFixed(4));
                     text=`volume decreased to ${_video_.volume*100} %`;
                 }else text=`volume already min (${_video_.volume*100} %)`;
+                _video_.muted=_video_.volume<=0;
             break;
             case'm':
-                if(_video_.volume>0){
-                    _video_.volume=0;
-                    text="volume muted";
-                }else{
-                    _video_.volume=1;
-                    text="volume unmuted";
-                }
+                if(_video_.muted=!_video_.muted)text="volume muted";
+                else text="volume unmuted";
             break;
             case'f':
                 if(document.fullscreenEnabled){
@@ -196,14 +199,13 @@ function bvc_toggle_eventlistener(force_state){
         (force_state===undefined||force_state===null)
         ||(Boolean(force_state)!==_bvc_state)
     ){
-        if(_bvc_state){
-            document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
-            document.removeEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
-        }else{
+        if(_bvc_state=!_bvc_state){
             document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
             document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
+        }else{
+            document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
+            document.removeEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
         }
-        _bvc_state=!_bvc_state;
     }
     return _bvc_state;
 }
@@ -216,22 +218,28 @@ console.log(
     "background-color:#000;color:#fff;",
     "background-color:#000;color:#0a0;font-family:consolas,monospace;",
     [
-        "   `0` - `9`          → skip to ` `% of total duration (ie. key `8` skips to 80% of the video) ",
-        "   `.`                → (while paused) next frame (1/60 sec)                                   ",
-        "   `,`                → (while paused) previous frame (1/60 sec)                               ",
-        "   `:` (`shift` `.`)  → decrease playback speed by 0.1                                         ",
-        "   `;` (`shift` `,`)  → increase playback speed by 0.1                                         ",
-        "   `M` (`shift` `m`)  → reset playback speed                                                   ",
-        "   `j` / `ArrowLeft`  → rewind 10 seconds                                                      ",
-        "   `l` / `ArrowRight` → fast forward 10 seconds                                                ",
-        "   `k`                → pause / play video                                                     ",
-        "   `+` / `ArrowUp`    → increase volume by 10%                                                 ",
-        "   `-` / `ArrowDown`  → lower volume by 10%                                                    ",
-        "   `m`                → mute / unmute video                                                    ",
-        "   `f`                → toggle fullscreen mode                                                 ",
-        "   `p`                → toggle picture-in-picture mode                                         ",
-        "   `t`                → displays exact time and duration                                       ",
-        "   `u`                → displays current source url                                            ",
+        " Keyboard (intended for QWERTZ) | Function                                                               ",
+        "--------------------------------+------------------------------------------------------------------------",
+        " [0] - [9]                      |  skip to []% of total duration (ie. key [8] skips to 80% of the video) ",
+        " [.]                            |  (while paused) next frame (1/60 sec)                                  ",
+        " [,]                            |  (while paused) previous frame (1/60 sec)                              ",
+        " [:] ( [shift] [.] )            |  decrease playback speed by 10%                                        ",
+        " [;] ( [shift] [,] )            |  increase playback speed by 10%                                        ",
+        "--------------------------------+------------------------------------------------------------------------",
+        " [j] / [ArrowLeft]              |  rewind 5 seconds                                                      ",
+        " [l] / [ArrowRight]             |  fast forward 5 seconds                                                ",
+        " [J] ( [shift] [j] )            |  rewind 30 seconds                                                     ",
+        " [l] ( [shift] [l] )            |  fast forward 30 seconds                                               ",
+        " [k]                            |  pause / play video                                                    ",
+        "--------------------------------+------------------------------------------------------------------------",
+        " [+] / [ArrowUp]                |  increase volume by 10%                                                ",
+        " [-] / [ArrowDown]              |  lower volume by 10%                                                   ",
+        " [m]                            |  mute / unmute video                                                   ",
+        "--------------------------------+------------------------------------------------------------------------",
+        " [f]                            |  toggle fullscreen mode                                                ",
+        " [p]                            |  toggle picture-in-picture mode                                        ",
+        " [t]                            |  displays exact time and duration                                      ",
+        " [u]                            |  displays current source url                                           ",
     ].join('\n'),
     "background-color:#000;color:#fff;",
     bvc_toggle_eventlistener,
