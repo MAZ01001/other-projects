@@ -166,10 +166,10 @@ function bvc_keyboard_event_listener(ev){
                 }else text="picture-in-picture not supported";
             break;
             case't':
-                text=`time: ${_video_.currentTime} / `;
+                text=`time: ${_video_.currentTime.toFixed(6)} / `;
                 if(_video_.duration===Infinity)text+="live";
                 else if(Number.isNaN(_video_.duration))text+="???";
-                else text+=`${_video_.duration} -${(_video_.duration-_video_.currentTime).toFixed(4)}`;
+                else text+=`${_video_.duration.toFixed(6)} -${(_video_.duration-_video_.currentTime).toFixed(6)}`;
                 text+=" (seconds)";
             break;
             case'u':text=`url: ${_video_.currentSrc}`;break;
