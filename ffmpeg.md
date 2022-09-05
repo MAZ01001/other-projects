@@ -169,7 +169,7 @@
     ffplay -loop -1 ".\INPUT.mp4"
 
 - a window will show the video looping infinitly
-  - [controlls](https://ffmpeg.org/ffplay.html#While-playing)
+  - [controls](https://ffmpeg.org/ffplay.html#While-playing)
 
 ## compress video
 
