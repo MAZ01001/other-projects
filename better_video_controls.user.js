@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.98.97
+// @version      0.98.98
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -42,8 +42,8 @@ _bvc_hint.style.zIndex="1000000";
  */
 function bvc_mousemove_event_listener(ev){
     "use strict";
-    _bvc_mouse[0]=ev.pageX;
-    _bvc_mouse[1]=ev.pageY;
+    _bvc_mouse[0]=ev.clientX;
+    _bvc_mouse[1]=ev.clientY;
 }
 /**
  * __keyboard controls for video element__ \
