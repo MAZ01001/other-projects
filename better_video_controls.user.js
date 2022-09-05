@@ -23,7 +23,7 @@ const _bvc_hint=document.createElement('div'),
 let _bvc_hint_timeout=null,
     /** @type {boolean} - `true` if the event listener is on and `false` if off */
     _bvc_state=false;
-//~ set a name and some styling for the hint element
+//~ set a name and ""some"" styling for the hint element
 _bvc_hint.dataset.name="better-video-controls hint";
 _bvc_hint.style.position="fixed";
 _bvc_hint.style.transform="translate(-50%,-50%)";
@@ -31,8 +31,9 @@ _bvc_hint.style.visibility="none";
 _bvc_hint.style.borderRadius=".5rem";
 _bvc_hint.style.backgroundColor="#000";
 _bvc_hint.style.color="#0f0";
-_bvc_hint.style.fontFamily="consolas monospace";
-_bvc_hint.style.fontSize="x-large";
+_bvc_hint.style.fontFamily="consolas,monospace";
+_bvc_hint.style.fontSize="large";
+_bvc_hint.style.padding="2px 8px";
 _bvc_hint.style.pointerEvents="none";
 _bvc_hint.style.zIndex="1000000";
 //~ main functions
