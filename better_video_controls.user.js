@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.0
+// @version      0.99.1
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -212,11 +212,11 @@ function bvc_keyboard_event_listener(ev){
 }
 /**
  * __set/remove visible class of `_bvc_hint` to show/hide the element__
- * @param {boolean} state - `true` to show the element and `false` to fade out - _default: `false`_
+ * @param {boolean} state - `true` to show the element and `false` to fade out
  */
-function bvc_hint_visible(state=false){
+function bvc_hint_visible(state){
     "use strict";
-    if(Boolean(state))_bvc_hint.classList.add('visible');
+    if(state)_bvc_hint.classList.add('visible');
     else _bvc_hint.classList.remove('visible');
 }
 /**
