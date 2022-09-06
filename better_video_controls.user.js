@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.98.982
+// @version      0.99.0
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -15,27 +15,44 @@
 // ==/UserScript==
 
 //~ set some (local) variables
-/** @type {HTMLDivElement} - the `_bvc_hint` element for showing the action done on keypress */
+/** @type {HTMLDivElement} - the base for the `_bvc_hint_text` and `_bvc_css` element */
 const _bvc_hint=document.createElement('div'),
+    /** @type {HTMLStyleElement} - the element for showing the action done on keypress */
+    _bvc_hint_text=document.createElement('span'),
+    /** @type {HTMLStyleElement} - css style for the `_bvc_hint` element */
+    _bvc_css=document.createElement('style'),
     /** @type {number[]} - current mouse x and y position on page (sealed array) */
     _bvc_mouse=Object.seal([0,0]);
-/** @type {number|null} - timeout for visibility of `_bvc_hint` */
-let _bvc_hint_timeout=null,
-    /** @type {boolean} - `true` if the event listener is on and `false` if off */
-    _bvc_state=false;
+/** @type {boolean} - `true` if the event listener is on and `false` if off */
+let _bvc_state=false;
 //~ set a name and ""some"" styling for the hint element
 _bvc_hint.dataset.name="better-video-controls hint";
-_bvc_hint.style.position="fixed";
-_bvc_hint.style.transform="translate(-50%,-50%)";
-_bvc_hint.style.visibility="none";
-_bvc_hint.style.borderRadius=".5rem";
-_bvc_hint.style.backgroundColor="#000";
-_bvc_hint.style.color="#0f0";
-_bvc_hint.style.fontFamily="consolas,monospace";
-_bvc_hint.style.fontSize="large";
-_bvc_hint.style.padding="2px 8px";
-_bvc_hint.style.pointerEvents="none";
-_bvc_hint.style.zIndex="1000000";
+_bvc_css.innerHTML=`
+    div[data-name="better-video-controls hint"]{
+        position: fixed;
+        transform: translate(-50%,-50%);
+        border-radius: .5rem;
+        border: 1px solid #333;
+        background-color: #000;
+        color: #0f0;
+        font-family: consolas,monospace;
+        font-size: large;
+        padding: 2px 8px;
+        /* white-space: nowrap; */
+        line-break: anywhere;
+        z-index: 1000000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 500ms ease-in 500ms,
+            visibility 0s linear 1s;
+    }
+    div[data-name="better-video-controls hint"].visible{
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0s linear 0s,
+            visibility 0s linear 0s;
+    }
+`.replaceAll(/\n\s*/g,' ');
 //~ main functions
 /**
  * __track mouse position on page__
@@ -45,6 +62,17 @@ function bvc_mousemove_event_listener(ev){
     "use strict";
     _bvc_mouse[0]=ev.clientX;
     _bvc_mouse[1]=ev.clientY;
+}
+/**
+ * __test if the mouse is over given element__
+ * @param {Element} el - the element given
+ * @returns {boolean} `true` if mouse is over `el` bounds, `false` otherwise
+ */
+function bvc_mouse_over_element(el){
+    "use strict";
+    const{top,bottom,left,right}=el.getBoundingClientRect();
+    return _bvc_mouse[0]>=left&&_bvc_mouse[0]<=right&&
+           _bvc_mouse[1]>=top&& _bvc_mouse[1]<=bottom;
 }
 /**
  * __keyboard controls for video element__ \
@@ -75,11 +103,7 @@ function bvc_keyboard_event_listener(ev){
     /** @type {HTMLVideoElement} - html video element that has the mouse ~hovering~ over it */
     const _video_=(()=>{
         for(const vid of document.body.getElementsByTagName("video")){
-            const{top,bottom,left,right}=vid.getBoundingClientRect();
-            if(
-                _bvc_mouse[0]>=left&&_bvc_mouse[0]<=right&&
-                _bvc_mouse[1]>=top&& _bvc_mouse[1]<=bottom
-            )return vid;
+            if(bvc_mouse_over_element(vid))return vid;
         }
         return null;
     })();
@@ -176,18 +200,24 @@ function bvc_keyboard_event_listener(ev){
             case'u':text=`url: ${_video_.currentSrc}`;break;
         }
         if(text!==""){
-            if(_bvc_hint_timeout!==null)clearTimeout(_bvc_hint_timeout);
-            _bvc_hint.innerText=text;
+            _bvc_hint_text.innerText=text;
             const{top,left,height,width}=_video_.getBoundingClientRect();
             _bvc_hint.style.top=`${top+Math.floor(height*.5)}px`;
             _bvc_hint.style.left=`${left+Math.floor(width*.5)}px`;
-            _bvc_hint.style.visibility="visible";
-            _bvc_hint_timeout=setTimeout(()=>{
-                _bvc_hint.style.visibility="hidden";
-                _bvc_hint_timeout=null;
-            },2500);
+            _bvc_hint.style.width=`${width}px`;
+            bvc_hint_visible(true);
+            if(!bvc_mouse_over_element(_bvc_hint))bvc_hint_visible(false);
         }
     }
+}
+/**
+ * __set/remove visible class of `_bvc_hint` to show/hide the element__
+ * @param {boolean} state - `true` to show the element and `false` to fade out - _default: `false`_
+ */
+function bvc_hint_visible(state=false){
+    "use strict";
+    if(Boolean(state))_bvc_hint.classList.add('visible');
+    else _bvc_hint.classList.remove('visible');
 }
 /**
  * __toggle the better video controls keyboard event listener on/off__
@@ -201,17 +231,25 @@ function bvc_toggle_eventlistener(force_state){
         ||(Boolean(force_state)!==_bvc_state)
     ){
         if(_bvc_state=!_bvc_state){
+            document.body.appendChild(_bvc_hint);
             document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
             document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
+            document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
         }else{
+            document.body.removeEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
             document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
             document.removeEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
+            document.body.removeChild(_bvc_hint);
         }
     }
     return _bvc_state;
 }
+//~ append elements and eventlisteners to base element (stay even when element is removed and re-appended to document body)
+_bvc_hint.appendChild(_bvc_css);
+_bvc_hint.appendChild(_bvc_hint_text);
+_bvc_hint.addEventListener('mouseleave',()=>bvc_hint_visible(false),{passive:true});
+_bvc_hint.addEventListener('mouseover',()=>bvc_hint_visible(true),{passive:true});
 //~ append hint element, turn on bvc and log controls and toggle function
-document.body.appendChild(_bvc_hint);
 bvc_toggle_eventlistener(true);
 console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01001");
 console.log(
