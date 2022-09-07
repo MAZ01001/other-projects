@@ -12,13 +12,11 @@
  * @example strInsert('Hello#World!',-6,', ',-1);//=> 'Hello, World!'
  */
 function strInsert(str,i=0,r='',d=0){
+    i=Number(i);if(!Number.isInteger(i)){throw new TypeError('[i] is not a whole number.');}
+    d=Number(d);if(!Number.isInteger(d)){throw new TypeError('[d] is not a whole number.');}
     str=String(str);
-    i=Number(i);
-    if(!Number.isInteger(i)){throw new TypeError('[i] is not a whole number.');}
     r=String(r);
-    d=Number(d);
-    if(!Number.isInteger(d)){throw new TypeError('[d] is not a whole number.');}
-    if(i<0){i=str.length+i;}
+    if(i<0)i=str.length+i;
     return str.substring(0,i)+r+str.substring(i+d);
 }
 /**
@@ -26,30 +24,27 @@ function strInsert(str,i=0,r='',d=0){
  * _or for only the given characters_
  * @param {string} str - the string for analysis
  * @param {string} chars - if given, searches only the amount for these characters - _default `''` = all_
- * @returns {{string:number;string:number;string:number}} object with amount of apperance (`'a':8,'b':2,...`)
- * @example strCharStats('abzaacdd','abce');
- * // {
- * //   'a':3,
- * //   'b':1,
- * //   'c':1,
- * //   'e':0,
- * //   'other':3
- * // }
+ * @returns {Readonly<{[string]:number;other:number;}>} object with amount of apperance (`'a':8, 'b':2, ..., other:0`)
+ * @example
+ * strCharStats('abzaacdd');       //~ Readonly<{'a':3, 'b':1, 'z':1, 'c':1, 'd':2}>
+ * strCharStats('abzaacdd','abce');//~ Readonly<{'a':3, 'b':1, 'c':1, 'e':0, 'other':3}>
  */
 function strCharStats(str,chars=''){
-    ////getUnique=> str.split('').sort().join('').replace(/([\s\S])\1+/,'$1').replace(/(([\s\S])\2*)/g,(m,a,z)=>`${z} - ${a.length}\n`);
+    //~ getUnique >>> str.split('').sort().join('').replace(/([\s\S])\1+/,'$1').replace(/(([\s\S])\2*)/g,(m,a,z)=>`${z} - ${a.length}\n`);
     str=String(str);
     chars=String(chars);
+    /** @type {{string:number;}} */
     let obj={};
-    if(chars===''){for(const char of str){obj[char]=(obj[char]+1)||1;}}
+    if(chars==='')for(const char of str)obj[char]=(obj[char]??0)+1;
     else{
-        for(const char of chars){obj[char]=0;}
+        obj.other=0;
+        for(const char of chars)obj[char]=0;
         for(const char of str){
-            if(chars.includes(char)){obj[char]++;}
-            else{obj['other']=(obj['other']+1)||1;}
+            if(typeof obj[char]==='undefined')obj.other++;
+            else obj[char]++;
         }
     }
-    return obj;
+    return Object.freeze(obj);
 }
 
 //~ number
@@ -61,23 +56,23 @@ function strCharStats(str,chars=''){
  * [!] only works in the context of `HTML` ie. a browser [!]
  * @param {string} text - the string to calculate the dimensions of in pixels
  * @param {Element} element - (HTML) element to get the font informations from - _default `document.body`_
- * @param {string} pseudoElt - if set get the pseudo-element of `element`, for example `":after"` - _default `null` (no pseudo element, `element` itself)_
+ * @param {string} pseudoElt - if set get the pseudo-element of `element`, for example `':after'` - _default `null` (no pseudo element, `element` itself)_
  * @returns {Readonly<{width:number;height:number;lineHeight:number;}>} the dimensions of the text in pixels (sub-pixel accurate)
  * @throws {Error} if `Window` or `Document` are not defined (not in HTML context)
  * @throws {TypeError} if `element` is not an (HTML) `Element`
  */
 function getTextDimensions(text,element=document.body,pseudoElt=null){
     if(
-        (typeof Window)===(typeof undefined)
-        ||(typeof Document)===(typeof undefined)
-    )throw new Error("[getTextDimensions] called outside the context of HTML (Window and Document are not defined)");
-    if(!(element instanceof Element))throw new TypeError("[getTextDimensions] element is not an (HTML) element");
+        (typeof Window==='undefined')
+        ||(typeof Document==='undefined')
+    )throw new Error('[getTextDimensions] called outside the context of HTML (Window and Document are not defined)');
+    if(!(element instanceof Element))throw new TypeError('[getTextDimensions] element is not an (HTML) element');
     text=String(text);
-    const cnv2d=this.cnv2d??(this.cnv2d=document.createElement("canvas").getContext("2d")),
-        elementCSS=window.getComputedStyle(element,pseudoElt);
-    cnv2d.font=elementCSS.font;
+    if(typeof this.cnv2d==='undefined')this.cnv2d=document.createElement('canvas').getContext('2d');
+    const elementCSS=getComputedStyle(element,pseudoElt);
+    this.cnv2d.font=elementCSS.font;
     return Object.freeze({
-        width:cnv2d.measureText(text).width,
+        width:this.cnv2d.measureText(text).width,
         height:elementCSS.fontSize,
         lineHeight:elementCSS.lineHeight
     });
@@ -94,39 +89,40 @@ function getTextDimensions(text,element=document.body,pseudoElt=null){
  * - has no permission to write to the clipboard (or in a non-chromium-browser)
  * @example
  *   setTimeout(
- *       ()=>copyToClipboard("Hello, World!").then(
- *           ()=>console.log("success"),
- *           reason=>console.log("error: %O",reason)
+ *       ()=>copyToClipboard('Hello, World!').then(
+ *           ()=>console.log('success'),
+ *           reason=>console.log('error: %O',reason)
  *       ),3000
  *   ); //~ with 3 seconds to focus on the document
  */
 function copyToClipboard(data){
     return new Promise((resolve,reject)=>{
-        if((typeof Document)===(typeof undefined)){
-            reject("called outside the context of HTML (Document is not defined)");
+        //~ reject instead of throw
+        if(typeof Document==='undefined'){
+            reject('[copyToClipboard] called outside the context of HTML (Document is not defined)');
             return;
         }
         if(!document.hasFocus()){
-            reject("HTML document must be in focus");
+            reject('[copyToClipboard] HTML document must be in focus');
             return;
         }
         if(
             (typeof Navigator)===undefined
             ||(typeof Permissions)===undefined
-            ||(typeof (navigator?.permissions?.query??undefined))!=="function"
+            ||(typeof (navigator?.permissions?.query??undefined))!=='function'
         ){
-            reject("`navigator.permissions.query` is not defined");
+            reject('[copyToClipboard] `navigator.permissions.query` is not defined');
             return;
         }
-        navigator.permissions.query(Object.freeze({name:"clipboard-write"})).then(result=>{
-            if(result.state==="granted"){
+        navigator.permissions.query(Object.freeze({name:'clipboard-write'})).then(result=>{
+            if(result.state==='granted'){
                 if(data instanceof Blob)
                     navigator.clipboard.write([new ClipboardItem(Object.freeze({[data.type]:data}))])
                     .then(()=>resolve(),reason=>reject(reason));
                 else
                     navigator.clipboard.writeText(String(data))
                     .then(()=>resolve(),reason=>reject(reason));
-            }else reject("no permission to write to the clipboard (or in a non-chromium-browser)");
+            }else reject('[copyToClipboard] no permission to write to the clipboard (or in a non-chromium-browser)');
         },reason=>reject(reason));
     });
 }
@@ -140,7 +136,7 @@ function copyToClipboard(data){
  * _(see [this issue on GitHub](https://github.com/w3c/pointerlock/issues/42) for more information on the topic)_
  * @returns {(offsetElement?:Element)=>Readonly<{page:number[];client:number[];offset:number[];screen:number[];movement:number[];}>} a function: \
  * [__param__] `offsetElement` (optional) of type `Element` - HTML element for calculating relative / offset mouse position - _default `null`_ \
- * [__returns__] a readonly object with the following attributes, stored as sealed arrays (`[X,Y]`):
+ * [__returns__] a read-only object with the following attributes, stored as sealed arrays (`[X,Y]`):
  * - `page`       : the mouse position on the rendered page (actual page size >= browser window)
  * - `client`     : the mouse position on the visible portion on the rendered page (browser window)
  * - `offset`     : the mouse position on the rendered page relative to an elements position
@@ -156,10 +152,10 @@ function copyToClipboard(data){
  */
 function getMousePos(){
     if(
-        (typeof Window)===(typeof undefined)
-        ||(typeof Document)===(typeof undefined)
-    )throw new Error("[getMousePos] called outside the context of HTML (Window and Document are not defined)");
-    if(typeof this.obj==="undefined"){
+        (typeof Window==='undefined')
+        ||(typeof Document==='undefined')
+    )throw new Error('[getMousePos] called outside the context of HTML (Window and Document are not defined)');
+    if(typeof this.obj==='undefined'){
         /**
          * @type {{page:number[];client:number[];offset:number[];screen:number[];movement:number[];}} - various mouse positions (sealed object)
          * @description mouse `[X,Y]` positions (sealed arrays)
@@ -176,7 +172,7 @@ function getMousePos(){
             screen:Object.seal([0,0]),
             movement:Object.seal([0,0]),
         });
-        document.addEventListener("mousemove",e=>{
+        document.addEventListener('mousemove',e=>{
             this.obj.page=[e.pageX,e.pageY];
             this.obj.client=[e.clientX,e.clientY];
             this.obj.screen=[e.screenX,e.screenY];
@@ -196,11 +192,11 @@ function getMousePos(){
     return(offsetElement=null)=>{
         if(offsetElement===null)this.obj.offset=[0,0];
         else{
-            if(!(offsetElement instanceof Element))throw new TypeError("[getMousePos][function] offsetElement is not an (HTML) element");
+            if(!(offsetElement instanceof Element))throw new TypeError('[getMousePos][function] offsetElement is not an (HTML) element');
             const offsetElementBCR=offsetElement.getBoundingClientRect();
             this.obj.offset[0]=this.obj.page[0]-offsetElementBCR.x;
             this.obj.offset[1]=this.obj.page[1]-offsetElementBCR.y;
         }
-        return Object.freeze({...this.obj});
+        return Object.freeze({...this.obj});//~ a static read-only copy of obj in its current state
     };
 }
