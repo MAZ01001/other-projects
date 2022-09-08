@@ -126,6 +126,7 @@ function copyToClipboard(data){
         },reason=>reject(reason));
     });
 }
+// TODO [getMousePos()] change return/param ← remove the function → update js-docs
 /**
  * __gets different mouse positions__ \
  * [!] only works in the context of `HTML` ie. a browser [!]
