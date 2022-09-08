@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.1
+// @version      0.99.2
 // @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -27,7 +27,7 @@ const _bvc_hint=document.createElement('div'),
 let _bvc_state=false;
 //~ set a name and ""some"" styling for the hint element
 _bvc_hint.dataset.name="better-video-controls hint";
-_bvc_css.innerHTML=`
+_bvc_css.innerText=`
     div[data-name="better-video-controls hint"]{
         position: fixed;
         transform: translate(-50%,-50%);
@@ -37,6 +37,8 @@ _bvc_css.innerHTML=`
         color: #0f0;
         font-family: consolas,monospace;
         font-size: large;
+        text-align: center;
+        width: max-content;
         padding: 2px 8px;
         /* white-space: nowrap; */
         line-break: anywhere;
@@ -204,7 +206,7 @@ function bvc_keyboard_event_listener(ev){
             const{top,left,height,width}=_video_.getBoundingClientRect();
             _bvc_hint.style.top=`${top+Math.floor(height*.5)}px`;
             _bvc_hint.style.left=`${left+Math.floor(width*.5)}px`;
-            _bvc_hint.style.width=`${width}px`;
+            _bvc_hint.style.maxWidth=`${width}px`;
             bvc_hint_visible(true);
             if(!bvc_mouse_over_element(_bvc_hint))bvc_hint_visible(false);
         }
