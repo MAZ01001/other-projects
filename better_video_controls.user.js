@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.2
-// @description  various keyboard controls (see console after page load) for html video element (checks for `video:hover` element on every `keydown`)
+// @version      0.99.3
+// @description  various keyboard controls for html video elements, see console after page loads for controll sceme (checks every `video` element position, on every `keydown`, if mouse is above).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
 // @updateURL    https://github.com/MAZ01001/other-projects/raw/main/better_video_controls.user.js
@@ -119,61 +119,61 @@ function bvc_keyboard_event_listener(ev){
             //~ _video_.requestVideoFrameCallback((...[,{processingDuration}])=>console.log(processingDuration)); //=> fps ~ varies greatly
             case'.':
                 if(_video_.paused){
-                    _video_.currentTime+=1/60;
-                    text="next frame (skiped 1/60 sec ahead)";
+                    _video_.currentTime+=0.0166666666666666666; //~ 1/60
+                    text=`next frame (if 60 fps) to ${_video_.currentTime.toFixed(6)}`;
                 }else text="pause video for frame-by-frame";
             break;
             case',':
                 if(_video_.paused){
-                    _video_.currentTime-=1/60;
-                    text="previous frame (skiped 1/60 sec back)";
+                    _video_.currentTime-=0.0166666666666666666; //~ 1/60
+                    text=`previous frame (if 60 fps) to ${_video_.currentTime.toFixed(6)}`;
                 }else text="pause video for frame-by-frame";
             break;
             case':':
                 if(_video_.playbackRate<3){
                     _video_.playbackRate=Number.parseFloat((_video_.playbackRate+0.1).toFixed(4));
-                    text=`speed increased to ${_video_.playbackRate*100} %`;
-                }else text=`speed already max (${_video_.playbackRate*100} %)`;
+                    text=`speed increased to ${(_video_.playbackRate*100).toFixed(0)} %`;
+                }else text=`speed already max (${(_video_.playbackRate*100).toFixed(0)} %)`;
             break;
             case';':
                 if(_video_.playbackRate>0.1){
                     _video_.playbackRate=Number.parseFloat((_video_.playbackRate-0.1).toFixed(4));
-                    text=`speed decreased to ${_video_.playbackRate*100} %`;
-                }else text=`speed already min (${_video_.playbackRate*100} %)`;
+                    text=`speed decreased to ${(_video_.playbackRate*100).toFixed(0)} %`;
+                }else text=`speed already min (${(_video_.playbackRate*100).toFixed(0)} %)`;
             break;
             case'j':case'ArrowLeft':
                 _video_.currentTime-=5;
-                text="skiped back 5 sec";
+                text=`skiped back 5 sec to ${_video_.currentTime.toFixed(6)}`;
             break;
             case'l':case'ArrowRight':
                 _video_.currentTime+=5;
-                text="skiped ahead 5 sec";
+                text=`skiped ahead 5 sec to ${_video_.currentTime.toFixed(6)}`;
             break;
             case'J':
                 _video_.currentTime-=30;
-                text="skiped back 30 sec";
+                text=`skiped back 30 sec to ${_video_.currentTime.toFixed(6)}`;
             break;
             case'L':
                 _video_.currentTime+=30;
-                text="skiped ahead 30 sec";
+                text=`skiped ahead 30 sec to ${_video_.currentTime.toFixed(6)}`;
             break;
             case'k':
                 if(_video_.paused)_video_.play();
                 else _video_.pause();
-                text=`video ${_video_.paused?"paused":"resumed"}`;
+                text=`video ${_video_.paused?"paused":"resumed"} at ${_video_.currentTime.toFixed(6)}`;
             break;
             case'+':case'ArrowUp':
                 if(_video_.volume<1){
                     _video_.volume=Number.parseFloat((_video_.volume+0.1).toFixed(4));
-                    text=`volume increased to ${_video_.volume*100} %`;
-                }else text=`volume already max (${_video_.volume*100} %)`;
+                    text=`volume increased to ${(_video_.volume*100).toFixed(0)} %`;
+                }else text=`volume already max (${(_video_.volume*100).toFixed(0)} %)`;
                 _video_.muted=_video_.volume<=0;
             break;
             case'-':case'ArrowDown':
                 if(_video_.volume>0){
                     _video_.volume=Number.parseFloat((_video_.volume-0.1).toFixed(4));
-                    text=`volume decreased to ${_video_.volume*100} %`;
-                }else text=`volume already min (${_video_.volume*100} %)`;
+                    text=`volume decreased to ${(_video_.volume*100).toFixed(0)} %`;
+                }else text=`volume already min (${(_video_.volume*100).toFixed(0)} %)`;
                 _video_.muted=_video_.volume<=0;
             break;
             case'm':
