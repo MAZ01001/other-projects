@@ -4,14 +4,14 @@
 - [Hide all but stats when running a command](#hide-all-but-stats-when-running-a-command)
 - [Convert MP4 to M4A (video to audio)](#convert-mp4-to-m4a-video-to-audio)
 - [Extracting metadata to file](#extracting-metadata-to-file)
-- [Edit metadata file](#edit-metadata-file)
-- [Reinserting (edited) metadata](#reinserting-edited-metadata)
+  - [Edit metadata file](#edit-metadata-file)
+  - [Reinserting (edited) metadata](#reinserting-edited-metadata)
 - [Add thumbnail](#add-thumbnail)
 - [Add subtitles](#add-subtitles)
-- [subtitle file format](#subtitle-file-format)
+  - [subtitle file format](#subtitle-file-format)
 - [Extract frames](#extract-frames)
-- [Create video from frames](#create-video-from-frames)
-- [Watch short video as a loop](#watch-short-video-as-a-loop)
+  - [Create video from frames](#create-video-from-frames)
+    - [Watch short video as a loop](#watch-short-video-as-a-loop)
 - [crop video](#crop-video)
 - [compress video](#compress-video)
 - [cut video](#cut-video)
@@ -22,7 +22,7 @@
 - [find silence parts in video](#find-silence-parts-in-video)
 - [my current FFmpeg version](#my-current-ffmpeg-version)
 
-## official [documentation](https://ffmpeg.org/documentation.html)
+## official documentation
 
 - [FFmpeg - all](https://ffmpeg.org/ffmpeg-all.html)
 - [FFplay - all](https://ffmpeg.org/ffplay-all.html)
