@@ -1,28 +1,26 @@
 # Some useful [FFmpeg](https://ffmpeg.org/) commands
 
-## Table of Contents
-
-- [Some useful FFmpeg commands](#some-useful-ffmpeg-commands)
-  - [Table of Contents](#table-of-contents)
-  - [official documentation](#official-documentation)
-  - [Hide all but stats when running a command](#hide-all-but-stats-when-running-a-command)
-  - [Convert MP4 to M4A (video to audio)](#convert-mp4-to-m4a-video-to-audio)
-  - [Extracting metadata to file](#extracting-metadata-to-file)
-    - [Edit metadata file](#edit-metadata-file)
-    - [Reinserting (edited) metadata](#reinserting-edited-metadata)
-  - [Add thumbnail](#add-thumbnail)
-  - [Add subtitles](#add-subtitles)
-    - [subtitle file format](#subtitle-file-format)
-  - [Extract frames](#extract-frames)
-    - [Create video from frames](#create-video-from-frames)
-      - [Watch short video as a loop](#watch-short-video-as-a-loop)
-  - [compress video](#compress-video)
-  - [cut video](#cut-video)
-  - [loop video](#loop-video)
-  - [reverse video](#reverse-video)
-  - [create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist)
-  - [find silence parts in video](#find-silence-parts-in-video)
-  - [my current FFmpeg version](#my-current-ffmpeg-version)
+- [official documentation](#official-documentation)
+- [Hide all but stats when running a command](#hide-all-but-stats-when-running-a-command)
+- [Convert MP4 to M4A (video to audio)](#convert-mp4-to-m4a-video-to-audio)
+- [Extracting metadata to file](#extracting-metadata-to-file)
+- [Edit metadata file](#edit-metadata-file)
+- [Reinserting (edited) metadata](#reinserting-edited-metadata)
+- [Add thumbnail](#add-thumbnail)
+- [Add subtitles](#add-subtitles)
+- [subtitle file format](#subtitle-file-format)
+- [Extract frames](#extract-frames)
+- [Create video from frames](#create-video-from-frames)
+- [Watch short video as a loop](#watch-short-video-as-a-loop)
+- [crop video](#crop-video)
+- [compress video](#compress-video)
+- [cut video](#cut-video)
+- [loop video](#loop-video)
+- [reverse video](#reverse-video)
+- [concat videos](#concat-videos)
+- [create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist)
+- [find silence parts in video](#find-silence-parts-in-video)
+- [my current FFmpeg version](#my-current-ffmpeg-version)
 
 ## official [documentation](https://ffmpeg.org/documentation.html)
 
@@ -32,11 +30,14 @@
 
 ## Hide all but stats when running a command
 
-    ffmpeg -v level+[quiet|error|warning|info|verbose] -stats [...]
+    ffmpeg [-hide_banner] [-v {[level+]&[quiet|error|warning|info|verbose]}] -stats [...]
 
+- [-hide_banner] - hides the big version/configuration block in the beginning
 - [-v|-loglevel]
   - [level] - show what log_level each log is
-    - like "[info] ..." or "[warning] ..."or "[error] ..."
+    - (optional) use first after `-v` and then with a `+` the log_level after it
+      - `-v error` → `-v level+error`
+    - shows the log_level in "[]" before each logged message
   - [quiet] - show nothing
   - [error] - only show errors _(incl. recoverable errors)_
   - [warning] - only show warnings and errors _(I usually use this one 'cause it also hides the big "config-banner")_
@@ -171,6 +172,17 @@
 - a window will show the video looping infinitly
   - [controls](https://ffmpeg.org/ffplay.html#While-playing)
 
+## crop video
+
+    ffmpeg -i ".\INPUT.mp4" -vf "crop=WIDTH_PX:HEIGHT_PX:POSX_PX:POSY_PX" ".\OUTPUT.mp4"
+
+- `WIDTH_PX` - the width of the croped window
+- `HEIGHT_PX` - the height of the croped window
+- `POSX_PX` - the X position of the croped window (can be omitted = auto center)
+- `POSY_PX` - the Y position of the croped window (can be omitted = auto center)
+- all in pixels, but just the integer number no "px" after it !
+- for more flags, info, and examples [see the documentation](https://ffmpeg.org/ffmpeg-filters.html#crop "official ffmpeg documentation for the crop filter")
+
 ## compress video
 
 - need re-encoding for compression _(when in doubt, choose the same video-codec as input video)_
@@ -226,6 +238,22 @@
 
       ffmpeg -i ".\INPUT.mp4" -af areverse ".\OUTPUT.mp4"
 
+## concat videos
+
+- using filter complex
+
+      ffmpeg -i ".\INPUT_0.mp4" -i ".\INPUT_1.mp4" -filter_complex "[0:v] [0:a] [1:v] [1:a] concat=n=2:v=1:a=1 [v] [a]" -map "[v]" -map "[a]" ".\OUTPUT.mp4"
+
+- using demuxer
+  - video files listed in `".\VIDEO_LIST.txt"` like this
+
+        file '.\INPUT_0.mp4'
+        file '.\INPUT_1.mp4'
+
+  - command
+
+        ffmpeg -safe 0 -f concat -i ".\VIDEO_LIST.txt" -c copy ".\OUTPUT.mp4"
+
 ## create/download video with m3u8 playlist
 
     ffmpeg -protocol_whitelist file,http,https,tcp,tls,crypto -i [".\INPUT.m3u8"|"https://INPUT.m3u8"] -c copy ".\OUTPUT.mp4"
@@ -248,5 +276,9 @@
 
     ffmpeg -version
 
-- ffmpeg version 4.2.2 Copyright (c) 2000-2019 the FFmpeg developers
-- built with gcc 9.2.1 (GCC) 20200122
+- 2021-12-00
+  - ffmpeg version 4.2.2 Copyright (c) 2000-2019 the FFmpeg developers
+  - built with gcc 9.2.1 (GCC) 20200122
+- 2022-10-00
+  - ffmpeg version 5.0-full_build-www.gyan.dev Copyright (c) 2000-2022 the FFmpeg developers
+  - built with gcc 11.2.0 (Rev5, Built by MSYS2 project)
