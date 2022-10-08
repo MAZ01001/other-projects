@@ -61,8 +61,8 @@
 > A [tampermonkey](https://www.tampermonkey.net/) userscript to control html video elements with the keyboard.
 > Oriented on [YouTube](https://www.youtube.com/) keyboard shortcuts.
 >
-> When a key is pressed, the (first) video element under the mouse pointer found is the one that gets controlled.
-> It shows a popup for 2 sec on what action was performed.
+> Keeps track of the last video element that was moused over, to control it when a key is pressed.
+> It shows a popup for 2 sec on what action was performed (the text is selectable and stays while the mouse is over it).
 >
 > __Note__: The default behavior of key presses won't be prevented.
 > That means when there's already control for fast forwarding, it'll trigger double, skipping more than intended.

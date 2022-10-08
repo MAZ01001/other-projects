@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.3
-// @description  various keyboard controls for html video elements, see console after page loads for controll sceme (checks every `video` element position, on every `keydown`, if mouse is above).
+// @version      0.99.4
+// @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was moused over).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
 // @updateURL    https://github.com/MAZ01001/other-projects/raw/main/better_video_controls.user.js
@@ -24,7 +24,9 @@ const _bvc_hint=document.createElement('div'),
     /** @type {number[]} - current mouse x and y position on page (sealed array) */
     _bvc_mouse=Object.seal([0,0]);
 /** @type {boolean} - `true` if the event listener is on and `false` if off */
-let _bvc_state=false;
+let _bvc_state=false,
+    /** @type {HTMLVideoElement} - the last video element that the mouse was over */
+    _bvc_last_video=null;
 //~ set a name and ""some"" styling for the hint element
 _bvc_hint.dataset.name="better-video-controls hint";
 _bvc_css.innerText=`
@@ -57,13 +59,20 @@ _bvc_css.innerText=`
 `.replaceAll(/\n\s*/g,' ');
 //~ main functions
 /**
- * __track mouse position on page__
+ * __track mouse position on page__ \
+ * and override `_bvc_last_video` if the mouse is over a video element
  * @param {MouseEvent} ev - mouse event `mousemove`
  */
 function bvc_mousemove_event_listener(ev){
     "use strict";
     _bvc_mouse[0]=ev.clientX;
     _bvc_mouse[1]=ev.clientY;
+    for(const vid of document.body.getElementsByTagName("video")){
+        if(bvc_mouse_over_element(vid)){
+            _bvc_last_video=vid;
+            break;
+        }
+    }
 }
 /**
  * __test if the mouse is over given element__
@@ -73,13 +82,15 @@ function bvc_mousemove_event_listener(ev){
 function bvc_mouse_over_element(el){
     "use strict";
     const{top,bottom,left,right}=el.getBoundingClientRect();
-    return _bvc_mouse[0]>=left&&_bvc_mouse[0]<=right&&
-           _bvc_mouse[1]>=top&& _bvc_mouse[1]<=bottom;
+    return _bvc_mouse[0]>=left
+        && _bvc_mouse[0]<=right
+        && _bvc_mouse[1]>=top
+        && _bvc_mouse[1]<=bottom;
 }
 /**
  * __keyboard controls for video element__ \
  * `keypress` eventlistener on document \
- * _(controls for video element with mouse hover ie. css:`video:hover`)_
+ * _(controls for last hovered video element)_
  * @param {KeyboardEvent} ev - keyboard event `keypress`
  * @description __Keyboard controls with `{key}` of `KeyboardEvent`__
  * - `0` - `9`          → skip to ` `% of total duration (ie. key `8` skips to 80% of the video)
@@ -102,108 +113,101 @@ function bvc_mouse_over_element(el){
  */
 function bvc_keyboard_event_listener(ev){
     "use strict";
-    /** @type {HTMLVideoElement} - html video element that has the mouse ~hovering~ over it */
-    const _video_=(()=>{
-        for(const vid of document.body.getElementsByTagName("video")){
-            if(bvc_mouse_over_element(vid))return vid;
-        }
-        return null;
-    })();
-    if(_video_!==null){
+    if(_bvc_last_video!==null){
         let text="";
         switch(ev.key){
             case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
-                _video_.currentTime=_video_.duration*Number(ev.key)*.1;
+                _bvc_last_video.currentTime=_bvc_last_video.duration*Number(ev.key)*.1;
                 text=`skiped video to ${Number(ev.key)*10}%`;
             break;
-            //~ _video_.requestVideoFrameCallback((...[,{processingDuration}])=>console.log(processingDuration)); //=> fps ~ varies greatly
+            //~ _bvc_last_video.requestVideoFrameCallback((...[,{processingDuration}])=>console.log(processingDuration)); //=> fps ~ varies greatly
             case'.':
-                if(_video_.paused){
-                    _video_.currentTime+=0.0166666666666666666; //~ 1/60
-                    text=`next frame (if 60 fps) to ${_video_.currentTime.toFixed(6)}`;
+                if(_bvc_last_video.paused){
+                    _bvc_last_video.currentTime+=0.0166666666666666666; //~ 1/60
+                    text=`next frame (if 60 fps) to ${_bvc_last_video.currentTime.toFixed(6)}`;
                 }else text="pause video for frame-by-frame";
             break;
             case',':
-                if(_video_.paused){
-                    _video_.currentTime-=0.0166666666666666666; //~ 1/60
-                    text=`previous frame (if 60 fps) to ${_video_.currentTime.toFixed(6)}`;
+                if(_bvc_last_video.paused){
+                    _bvc_last_video.currentTime-=0.0166666666666666666; //~ 1/60
+                    text=`previous frame (if 60 fps) to ${_bvc_last_video.currentTime.toFixed(6)}`;
                 }else text="pause video for frame-by-frame";
             break;
             case':':
-                if(_video_.playbackRate<3){
-                    _video_.playbackRate=Number.parseFloat((_video_.playbackRate+0.1).toFixed(4));
-                    text=`speed increased to ${(_video_.playbackRate*100).toFixed(0)} %`;
-                }else text=`speed already max (${(_video_.playbackRate*100).toFixed(0)} %)`;
+                if(_bvc_last_video.playbackRate<3){
+                    _bvc_last_video.playbackRate=Number.parseFloat((_bvc_last_video.playbackRate+0.1).toFixed(4));
+                    text=`speed increased to ${(_bvc_last_video.playbackRate*100).toFixed(0)} %`;
+                }else text=`speed already max (${(_bvc_last_video.playbackRate*100).toFixed(0)} %)`;
             break;
             case';':
-                if(_video_.playbackRate>0.1){
-                    _video_.playbackRate=Number.parseFloat((_video_.playbackRate-0.1).toFixed(4));
-                    text=`speed decreased to ${(_video_.playbackRate*100).toFixed(0)} %`;
-                }else text=`speed already min (${(_video_.playbackRate*100).toFixed(0)} %)`;
+                if(_bvc_last_video.playbackRate>0.1){
+                    _bvc_last_video.playbackRate=Number.parseFloat((_bvc_last_video.playbackRate-0.1).toFixed(4));
+                    text=`speed decreased to ${(_bvc_last_video.playbackRate*100).toFixed(0)} %`;
+                }else text=`speed already min (${(_bvc_last_video.playbackRate*100).toFixed(0)} %)`;
             break;
             case'j':case'ArrowLeft':
-                _video_.currentTime-=5;
-                text=`skiped back 5 sec to ${_video_.currentTime.toFixed(6)}`;
+                _bvc_last_video.currentTime-=5;
+                text=`skiped back 5 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
             break;
             case'l':case'ArrowRight':
-                _video_.currentTime+=5;
-                text=`skiped ahead 5 sec to ${_video_.currentTime.toFixed(6)}`;
+                _bvc_last_video.currentTime+=5;
+                text=`skiped ahead 5 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
             break;
             case'J':
-                _video_.currentTime-=30;
-                text=`skiped back 30 sec to ${_video_.currentTime.toFixed(6)}`;
+                _bvc_last_video.currentTime-=30;
+                text=`skiped back 30 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
             break;
             case'L':
-                _video_.currentTime+=30;
-                text=`skiped ahead 30 sec to ${_video_.currentTime.toFixed(6)}`;
+                _bvc_last_video.currentTime+=30;
+                text=`skiped ahead 30 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
             break;
             case'k':
-                if(_video_.paused)_video_.play();
-                else _video_.pause();
-                text=`video ${_video_.paused?"paused":"resumed"} at ${_video_.currentTime.toFixed(6)}`;
+                if(_bvc_last_video.paused)_bvc_last_video.play();
+                else _bvc_last_video.pause();
+                text=`video ${_bvc_last_video.paused?"paused":"resumed"} at ${_bvc_last_video.currentTime.toFixed(6)}`;
             break;
             case'+':case'ArrowUp':
-                if(_video_.volume<1){
-                    _video_.volume=Number.parseFloat((_video_.volume+0.1).toFixed(4));
-                    text=`volume increased to ${(_video_.volume*100).toFixed(0)} %`;
-                }else text=`volume already max (${(_video_.volume*100).toFixed(0)} %)`;
-                _video_.muted=_video_.volume<=0;
+                if(_bvc_last_video.volume<1){
+                    _bvc_last_video.volume=Number.parseFloat((_bvc_last_video.volume+0.1).toFixed(4));
+                    text=`volume increased to ${(_bvc_last_video.volume*100).toFixed(0)} %`;
+                }else text=`volume already max (${(_bvc_last_video.volume*100).toFixed(0)} %)`;
+                _bvc_last_video.muted=_bvc_last_video.volume<=0;
             break;
             case'-':case'ArrowDown':
-                if(_video_.volume>0){
-                    _video_.volume=Number.parseFloat((_video_.volume-0.1).toFixed(4));
-                    text=`volume decreased to ${(_video_.volume*100).toFixed(0)} %`;
-                }else text=`volume already min (${(_video_.volume*100).toFixed(0)} %)`;
-                _video_.muted=_video_.volume<=0;
+                if(_bvc_last_video.volume>0){
+                    _bvc_last_video.volume=Number.parseFloat((_bvc_last_video.volume-0.1).toFixed(4));
+                    text=`volume decreased to ${(_bvc_last_video.volume*100).toFixed(0)} %`;
+                }else text=`volume already min (${(_bvc_last_video.volume*100).toFixed(0)} %)`;
+                _bvc_last_video.muted=_bvc_last_video.volume<=0;
             break;
             case'm':
-                if(_video_.muted=!_video_.muted)text="volume muted";
+                if(_bvc_last_video.muted=!_bvc_last_video.muted)text="volume muted";
                 else text="volume unmuted";
             break;
             case'f':
                 if(document.fullscreenEnabled){
-                    if(!document.fullscreenElement)_video_.requestFullscreen({navigationUI:'hide'});
-                    else if(document.fullscreenElement===_video_)document.exitFullscreen();
+                    if(!document.fullscreenElement)_bvc_last_video.requestFullscreen({navigationUI:'hide'});
+                    else if(document.fullscreenElement===_bvc_last_video)document.exitFullscreen();
                 }else text="fullscreen not supported";
             break;
             case'p':
                 if(document.pictureInPictureEnabled){
-                    if(!document.pictureInPictureElement)_video_.requestPictureInPicture();
-                    else if(document.pictureInPictureElement===_video_)document.exitPictureInPicture();
+                    if(!document.pictureInPictureElement)_bvc_last_video.requestPictureInPicture();
+                    else if(document.pictureInPictureElement===_bvc_last_video)document.exitPictureInPicture();
                 }else text="picture-in-picture not supported";
             break;
             case't':
-                text=`time: ${_video_.currentTime.toFixed(6)} / `;
-                if(_video_.duration===Infinity)text+="live";
-                else if(Number.isNaN(_video_.duration))text+="???";
-                else text+=`${_video_.duration.toFixed(6)} -${(_video_.duration-_video_.currentTime).toFixed(6)}`;
+                text=`time: ${_bvc_last_video.currentTime.toFixed(6)} / `;
+                if(_bvc_last_video.duration===Infinity)text+="live";
+                else if(Number.isNaN(_bvc_last_video.duration))text+="???";
+                else text+=`${_bvc_last_video.duration.toFixed(6)} -${(_bvc_last_video.duration-_bvc_last_video.currentTime).toFixed(6)}`;
                 text+=" (seconds)";
             break;
-            case'u':text=`url: ${_video_.currentSrc}`;break;
+            case'u':text=`url: ${_bvc_last_video.currentSrc}`;break;
         }
         if(text!==""){
             _bvc_hint_text.innerText=text;
-            const{top,left,height,width}=_video_.getBoundingClientRect();
+            const{top,left,height,width}=_bvc_last_video.getBoundingClientRect();
             _bvc_hint.style.top=`${top+Math.floor(height*.5)}px`;
             _bvc_hint.style.left=`${left+Math.floor(width*.5)}px`;
             _bvc_hint.style.maxWidth=`${width}px`;
@@ -228,8 +232,9 @@ function bvc_hint_visible(state){
  */
 function bvc_toggle_eventlistener(force_state){
     "use strict";
+    //~ `== null` to check for `=== undefined || === null`
     if(
-        (force_state===undefined||force_state===null)
+        force_state==null
         ||(Boolean(force_state)!==_bvc_state)
     ){
         if(_bvc_state=!_bvc_state){
@@ -254,7 +259,7 @@ _bvc_hint.addEventListener('mouseover',()=>bvc_hint_visible(true),{passive:true}
 //~ append hint element, turn on bvc and log controls and toggle function
 bvc_toggle_eventlistener(true);
 console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01001");
-console.log(
+console.info(
     "%ccontrols:\n%c%s",
     "background-color:#000;color:#fff;",
     "background-color:#000;color:#0a0;font-family:consolas,monospace;",
@@ -283,16 +288,17 @@ console.log(
         " [u]                            |  displays current source url                                           ",
     ].join('\n')
 );
-console.log(
+console.info(
     "%cfunction for on/off toggle: %O",
     "background-color:#000;color:#fff;",
     bvc_toggle_eventlistener,
 );
-console.log(
+console.info(
     "%cRight-click on the above function and select \"%cStore function as global variable%c\".\nThen you can call it with that variable like %ctemp1();",
     "background-color:#000;color:#fff;",
     "background-color:#000;color:#0a0;",
     "background-color:#000;color:#fff;",
     "background-color:#000;color:#0a0;font-family:consolas,monospace;"
 );
+console.info("Credits: MAZ https://maz01001.github.io/ \nDocumentation: https://github.com/MAZ01001/other-projects#better_video_controlsuserjs \nSource code: https://github.com/MAZ01001/other-projects/blob/main/better_video_controls.user.js");
 console.groupEnd();
