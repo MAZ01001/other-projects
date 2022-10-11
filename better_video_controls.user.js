@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.5
+// @version      0.99.6
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was moused over).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -71,16 +71,6 @@ function bvc_mousemove_event_listener(ev){
         if(bvc_mouse_over_element(vid)){
             _bvc_last_video=vid;
             break;
-        }
-    }
-    if(_bvc_last_video===null){
-        outerloop:for(const iframe of document.getElementsByName("iframe")){
-            for(const vid of iframe.contentDocument.documentElement.getElementsByTagName("video")){
-                if(bvc_mouse_over_element(vid)){
-                    _bvc_last_video=vid;
-                    break outerloop;
-                }
-            }
         }
     }
 }
@@ -252,11 +242,23 @@ function bvc_toggle_eventlistener(force_state){
             document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
             document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
             document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
+            for(const iframe of document.getElementsByName("iframe")){
+                iframe.contentWindow.document.body.appendChild(_bvc_hint);
+                iframe.contentWindow.document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
+                iframe.contentWindow.document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
+                iframe.contentWindow.document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
+            }
         }else{
             document.body.removeEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
             document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
             document.removeEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
             document.body.removeChild(_bvc_hint);
+            for(const iframe of document.getElementsByName("iframe")){
+                iframe.contentWindow.document.body.removeEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
+                iframe.contentWindow.document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
+                iframe.contentWindow.document.removeEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
+                iframe.contentWindow.document.body.removeChild(_bvc_hint);
+            }
         }
     }
     return _bvc_state;
