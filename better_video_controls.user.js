@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.6
+// @version      0.99.7
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was moused over).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -57,6 +57,11 @@ _bvc_css.innerText=`
             visibility 0s linear 0s;
     }
 `.replaceAll(/\n\s*/g,' ');
+//~ append elements and eventlisteners to base element (stay even when element is removed and re-appended to document body)
+_bvc_hint.appendChild(_bvc_css);
+_bvc_hint.appendChild(_bvc_hint_text);
+_bvc_hint.addEventListener('mouseleave',()=>bvc_hint_visible(false),{passive:true});
+_bvc_hint.addEventListener('mouseover',()=>bvc_hint_visible(true),{passive:true});
 //~ main functions
 /**
  * __track mouse position on page__ \
@@ -263,54 +268,51 @@ function bvc_toggle_eventlistener(force_state){
     }
     return _bvc_state;
 }
-//~ append elements and eventlisteners to base element (stay even when element is removed and re-appended to document body)
-_bvc_hint.appendChild(_bvc_css);
-_bvc_hint.appendChild(_bvc_hint_text);
-_bvc_hint.addEventListener('mouseleave',()=>bvc_hint_visible(false),{passive:true});
-_bvc_hint.addEventListener('mouseover',()=>bvc_hint_visible(true),{passive:true});
-//~ append hint element, turn on bvc and log controls and toggle function
-bvc_toggle_eventlistener(true);
-console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01001");
-console.info(
-    "%ccontrols:\n%c%s",
-    "background-color:#000;color:#fff;",
-    "background-color:#000;color:#0a0;font-family:consolas,monospace;",
-    [
-        " Keyboard (intended for QWERTZ) | Function                                                               ",
-        "--------------------------------+------------------------------------------------------------------------",
-        " [0] - [9]                      |  skip to []% of total duration (ie. key [8] skips to 80% of the video) ",
-        " [.]                            |  (while paused) next frame (1/60 sec)                                  ",
-        " [,]                            |  (while paused) previous frame (1/60 sec)                              ",
-        " [:] ( [shift] [.] )            |  decrease playback speed by 10%                                        ",
-        " [;] ( [shift] [,] )            |  increase playback speed by 10%                                        ",
-        "--------------------------------+------------------------------------------------------------------------",
-        " [j] / [ArrowLeft]              |  rewind 5 seconds                                                      ",
-        " [l] / [ArrowRight]             |  fast forward 5 seconds                                                ",
-        " [J] ( [shift] [j] )            |  rewind 30 seconds                                                     ",
-        " [l] ( [shift] [l] )            |  fast forward 30 seconds                                               ",
-        " [k]                            |  pause / play video                                                    ",
-        "--------------------------------+------------------------------------------------------------------------",
-        " [+] / [ArrowUp]                |  increase volume by 10%                                                ",
-        " [-] / [ArrowDown]              |  lower volume by 10%                                                   ",
-        " [m]                            |  mute / unmute video                                                   ",
-        "--------------------------------+------------------------------------------------------------------------",
-        " [f]                            |  toggle fullscreen mode                                                ",
-        " [p]                            |  toggle picture-in-picture mode                                        ",
-        " [t]                            |  displays exact time and duration                                      ",
-        " [u]                            |  displays current source url                                           ",
-    ].join('\n')
-);
-console.info(
-    "%cfunction for on/off toggle: %O",
-    "background-color:#000;color:#fff;",
-    bvc_toggle_eventlistener,
-);
-console.info(
-    "%cRight-click on the above function and select \"%cStore function as global variable%c\".\nThen you can call it with that variable like %ctemp1();",
-    "background-color:#000;color:#fff;",
-    "background-color:#000;color:#0a0;",
-    "background-color:#000;color:#fff;",
-    "background-color:#000;color:#0a0;font-family:consolas,monospace;"
-);
-console.info("Credits: MAZ https://maz01001.github.io/ \nDocumentation: https://github.com/MAZ01001/other-projects#better_video_controlsuserjs \nSource code: https://github.com/MAZ01001/other-projects/blob/main/better_video_controls.user.js");
-console.groupEnd();
+//~ append hint element, turn on bvc, and log controls, toggle function, and credits as a collapsed group
+setTimeout(()=>{
+    bvc_toggle_eventlistener(true);
+    console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01001");
+    console.info(
+        "%ccontrols:\n%c%s",
+        "background-color:#000;color:#fff;",
+        "background-color:#000;color:#0a0;font-family:consolas,monospace;",
+        [
+            " Keyboard (intended for QWERTZ) | Function                                                               ",
+            "--------------------------------+------------------------------------------------------------------------",
+            " [0] - [9]                      |  skip to []% of total duration (ie. key [8] skips to 80% of the video) ",
+            " [.]                            |  (while paused) next frame (1/60 sec)                                  ",
+            " [,]                            |  (while paused) previous frame (1/60 sec)                              ",
+            " [:] ( [shift] [.] )            |  decrease playback speed by 10%                                        ",
+            " [;] ( [shift] [,] )            |  increase playback speed by 10%                                        ",
+            "--------------------------------+------------------------------------------------------------------------",
+            " [j] / [ArrowLeft]              |  rewind 5 seconds                                                      ",
+            " [l] / [ArrowRight]             |  fast forward 5 seconds                                                ",
+            " [J] ( [shift] [j] )            |  rewind 30 seconds                                                     ",
+            " [l] ( [shift] [l] )            |  fast forward 30 seconds                                               ",
+            " [k]                            |  pause / play video                                                    ",
+            "--------------------------------+------------------------------------------------------------------------",
+            " [+] / [ArrowUp]                |  increase volume by 10%                                                ",
+            " [-] / [ArrowDown]              |  lower volume by 10%                                                   ",
+            " [m]                            |  mute / unmute video                                                   ",
+            "--------------------------------+------------------------------------------------------------------------",
+            " [f]                            |  toggle fullscreen mode                                                ",
+            " [p]                            |  toggle picture-in-picture mode                                        ",
+            " [t]                            |  displays exact time and duration                                      ",
+            " [u]                            |  displays current source url                                           ",
+        ].join('\n')
+    );
+    console.info(
+        "%cfunction for on/off toggle: %O",
+        "background-color:#000;color:#fff;",
+        bvc_toggle_eventlistener,
+    );
+    console.info(
+        "%cRight-click on the above function and select \"%cStore function as global variable%c\".\nThen you can call it with that variable like %ctemp1();",
+        "background-color:#000;color:#fff;",
+        "background-color:#000;color:#0a0;",
+        "background-color:#000;color:#fff;",
+        "background-color:#000;color:#0a0;font-family:consolas,monospace;"
+    );
+    console.info("Credits: MAZ https://maz01001.github.io/ \nDocumentation: https://github.com/MAZ01001/other-projects#better_video_controlsuserjs \nSource code: https://github.com/MAZ01001/other-projects/blob/main/better_video_controls.user.js");
+    console.groupEnd();
+},5000);
