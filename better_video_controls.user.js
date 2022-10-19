@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.73
+// @version      0.99.74
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was moused over).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -11,8 +11,7 @@
 // @match        /^file:\/\/\/.*\..*$/
 // @exclude      /^[^:/#?]*:\/\/([^#?/]*\.)?youtube\.com(:[0-9]{1,5})?\/.*$/
 // @run-at       document-end
-// @no_frames    false
-// @tab_types    incognito+normal
+// @noframes     false
 // ==/UserScript==
 
 //~ set some (local) variables
