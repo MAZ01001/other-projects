@@ -64,6 +64,9 @@
 > Keeps track of the last video element that was moused over, to control it when a key is pressed.
 > It shows a popup for 2 sec on what action was performed (the text is selectable and stays while the mouse is over it).
 >
+> It also sets the video element when clicking over it or removing it when there is none.
+> And when you want to enter text and click on a text field, the video element will not be tracked anymore unless moused over again.
+>
 > __Note__: The default behavior of key presses won't be prevented.
 > That means when there's already control for fast forwarding, it'll trigger double, skipping more than intended.
 >
