@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.75
+// @version      0.99.76
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was moused over).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -129,10 +129,14 @@ function bvc_mouse_over_element(el){
  * - `p`                → toggle picture-in-picture mode
  * - `t`                → displays exact time and duration
  * - `u`                → displays current source url
+ *
+ * __NOTE__ calls `preventDefault` and `stopImmediatePropagation`
  */
 function bvc_keyboard_event_listener(ev){
     "use strict";
     if(_bvc_last_video!==null){
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
         let text="";
         switch(ev.key){
             case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
@@ -260,11 +264,11 @@ function bvc_toggle_eventlistener(force_state){
             document.body.appendChild(_bvc_hint);
             document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
             document.addEventListener('click',bvc_click_event,{passive:true});
-            document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
+            document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
             document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
         }else{
             document.body.removeEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
-            document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:true});
+            document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
             document.removeEventListener('click',bvc_click_event,{passive:true});
             document.removeEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
             document.body.removeChild(_bvc_hint);

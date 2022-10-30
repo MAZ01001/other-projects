@@ -67,8 +67,8 @@
 > It also sets the video element when clicking over it or removing it when there is none.
 > And when you want to enter text and click on a text field, the video element will not be tracked anymore unless moused over again.
 >
-> __Note__: The default behavior of key presses won't be prevented.
-> That means when there's already control for fast forwarding, it'll trigger double, skipping more than intended.
+> __Note__: The default behavior of key presses and other event listeners will be prevented.
+> By utilizing `Event.preventDefault()` and `Event.stopImmediatePropagation()`.
 >
 > The following table will also be logged to the console, including a function to toggle the event listeners on/off.
 > <details open><summary>keyboard controls</summary>
