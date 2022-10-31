@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.76
+// @version      0.99.77
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was moused over).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -25,7 +25,7 @@ const _bvc_hint=document.createElement('div'),
     _bvc_mouse=Object.seal([0,0]);
 /** @type {boolean} - `true` if the event listener is on and `false` if off */
 let _bvc_state=false,
-    /** @type {HTMLVideoElement} - the last video element that the mouse was over */
+    /** @type {HTMLVideoElement|null} - the last video element that the mouse was over */
     _bvc_last_video=null;
 //~ set a name and ""some"" styling for the hint element
 _bvc_hint.dataset.name="better-video-controls hint";
@@ -134,110 +134,106 @@ function bvc_mouse_over_element(el){
  */
 function bvc_keyboard_event_listener(ev){
     "use strict";
-    if(_bvc_last_video!==null){
-        ev.preventDefault();
-        ev.stopImmediatePropagation();
-        let text="";
-        switch(ev.key){
-            case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
-                _bvc_last_video.currentTime=_bvc_last_video.duration*Number(ev.key)*.1;
-                text=`skiped video to ${Number(ev.key)*10}%`;
-            break;
-            //~ _bvc_last_video.requestVideoFrameCallback((...[,{processingDuration}])=>console.log(processingDuration)); //=> fps ~ varies greatly
-            case'.':
-                if(_bvc_last_video.paused){
-                    _bvc_last_video.currentTime+=0.0166666666666666666; //~ 1/60
-                    text=`next frame (if 60 fps) to ${_bvc_last_video.currentTime.toFixed(6)}`;
-                }else text="pause video for frame-by-frame";
-            break;
-            case',':
-                if(_bvc_last_video.paused){
-                    _bvc_last_video.currentTime-=0.0166666666666666666; //~ 1/60
-                    text=`previous frame (if 60 fps) to ${_bvc_last_video.currentTime.toFixed(6)}`;
-                }else text="pause video for frame-by-frame";
-            break;
-            case':':
-                if(_bvc_last_video.playbackRate<3){
-                    _bvc_last_video.playbackRate=Number.parseFloat((_bvc_last_video.playbackRate+0.1).toFixed(4));
-                    text=`speed increased to ${(_bvc_last_video.playbackRate*100).toFixed(0)} %`;
-                }else text=`speed already max (${(_bvc_last_video.playbackRate*100).toFixed(0)} %)`;
-            break;
-            case';':
-                if(_bvc_last_video.playbackRate>0.1){
-                    _bvc_last_video.playbackRate=Number.parseFloat((_bvc_last_video.playbackRate-0.1).toFixed(4));
-                    text=`speed decreased to ${(_bvc_last_video.playbackRate*100).toFixed(0)} %`;
-                }else text=`speed already min (${(_bvc_last_video.playbackRate*100).toFixed(0)} %)`;
-            break;
-            case'j':case'ArrowLeft':
-                _bvc_last_video.currentTime-=5;
-                text=`skiped back 5 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
-            break;
-            case'l':case'ArrowRight':
-                _bvc_last_video.currentTime+=5;
-                text=`skiped ahead 5 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
-            break;
-            case'J':
-                _bvc_last_video.currentTime-=30;
-                text=`skiped back 30 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
-            break;
-            case'L':
-                _bvc_last_video.currentTime+=30;
-                text=`skiped ahead 30 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
-            break;
-            case'k':
-                if(_bvc_last_video.paused)_bvc_last_video.play();
-                else _bvc_last_video.pause();
-                text=`video ${_bvc_last_video.paused?"paused":"resumed"} at ${_bvc_last_video.currentTime.toFixed(6)}`;
-            break;
-            case'+':case'ArrowUp':
-                if(_bvc_last_video.volume<1){
-                    _bvc_last_video.volume=Number.parseFloat((_bvc_last_video.volume+0.1).toFixed(4));
-                    text=`volume increased to ${(_bvc_last_video.volume*100).toFixed(0)} %`;
-                }else text=`volume already max (${(_bvc_last_video.volume*100).toFixed(0)} %)`;
-                _bvc_last_video.muted=_bvc_last_video.volume<=0;
-            break;
-            case'-':case'ArrowDown':
-                if(_bvc_last_video.volume>0){
-                    _bvc_last_video.volume=Number.parseFloat((_bvc_last_video.volume-0.1).toFixed(4));
-                    text=`volume decreased to ${(_bvc_last_video.volume*100).toFixed(0)} %`;
-                }else text=`volume already min (${(_bvc_last_video.volume*100).toFixed(0)} %)`;
-                _bvc_last_video.muted=_bvc_last_video.volume<=0;
-            break;
-            case'm':
-                if(_bvc_last_video.muted=!_bvc_last_video.muted)text="volume muted";
-                else text="volume unmuted";
-            break;
-            case'f':
-                if(document.fullscreenEnabled){
-                    if(!document.fullscreenElement)_bvc_last_video.requestFullscreen({navigationUI:'hide'});
-                    else if(document.fullscreenElement===_bvc_last_video)document.exitFullscreen();
-                }else text="fullscreen not supported";
-            break;
-            case'p':
-                if(document.pictureInPictureEnabled){
-                    if(!document.pictureInPictureElement)_bvc_last_video.requestPictureInPicture();
-                    else if(document.pictureInPictureElement===_bvc_last_video)document.exitPictureInPicture();
-                }else text="picture-in-picture not supported";
-            break;
-            case't':
-                text=`time: ${_bvc_last_video.currentTime.toFixed(6)} / `;
-                if(_bvc_last_video.duration===Infinity)text+="live";
-                else if(Number.isNaN(_bvc_last_video.duration))text+="???";
-                else text+=`${_bvc_last_video.duration.toFixed(6)} -${(_bvc_last_video.duration-_bvc_last_video.currentTime).toFixed(6)}`;
-                text+=" (seconds)";
-            break;
-            case'u':text=`url: ${_bvc_last_video.currentSrc}`;break;
-        }
-        if(text!==""){
-            _bvc_hint_text.innerText=text;
-            const{top,left,height,width}=_bvc_last_video.getBoundingClientRect();
-            _bvc_hint.style.top=`${top+Math.floor(height*.5)}px`;
-            _bvc_hint.style.left=`${left+Math.floor(width*.5)}px`;
-            _bvc_hint.style.maxWidth=`${width}px`;
-            bvc_hint_visible(true);
-            if(!bvc_mouse_over_element(_bvc_hint))bvc_hint_visible(false);
-        }
+    if(_bvc_last_video==null)return;
+    let text="";
+    switch(ev.key){
+        case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
+            _bvc_last_video.currentTime=_bvc_last_video.duration*Number(ev.key)*.1;
+            text=`skiped video to ${Number(ev.key)*10}%`;
+        break;
+        //~ _bvc_last_video.requestVideoFrameCallback((...[,{processingDuration}])=>console.log(processingDuration)); //=> fps ~ varies greatly
+        case'.':
+            if(!_bvc_last_video.paused)_bvc_last_video.pause();
+            _bvc_last_video.currentTime+=0.0166666666666666666; //~ 1/60
+            text=`next frame (if 60 fps) to ${_bvc_last_video.currentTime.toFixed(6)}`;
+        break;
+        case',':
+            if(!_bvc_last_video.paused)_bvc_last_video.pause();
+            _bvc_last_video.currentTime-=0.0166666666666666666; //~ 1/60
+            text=`previous frame (if 60 fps) to ${_bvc_last_video.currentTime.toFixed(6)}`;
+        break;
+        case':':
+            if(_bvc_last_video.playbackRate<4){
+                _bvc_last_video.playbackRate=Number.parseFloat((_bvc_last_video.playbackRate+0.1).toFixed(4));
+                text=`speed increased to ${Math.floor(_bvc_last_video.playbackRate*100)} %`;
+            }else{
+                _bvc_last_video.playbackRate=4
+                text="speed already max (400 %)";
+            }
+        break;
+        case';':
+            if(_bvc_last_video.playbackRate>0.1){
+                _bvc_last_video.playbackRate=Number.parseFloat((_bvc_last_video.playbackRate-0.1).toFixed(4));
+                text=`speed decreased to ${Math.floor(_bvc_last_video.playbackRate*100)} %`;
+            }else{
+                _bvc_last_video.playbackRate=0.1
+                text="speed already min (10 %)";
+            }
+        break;
+        case'j':case'ArrowLeft':
+            _bvc_last_video.currentTime-=5;
+            text=`skiped back 5 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
+        break;
+        case'l':case'ArrowRight':
+            _bvc_last_video.currentTime+=5;
+            text=`skiped ahead 5 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
+        break;
+        case'J':
+            _bvc_last_video.currentTime-=30;
+            text=`skiped back 30 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
+        break;
+        case'L':
+            _bvc_last_video.currentTime+=30;
+            text=`skiped ahead 30 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
+        break;
+        case'k':
+            if(_bvc_last_video.paused)_bvc_last_video.play();
+            else _bvc_last_video.pause();
+            text=`video ${_bvc_last_video.paused?"paused":"resumed"} at ${_bvc_last_video.currentTime.toFixed(6)}`;
+        break;
+        case'+':case'ArrowUp':
+            _bvc_last_video.volume=(vol=>vol>1?1:vol)(Number.parseFloat((_bvc_last_video.volume+0.1).toFixed(4)));
+            text=`volume increased to ${Math.floor(_bvc_last_video.volume*100)} %`;
+            _bvc_last_video.muted=_bvc_last_video.volume<=0;
+        break;
+        case'-':case'ArrowDown':
+            _bvc_last_video.volume=(vol=>vol<0?0:vol)(Number.parseFloat((_bvc_last_video.volume-0.1).toFixed(4)));
+            text=`volume decreased to ${Math.floor(_bvc_last_video.volume*100)} %`;
+            _bvc_last_video.muted=_bvc_last_video.volume<=0;
+        break;
+        case'm':text=`volume ${(_bvc_last_video.muted=!_bvc_last_video.muted)?"muted":"unmuted"}`;
+        break;
+        case'f':
+            if(document.fullscreenEnabled){
+                if(!document.fullscreenElement)_bvc_last_video.requestFullscreen({navigationUI:'hide'});
+                else if(document.fullscreenElement===_bvc_last_video)document.exitFullscreen();
+            }else text="fullscreen not supported";
+        break;
+        case'p':
+            if(document.pictureInPictureEnabled){
+                if(!document.pictureInPictureElement)_bvc_last_video.requestPictureInPicture();
+                else if(document.pictureInPictureElement===_bvc_last_video)document.exitPictureInPicture();
+            }else text="picture-in-picture not supported";
+        break;
+        case't':
+            text=`time: ${_bvc_last_video.currentTime.toFixed(6)} / `;
+            if(_bvc_last_video.duration===Infinity)text+="live";
+            else if(Number.isNaN(_bvc_last_video.duration))text+="???";
+            else text+=`${_bvc_last_video.duration.toFixed(6)} -${(_bvc_last_video.duration-_bvc_last_video.currentTime).toFixed(6)}`;
+            text+=" (seconds)";
+        break;
+        case'u':text=`url: ${_bvc_last_video.currentSrc}`;break;
     }
+    if(text==="")return;
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    _bvc_hint_text.innerText=text;
+    const{top,left,height,width}=_bvc_last_video.getBoundingClientRect();
+    _bvc_hint.style.top=`${top+Math.floor(height*.5)}px`;
+    _bvc_hint.style.left=`${left+Math.floor(width*.5)}px`;
+    _bvc_hint.style.maxWidth=`${width}px`;
+    bvc_hint_visible(true);
+    if(!bvc_mouse_over_element(_bvc_hint))bvc_hint_visible(false);
 }
 /**
  * __set/remove visible class of `_bvc_hint` to show/hide the element__
