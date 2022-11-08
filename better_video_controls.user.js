@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.79
+// @version      0.99.80
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was moused over).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -24,7 +24,7 @@ const _bvc_hint=document.createElement('div'),
     /** @type {number[]} - current mouse x and y position on page (sealed array) */
     _bvc_mouse=Object.seal([0,0]);
 /** @type {boolean} - if `false` ignores video controls and does not call `preventDefault` and `stopImmediatePropagation` for keypressed on video elements */
-let _bvc_state=false,
+let _bvc_state=true,
     /** @type {HTMLVideoElement|null} - the last video element that the mouse was over */
     _bvc_last_video=null;
 //~ set a name and ""some"" styling for the hint element
@@ -264,8 +264,10 @@ function bvc_toggle_controls(force_state){
 document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
 document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
 document.addEventListener('click',bvc_click_event,{passive:true});
-document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
-document.body.addEventListener('load',()=>document.body.appendChild(_bvc_hint),{passive:true,once:true});
+window.addEventListener('load',()=>{
+    document.body.appendChild(_bvc_hint);
+    document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
+},{passive:true,once:true});
 console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01001");
     console.info(
         "%ccontrols:\n%c%s",
