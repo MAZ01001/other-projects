@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.78
+// @version      0.99.79
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was moused over).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -260,26 +260,12 @@ function bvc_toggle_controls(force_state){
     )_bvc_state=!_bvc_state;
     return _bvc_state;
 }
-/** __add all event listeners__ */
-function bvc_add_eventlisteners(){
-    "use strict";
-    document.body.appendChild(_bvc_hint);
-    document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
-    document.addEventListener('click',bvc_click_event,{passive:true});
-    document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
-    document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
-}
-/** __remove all event listeners__ */
-function bvc_remove_eventlisteners(){
-    "use strict";
-    document.body.removeEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
-    document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
-    document.removeEventListener('click',bvc_click_event,{passive:true});
-    document.removeEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
-    document.body.removeChild(_bvc_hint);
-}
 //~ append hint element, turn on bvc, and log controls, toggle function, and credits as a collapsed group
-bvc_add_eventlisteners();
+document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
+document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
+document.addEventListener('click',bvc_click_event,{passive:true});
+document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
+document.body.addEventListener('load',()=>document.body.appendChild(_bvc_hint),{passive:true,once:true});
 console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01001");
     console.info(
         "%ccontrols:\n%c%s",
