@@ -68,9 +68,9 @@
 > And when you want to enter text and click on a text field, the video element will not be tracked anymore unless moused over again.
 >
 > __Note__: The default behavior of key presses and other event listeners will be prevented.
-> By utilizing `Event.preventDefault()` and `Event.stopImmediatePropagation()`.
+> By utilizing `Event.preventDefault()` and `Event.stopImmediatePropagation()` while the controls are on.
 >
-> The following table will also be logged to the console, including a function to toggle the event listeners on/off.
+> The following table will also be logged to the console, including a function to toggle the controls on/off.
 > <details open><summary>keyboard controls</summary>
 >
 >      Keyboard (intended for QWERTZ) | Function
@@ -91,8 +91,10 @@
 >      [-] / [ArrowDown]              |  lower volume by 10%
 >      [m]                            |  mute / unmute video
 >     --------------------------------+------------------------------------------------------------------------
+>      [r]                            |  toggle loop mode
 >      [f]                            |  toggle fullscreen mode
 >      [p]                            |  toggle picture-in-picture mode
+>     --------------------------------+------------------------------------------------------------------------
 >      [t]                            |  displays exact time and duration
 >      [u]                            |  displays current source url
 >

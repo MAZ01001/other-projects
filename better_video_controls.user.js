@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.77
+// @version      0.99.78
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was moused over).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -10,7 +10,7 @@
 // @match        /^[^:/#?]*:\/\/([^#?/]*\.)?.*\..*(:[0-9]{1,5})?\/.*$/
 // @match        /^file:\/\/\/.*\..*$/
 // @exclude      /^[^:/#?]*:\/\/([^#?/]*\.)?youtube\.com(:[0-9]{1,5})?\/.*$/
-// @run-at       document-end
+// @run-at       document-start
 // @noframes     false
 // ==/UserScript==
 
@@ -23,7 +23,7 @@ const _bvc_hint=document.createElement('div'),
     _bvc_css=document.createElement('style'),
     /** @type {number[]} - current mouse x and y position on page (sealed array) */
     _bvc_mouse=Object.seal([0,0]);
-/** @type {boolean} - `true` if the event listener is on and `false` if off */
+/** @type {boolean} - if `false` ignores video controls and does not call `preventDefault` and `stopImmediatePropagation` for keypressed on video elements */
 let _bvc_state=false,
     /** @type {HTMLVideoElement|null} - the last video element that the mouse was over */
     _bvc_last_video=null;
@@ -125,6 +125,7 @@ function bvc_mouse_over_element(el){
  * - `+` / `ArrowUp`    → increase volume by 10%
  * - `-` / `ArrowDown`  → lower volume by 10%
  * - `m`                → mute / unmute video
+ * - `r`                → toggle loop mode
  * - `f`                → toggle fullscreen mode
  * - `p`                → toggle picture-in-picture mode
  * - `t`                → displays exact time and duration
@@ -135,6 +136,7 @@ function bvc_mouse_over_element(el){
 function bvc_keyboard_event_listener(ev){
     "use strict";
     if(_bvc_last_video==null)return;
+    if(!_bvc_state)return;
     let text="";
     switch(ev.key){
         case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
@@ -201,8 +203,8 @@ function bvc_keyboard_event_listener(ev){
             text=`volume decreased to ${Math.floor(_bvc_last_video.volume*100)} %`;
             _bvc_last_video.muted=_bvc_last_video.volume<=0;
         break;
-        case'm':text=`volume ${(_bvc_last_video.muted=!_bvc_last_video.muted)?"muted":"unmuted"}`;
-        break;
+        case'm':text=`volume ${(_bvc_last_video.muted=!_bvc_last_video.muted)?"muted":"unmuted"}`;break;
+        case'r':text=(_bvc_last_video.loop=!_bvc_last_video.loop)?"looping":"not looping";break;
         case'f':
             if(document.fullscreenEnabled){
                 if(!document.fullscreenElement)_bvc_last_video.requestFullscreen({navigationUI:'hide'});
@@ -245,37 +247,40 @@ function bvc_hint_visible(state){
     else _bvc_hint.classList.remove('visible');
 }
 /**
- * __toggle the better video controls keyboard event listener on/off__
+ * __toggle the better video controls on/off__
  * @param {?boolean} force_state if set forces the state to on on `true` and off on `false`
  * @returns {boolean} `true` if currently on and `false` if turned off
  */
-function bvc_toggle_eventlistener(force_state){
+function bvc_toggle_controls(force_state){
     "use strict";
     //~ `== null` to check for `=== undefined || === null`
     if(
         force_state==null
         ||(Boolean(force_state)!==_bvc_state)
-    ){
-        if(_bvc_state=!_bvc_state){
-            document.body.appendChild(_bvc_hint);
-            document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
-            document.addEventListener('click',bvc_click_event,{passive:true});
-            document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
-            document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
-        }else{
-            document.body.removeEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
-            document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
-            document.removeEventListener('click',bvc_click_event,{passive:true});
-            document.removeEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
-            document.body.removeChild(_bvc_hint);
-        }
-    }
+    )_bvc_state=!_bvc_state;
     return _bvc_state;
 }
+/** __add all event listeners__ */
+function bvc_add_eventlisteners(){
+    "use strict";
+    document.body.appendChild(_bvc_hint);
+    document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
+    document.addEventListener('click',bvc_click_event,{passive:true});
+    document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
+    document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
+}
+/** __remove all event listeners__ */
+function bvc_remove_eventlisteners(){
+    "use strict";
+    document.body.removeEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
+    document.removeEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
+    document.removeEventListener('click',bvc_click_event,{passive:true});
+    document.removeEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
+    document.body.removeChild(_bvc_hint);
+}
 //~ append hint element, turn on bvc, and log controls, toggle function, and credits as a collapsed group
-setTimeout(()=>{
-    bvc_toggle_eventlistener(true);
-    console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01001");
+bvc_add_eventlisteners();
+console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01001");
     console.info(
         "%ccontrols:\n%c%s",
         "background-color:#000;color:#fff;",
@@ -299,8 +304,10 @@ setTimeout(()=>{
             " [-] / [ArrowDown]              |  lower volume by 10%                                                   ",
             " [m]                            |  mute / unmute video                                                   ",
             "--------------------------------+------------------------------------------------------------------------",
+            " [r]                            |  toggle loop mode                                                      ",
             " [f]                            |  toggle fullscreen mode                                                ",
             " [p]                            |  toggle picture-in-picture mode                                        ",
+            "--------------------------------+------------------------------------------------------------------------",
             " [t]                            |  displays exact time and duration                                      ",
             " [u]                            |  displays current source url                                           ",
         ].join('\n')
@@ -308,7 +315,7 @@ setTimeout(()=>{
     console.info(
         "%cfunction for on/off toggle: %O",
         "background-color:#000;color:#fff;",
-        bvc_toggle_eventlistener,
+        bvc_toggle_controls,
     );
     console.info(
         "%cRight-click on the above function and select \"%cStore function as global variable%c\".\nThen you can call it with that variable like %ctemp1();",
@@ -318,5 +325,4 @@ setTimeout(()=>{
         "background-color:#000;color:#0a0;font-family:consolas,monospace;"
     );
     console.info("Credits: MAZ https://maz01001.github.io/ \nDocumentation: https://github.com/MAZ01001/other-projects#better_video_controlsuserjs \nSource code: https://github.com/MAZ01001/other-projects/blob/main/better_video_controls.user.js");
-    console.groupEnd();
-},2000);
+console.groupEnd();
