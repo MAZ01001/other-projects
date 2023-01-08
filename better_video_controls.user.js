@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.80
+// @version      0.99.81
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was moused over).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -64,26 +64,19 @@ _bvc_hint.addEventListener('mouseleave',()=>bvc_hint_visible(false),{passive:tru
 _bvc_hint.addEventListener('mouseover',()=>bvc_hint_visible(true),{passive:true});
 //~ main functions
 /**
- * __track mouse position on page__ \
- * and override `_bvc_last_video` if the mouse is over a video element
+ * __track mouse position on page__
  * @param {MouseEvent} ev - mouse event `mousemove`
  */
 function bvc_mousemove_event_listener(ev){
     "use strict";
     _bvc_mouse[0]=ev.clientX;
     _bvc_mouse[1]=ev.clientY;
-    for(const vid of document.body.getElementsByTagName("video")){
-        if(bvc_mouse_over_element(vid)){
-            _bvc_last_video=vid;
-            break;
-        }
-    }
 }
 /**
- * __set `_bvc_last_video` to `null` when clicking some where else__
- * @param {MouseEvent} ev - mouse event `click`
+ * __set `_bvc_last_video` to video hovering or `null` when clicking some where else__
+ * @param {MouseEvent?} ev - mouse event `click` - _unused_
  */
-function bvc_click_event(ev){
+function bvc_click_event(ev=null){
     "use strict";
     for(const vid of document.body.getElementsByTagName("video")){
         if(bvc_mouse_over_element(vid)){
@@ -172,11 +165,11 @@ function bvc_keyboard_event_listener(ev){
                 text="speed already min (10 %)";
             }
         break;
-        case'j':case'ArrowLeft':
+        case'j':case"ArrowLeft":
             _bvc_last_video.currentTime-=5;
             text=`skiped back 5 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
         break;
-        case'l':case'ArrowRight':
+        case'l':case"ArrowRight":
             _bvc_last_video.currentTime+=5;
             text=`skiped ahead 5 sec to ${_bvc_last_video.currentTime.toFixed(6)}`;
         break;
@@ -193,12 +186,12 @@ function bvc_keyboard_event_listener(ev){
             else _bvc_last_video.pause();
             text=`video ${_bvc_last_video.paused?"paused":"resumed"} at ${_bvc_last_video.currentTime.toFixed(6)}`;
         break;
-        case'+':case'ArrowUp':
+        case'+':case"ArrowUp":
             _bvc_last_video.volume=(vol=>vol>1?1:vol)(Number.parseFloat((_bvc_last_video.volume+0.1).toFixed(4)));
             text=`volume increased to ${Math.floor(_bvc_last_video.volume*100)} %`;
             _bvc_last_video.muted=_bvc_last_video.volume<=0;
         break;
-        case'-':case'ArrowDown':
+        case'-':case"ArrowDown":
             _bvc_last_video.volume=(vol=>vol<0?0:vol)(Number.parseFloat((_bvc_last_video.volume-0.1).toFixed(4)));
             text=`volume decreased to ${Math.floor(_bvc_last_video.volume*100)} %`;
             _bvc_last_video.muted=_bvc_last_video.volume<=0;
@@ -226,7 +219,10 @@ function bvc_keyboard_event_listener(ev){
         break;
         case'u':text=`url: ${_bvc_last_video.currentSrc}`;break;
     }
-    if(text==="")return;
+    if(text===""){
+        if(ev.key==="Control")bvc_click_event();
+        return;
+    }
     ev.preventDefault();
     ev.stopImmediatePropagation();
     _bvc_hint_text.innerText=text;
