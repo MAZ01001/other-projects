@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.81
+// @version      0.99.82
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was moused over).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -74,9 +74,9 @@ function bvc_mousemove_event_listener(ev){
 }
 /**
  * __set `_bvc_last_video` to video hovering or `null` when clicking some where else__
- * @param {MouseEvent?} ev - mouse event `click` - _unused_
+ * @param {MouseEvent} ev - mouse event `click` - _unused_
  */
-function bvc_click_event(ev=null){
+function bvc_click_event(ev){
     "use strict";
     for(const vid of document.body.getElementsByTagName("video")){
         if(bvc_mouse_over_element(vid)){
@@ -220,7 +220,7 @@ function bvc_keyboard_event_listener(ev){
         case'u':text=`url: ${_bvc_last_video.currentSrc}`;break;
     }
     if(text===""){
-        if(ev.key==="Control")bvc_click_event();
+        if(ev.key==="Control")bvc_click_event(null);
         return;
     }
     ev.preventDefault();
