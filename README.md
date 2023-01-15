@@ -61,14 +61,16 @@
 > A [tampermonkey](https://www.tampermonkey.net/) userscript to control html video elements with the keyboard.
 > Oriented on [YouTube](https://www.youtube.com/) keyboard shortcuts.
 >
-> Keeps track of the last video element that was moused over, to control it when a key is pressed.
+> Keeps track of the last video element that was clicked on to control it when a key is pressed.
 > It shows a popup for 2 sec on what action was performed (the text is selectable and stays while the mouse is over it).
 >
-> It also sets the video element when clicking over it or removing it when there is none.
-> And when you want to enter text and click on a text field, the video element will not be tracked anymore unless moused over again.
+> It also selects the video when clicking something over the video element, pressing ctrl while hovering over it, and removing otherwise.
+> To deselect, click somewhere else on the page (or ctrl while not hovering over a video element).
+>
+> __Disclamer__: Doesn't always work because of other event listeners on the page or integrated video players.
 >
 > __Note__: The default behavior of key presses and other event listeners will be prevented.
-> By utilizing `Event.preventDefault()` and `Event.stopImmediatePropagation()` while the controls are on.
+> By utilizing `Event.preventDefault()` and `Event.stopImmediatePropagation()` while the controls are on and a keypress from the controls list is registered.
 >
 > The following table will also be logged to the console, including a function to toggle the controls on/off.
 > <details open><summary>keyboard controls</summary>

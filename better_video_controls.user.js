@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.82
-// @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was moused over).
+// @version      0.99.83
+// @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
 // @updateURL    https://github.com/MAZ01001/other-projects/raw/main/better_video_controls.user.js
@@ -74,11 +74,11 @@ function bvc_mousemove_event_listener(ev){
 }
 /**
  * __set `_bvc_last_video` to video hovering or `null` when clicking some where else__
- * @param {MouseEvent} ev - mouse event `click` - _unused_
+ * @param {MouseEvent} ev - mouse event `mousedown` - _unused_
  */
-function bvc_click_event(ev){
+function bvc_mousedown_event(ev){
     "use strict";
-    for(const vid of document.body.getElementsByTagName("video")){
+    for(const vid of document.querySelectorAll("video")){
         if(bvc_mouse_over_element(vid)){
             _bvc_last_video=vid;
             return;
@@ -128,6 +128,10 @@ function bvc_mouse_over_element(el){
  */
 function bvc_keyboard_event_listener(ev){
     "use strict";
+    if(ev.key==="Control"){
+        bvc_mousedown_event(null);
+        return;
+    }
     if(_bvc_last_video==null)return;
     if(!_bvc_state)return;
     let text="";
@@ -219,10 +223,7 @@ function bvc_keyboard_event_listener(ev){
         break;
         case'u':text=`url: ${_bvc_last_video.currentSrc}`;break;
     }
-    if(text===""){
-        if(ev.key==="Control")bvc_click_event(null);
-        return;
-    }
+    if(text==="")return;
     ev.preventDefault();
     ev.stopImmediatePropagation();
     _bvc_hint_text.innerText=text;
@@ -259,7 +260,7 @@ function bvc_toggle_controls(force_state){
 //~ append hint element, turn on bvc, and log controls, toggle function, and credits as a collapsed group
 document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
 document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
-document.addEventListener('click',bvc_click_event,{passive:true});
+document.addEventListener('mousedown',bvc_mousedown_event,{passive:true});
 window.addEventListener('load',()=>{
     document.body.appendChild(_bvc_hint);
     document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
