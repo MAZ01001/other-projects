@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.83
+// @version      0.99.84
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -130,6 +130,10 @@ function bvc_keyboard_event_listener(ev){
     "use strict";
     if(ev.key==="Control"){
         bvc_mousedown_event(null);
+        return;
+    }
+    if(ev.altKey&&ev.key==="c"){
+        _bvc_state=!_bvc_state;
         return;
     }
     if(_bvc_last_video==null)return;
