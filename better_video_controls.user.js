@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.84
+// @version      0.99.85
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -25,7 +25,7 @@ const _bvc_hint=document.createElement('div'),
     _bvc_mouse=Object.seal([0,0]);
 /** @type {boolean} - if `false` ignores video controls and does not call `preventDefault` and `stopImmediatePropagation` for keypressed on video elements */
 let _bvc_state=true,
-    /** @type {HTMLVideoElement|null} - the last video element that the mouse was over */
+    /** @type {?HTMLVideoElement} - the last video element that the mouse was over */
     _bvc_last_video=null;
 //~ set a name and ""some"" styling for the hint element
 _bvc_hint.dataset.name="better-video-controls hint";
@@ -261,6 +261,15 @@ function bvc_toggle_controls(force_state){
     )_bvc_state=!_bvc_state;
     return _bvc_state;
 }
+/**
+ * __manually set the focused video element__
+ * @param {?HTMLVideoElement} new_video_element new video element focused - can be null
+ */
+function bvc_override_video_element(new_video_element){
+    "use strict";
+    if(new_video_element instanceof HTMLVideoElement)_bvc_last_video=new_video_element;
+    _bvc_last_video=null;
+}
 //~ append hint element, turn on bvc, and log controls, toggle function, and credits as a collapsed group
 document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
 document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
@@ -302,9 +311,10 @@ console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01
         ].join('\n')
     );
     console.info(
-        "%cfunction for on/off toggle: %O",
+        "%cfunction for on/off toggle: %O\nfunction for manually setting video element: %O",
         "background-color:#000;color:#fff;",
         bvc_toggle_controls,
+        bvc_override_video_element
     );
     console.info(
         "%cRight-click on the above function and select \"%cStore function as global variable%c\".\nThen you can call it with that variable like %ctemp1();",
