@@ -67,38 +67,41 @@
 > It also selects the video when clicking something over the video element, pressing ctrl while hovering over it, and removing otherwise.
 > To deselect, click somewhere else on the page (or ctrl while not hovering over a video element).
 >
-> __Disclamer__: Doesn't always work because of other event listeners on the page or integrated video players.
+> click [here](https://github.com/MAZ01001/other-projects/raw/main/better_video_controls.user.js "GitHub raw URL to better_video_controls.user.js file") to see this userscript in tampermonkey.
+>
+> __Disclamer__: Sadly this doesn't always work because of other event listeners on the page or integrated video players.
 >
 > __Note__: The default behavior of key presses and other event listeners will be prevented.
 > By utilizing `Event.preventDefault()` and `Event.stopImmediatePropagation()` while the controls are on and a keypress from the controls list is registered.
 >
-> The following table will also be logged to the console, including a function to toggle the controls on/off.
-> <details open><summary>keyboard controls</summary>
+> The following table will also be logged to the console, including a functions to toggle the controls on/off and for manually overriding the targeted video element.
+> <details closed><summary>keyboard controls</summary>
 >
->      Keyboard (intended for QWERTZ) | Function
->     --------------------------------+------------------------------------------------------------------------
->      [0] - [9]                      |  skip to []% of total duration (ie. key [8] skips to 80% of the video)
->      [.]                            |  (while paused) next frame (1/60 sec)
->      [,]                            |  (while paused) previous frame (1/60 sec)
->      [:] ( [shift] [.] )            |  decrease playback speed by 10%
->      [;] ( [shift] [,] )            |  increase playback speed by 10%
->     --------------------------------+------------------------------------------------------------------------
->      [j] / [ArrowLeft]              |  rewind 5 seconds
->      [l] / [ArrowRight]             |  fast forward 5 seconds
->      [J] ( [shift] [j] )            |  rewind 30 seconds
->      [l] ( [shift] [l] )            |  fast forward 30 seconds
->      [k]                            |  pause / play video
->     --------------------------------+------------------------------------------------------------------------
->      [+] / [ArrowUp]                |  increase volume by 10%
->      [-] / [ArrowDown]              |  lower volume by 10%
->      [m]                            |  mute / unmute video
->     --------------------------------+------------------------------------------------------------------------
->      [r]                            |  toggle loop mode
->      [f]                            |  toggle fullscreen mode
->      [p]                            |  toggle picture-in-picture mode
->     --------------------------------+------------------------------------------------------------------------
->      [t]                            |  displays exact time and duration
->      [u]                            |  displays current source url
+> | Keyboard (intended for QWERTZ) | Function                                                              |
+> | ------------------------------ | --------------------------------------------------------------------- |
+> | [0] - [9]                      | skip to []% of total duration (ie. key [8] skips to 80% of the video) |
+> | [.]                            | (while paused) next frame (1/60 sec)                                  |
+> | [,]                            | (while paused) previous frame (1/60 sec)                              |
+> | [:] ( [shift] [.] )            | decrease playback speed by 10%                                        |
+> | [;] ( [shift] [,] )            | increase playback speed by 10%                                        |
+> | <hr>                           | <hr>                                                                  |
+> | [j] / [ArrowLeft]              | rewind 5 seconds                                                      |
+> | [l] / [ArrowRight]             | fast forward 5 seconds                                                |
+> | [J] ( [shift] [j] )            | rewind 30 seconds                                                     |
+> | [l] ( [shift] [l] )            | fast forward 30 seconds                                               |
+> | [k]                            | pause / play video                                                    |
+> | <hr>                           | <hr>                                                                  |
+> | [+] / [ArrowUp]                | increase volume by 10%                                                |
+> | [-] / [ArrowDown]              | lower volume by 10%                                                   |
+> | [m]                            | mute / unmute video                                                   |
+> | <hr>                           | <hr>                                                                  |
+> | [R] ( [shift] [r] )            | setup custom loop (shows a menu)                                      |
+> | [r]                            | toggle loop mode                                                      |
+> | [f]                            | toggle fullscreen mode                                                |
+> | [p]                            | toggle picture-in-picture mode                                        |
+> | <hr>                           | <hr>                                                                  |
+> | [t]                            | displays exact time and duration                                      |
+> | [u]                            | displays current source url                                           |
 >
 > </details>
 >

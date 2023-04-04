@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      0.99.85
+// @version      1.0
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -17,16 +17,32 @@
 //~ set some (local) variables
 /** @type {HTMLDivElement} - the base for the `_bvc_hint_text` and `_bvc_css` element */
 const _bvc_hint=document.createElement('div'),
-    /** @type {HTMLStyleElement} - the element for showing the action done on keypress */
+    /** @type {HTMLDivElement} - the base for the from-to-loop menu */
+    _bvc_loop_menu=document.createElement('div'),
+    /** @type {HTMLSpanElement} - the element for showing the action done on keypress */
     _bvc_hint_text=document.createElement('span'),
+    /** @type {HTMLInputElement} - input field for the from-time in `_bvc_loop_menu` */
+    _bvc_loop_from=document.createElement("input"),
+    /** @type {HTMLInputElement} - input field for the to-time in `_bvc_loop_menu` */
+    _bvc_loop_to=document.createElement("input"),
+    /** @type {HTMLInputElement} - the start-loop button in `_bvc_loop_menu` */
+    _bvc_loop_set=Object.assign(document.createElement("input"),{type:"button",value:"Loop"}),
     /** @type {HTMLStyleElement} - css style for the `_bvc_hint` element */
     _bvc_css=document.createElement('style'),
     /** @type {number[]} - current mouse x and y position on page (sealed array) */
-    _bvc_mouse=Object.seal([0,0]);
+    _bvc_mouse=Object.seal([0,0]),
+    /** @type {RegExp} - pattern for matching time in format "-0:0:0.0" (sign, hours, minutes, and milliseconds are optional) - (grouped: sign; hours; minutes; seconds (with milliseconds)) */
+    _bvc_time_format=/^([+-]?)(?:(?:(0|[1-9][0-9]*):)?(0|[1-9][0-9]*):)?((?:0|[1-9][0-9]*)(?:\.[0-9]+)?)$/;
 /** @type {boolean} - if `false` ignores video controls and does not call `preventDefault` and `stopImmediatePropagation` for keypressed on video elements */
 let _bvc_state=true,
     /** @type {?HTMLVideoElement} - the last video element that the mouse was over */
-    _bvc_last_video=null;
+    _bvc_last_video=null,
+    /** @type {number} - the start for looping interval */
+    _bvc_loop_start=0,
+    /** @type {number} - the end for looping interval */
+    _bvc_loop_end=0,
+    /** @type {number|null} - the looping interval or null */
+    _bvc_loop_interval=null;
 //~ set a name and ""some"" styling for the hint element
 _bvc_hint.dataset.name="better-video-controls hint";
 _bvc_css.innerText=`
@@ -56,12 +72,44 @@ _bvc_css.innerText=`
         transition: opacity 0s linear 0s,
             visibility 0s linear 0s;
     }
+    div[data-name="better-video-controls hint"]>div[data-name="better-video-controls loop"] input:not([type="button"]){
+        all: inherit;
+        border: revert;
+    }
 `.replaceAll(/\n\s*/g,' ');
 //~ append elements and eventlisteners to base element (stay even when element is removed and re-appended to document body)
 _bvc_hint.appendChild(_bvc_css);
 _bvc_hint.appendChild(_bvc_hint_text);
 _bvc_hint.addEventListener('mouseleave',()=>bvc_hint_visible(false),{passive:true});
 _bvc_hint.addEventListener('mouseover',()=>bvc_hint_visible(true),{passive:true});
+//~ setup loop menu
+(()=>{
+    "use strict";
+    _bvc_loop_menu.dataset.name="better-video-controls loop";
+    [_bvc_loop_from,_bvc_loop_to].forEach(el=>{
+        "use strict";
+        el.required=true;
+        el.addEventListener('input',()=>el.reportValidity(),{passive:true});
+        el.title="format: hours:min:sec.ms (all but seconds are optional)";
+        el.pattern="^([+-]?)(?:(?:(0|[1-9][0-9]*):)?(0|[1-9][0-9]*):)?((?:0|[1-9][0-9]*)(?:\.[0-9]+)?)$";
+    })
+    let _fieldset = document.createElement("fieldset"),
+        _legend = Object.assign(document.createElement("legend"),{innerText:"Loop video"}),
+        _label_from = Object.assign(document.createElement("label"),{innerText:"From:"}),
+        _label_to = Object.assign(document.createElement("label"),{innerText:"To:"});
+    _bvc_hint.appendChild(_bvc_loop_menu);
+    _bvc_loop_menu.appendChild(_fieldset);
+    _fieldset.appendChild(_legend);
+    _fieldset.appendChild(_label_from);
+    _fieldset.appendChild(_label_to);
+    _fieldset.appendChild(_bvc_loop_set);
+    _label_from.append(_bvc_loop_from);
+    _label_to.append(_bvc_loop_to);
+    _bvc_loop_set.addEventListener('click',()=>{
+        "use strict";
+        _bvc_loop_set.style.backgroundColor=bvc_make_loop_interval(_bvc_loop_from.value,_bvc_loop_to.value)?"#6f6":"#f66";
+    },{passive:true});
+})();
 //~ main functions
 /**
  * __track mouse position on page__
@@ -100,6 +148,47 @@ function bvc_mouse_over_element(el){
         && _bvc_mouse[1]<=bottom;
 }
 /**
+ * __validates the time and returns it__ \
+ * _requires `_bvc_last_video` to be set_
+ * @param {string|number} time - the time to validate
+ * @returns {number} the corrected time or `NaN` if not in format
+ */
+function bvc_validate_time(time){
+    if(_bvc_last_video==null)return NaN;
+    if(typeof time!=="number"){
+        time=String(time);
+        let match=time.match(_bvc_time_format);
+        if(match==null)return NaN;
+        time=((match[1]??'')==='-'?-1:1)*(Number(match[2]??0)*3600+Number(match[3]??0)*60+Number(match[4]));
+    }
+    if(time<0)time=_bvc_last_video.duration+time;
+    if(time<0||time>_bvc_last_video.duration)return NaN;
+    return time;
+}
+/**
+ * __creates a loop with given start and end points__
+ * @param {string|number} from - the starting position of the loop
+ * @param {string|number} to - the end position of the loop
+ * @returns {boolean} true if loop was created successfully and false otherwise
+ */
+function bvc_make_loop_interval(from,to){
+    "use strict";
+    if(_bvc_last_video==null)return false;
+    if(Number.isNaN(_bvc_loop_start=bvc_validate_time(from)))return false;
+    if(Number.isNaN(_bvc_loop_end=bvc_validate_time(to)))return false;
+    if(from===to)return false;
+    if(_bvc_loop_interval!=null)clearInterval(_bvc_loop_interval);
+    if(from<to)
+        //~ |    +------+    |
+        _bvc_loop_interval=setInterval(()=>{if(_bvc_last_video.currentTime>=_bvc_loop_end)_bvc_last_video.currentTime=_bvc_loop_start;},100);
+    else{
+        //~ |----+      +----|
+        _bvc_last_video.loop=true;
+        _bvc_loop_interval=setInterval(()=>{if(_bvc_last_video.currentTime>=_bvc_loop_end&&_bvc_last_video.currentTime<_bvc_loop_start)_bvc_last_video.currentTime=_bvc_loop_start;},100);
+    }
+    return true;
+}
+/**
  * __keyboard controls for video element__ \
  * `keypress` eventlistener on document \
  * _(controls for last hovered video element)_
@@ -132,12 +221,14 @@ function bvc_keyboard_event_listener(ev){
         bvc_mousedown_event(null);
         return;
     }
-    if(ev.altKey&&ev.key==="c"){
+    if(ev.altKey&&ev.key==='c'){
         _bvc_state=!_bvc_state;
         return;
     }
     if(_bvc_last_video==null)return;
     if(!_bvc_state)return;
+    if(_bvc_hint.classList.contains('visible')&&!_bvc_loop_menu.hidden)return;
+    _bvc_loop_menu.hidden=true;
     let text="";
     switch(ev.key){
         case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
@@ -205,7 +296,22 @@ function bvc_keyboard_event_listener(ev){
             _bvc_last_video.muted=_bvc_last_video.volume<=0;
         break;
         case'm':text=`volume ${(_bvc_last_video.muted=!_bvc_last_video.muted)?"muted":"unmuted"}`;break;
-        case'r':text=(_bvc_last_video.loop=!_bvc_last_video.loop)?"looping":"not looping";break;
+        case'r':
+            if(_bvc_loop_interval==null) text=(_bvc_last_video.loop=!_bvc_last_video.loop)?"looping":"not looping";
+            else{
+                clearInterval(_bvc_loop_interval);
+                _bvc_loop_interval=null;
+                _bvc_last_video.loop=false;
+                text="reset custom loop / not looping";
+            }
+        break;
+        case'R':
+            text=`setup loop (${_bvc_loop_interval==null?"no loop setup":"currently looping"}):`;
+            _bvc_loop_from.value=Number.isNaN(_bvc_loop_start)?"":String(_bvc_loop_start);
+            _bvc_loop_to.value=Number.isNaN(_bvc_loop_end)?"":String(_bvc_loop_end);
+            _bvc_loop_set.style.backgroundColor=_bvc_loop_interval==null?"#ccc":"#6f6";
+            _bvc_loop_menu.hidden=false;
+        break;
         case'f':
             if(document.fullscreenEnabled){
                 if(!document.fullscreenElement)_bvc_last_video.requestFullscreen({navigationUI:'hide'});
@@ -248,7 +354,7 @@ function bvc_hint_visible(state){
     else _bvc_hint.classList.remove('visible');
 }
 /**
- * __toggle the better video controls on/off__
+ * __toggle the better video controls on/off (resets custom loop when turned off)__
  * @param {?boolean} force_state if set forces the state to on on `true` and off on `false`
  * @returns {boolean} `true` if currently on and `false` if turned off
  */
@@ -258,7 +364,7 @@ function bvc_toggle_controls(force_state){
     if(
         force_state==null
         ||(Boolean(force_state)!==_bvc_state)
-    )_bvc_state=!_bvc_state;
+    )if(!(_bvc_state=!_bvc_state)&&_bvc_loop_interval!=null)clearInterval(_bvc_loop_interval);
     return _bvc_state;
 }
 /**
@@ -268,7 +374,7 @@ function bvc_toggle_controls(force_state){
 function bvc_override_video_element(new_video_element){
     "use strict";
     if(new_video_element instanceof HTMLVideoElement)_bvc_last_video=new_video_element;
-    _bvc_last_video=null;
+    else _bvc_last_video=null;
 }
 //~ append hint element, turn on bvc, and log controls, toggle function, and credits as a collapsed group
 document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
@@ -302,6 +408,7 @@ console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01
             " [-] / [ArrowDown]              |  lower volume by 10%                                                   ",
             " [m]                            |  mute / unmute video                                                   ",
             "--------------------------------+------------------------------------------------------------------------",
+            " [R] ( [shift] [r] )            |  setup custom loop (shows a menu)                                      ",
             " [r]                            |  toggle loop mode                                                      ",
             " [f]                            |  toggle fullscreen mode                                                ",
             " [p]                            |  toggle picture-in-picture mode                                        ",
@@ -311,10 +418,11 @@ console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01
         ].join('\n')
     );
     console.info(
-        "%cfunction for on/off toggle: %O\nfunction for manually setting video element: %O",
+        "%cfunction for on/off toggle: %O\nfunction for manually setting video element: %O\nfunction for manually creating the custom loop: %O",
         "background-color:#000;color:#fff;",
         bvc_toggle_controls,
-        bvc_override_video_element
+        bvc_override_video_element,
+        bvc_make_loop_interval
     );
     console.info(
         "%cRight-click on the above function and select \"%cStore function as global variable%c\".\nThen you can call it with that variable like %ctemp1();",
