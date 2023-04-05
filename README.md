@@ -10,6 +10,7 @@
 - [[black-green.css]](#black-greencss)
 - [[ffmpeg.md]](#ffmpegmd)
 - [[better_video_controls.user.js]](#better_video_controlsuserjs)
+- [[ConsoleIO.cs]](#consoleiocs)
 
 ----
 >
@@ -104,4 +105,14 @@
 > | [u]                            | displays current source url                                           |
 >
 > </details>
+>
+----
+>
+> ## [ConsoleIO.cs](https://github.com/MAZ01001/other-projects/blob/main/ConsoleIO.cs)
+>
+> A text-based game engine for (windows) console.
+>
+> It was made for a school project to learn C# with a console game, but as you can see, I went overboard with this.
+>
+> I won't even attempt listing all methods here, so good luck reading through it if you got the time.
 >
