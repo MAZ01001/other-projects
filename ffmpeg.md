@@ -103,7 +103,7 @@
 
 ## Add thumbnail
 
-    ffmpeg -i ".\INPUT.mp4" -i ".\IMAGE.png" -map 0 -map 1 -c copy -c:v:1 png - disposition:v:1 attached_pic ".\OUTPUT.mp4"
+    ffmpeg -i ".\INPUT.mp4" -i ".\IMAGE.png" -map 0 -map 1 -c copy -c:v:1 png -disposition:v:1 attached_pic ".\OUTPUT.mp4"
 
 ## Add subtitles
 
