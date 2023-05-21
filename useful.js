@@ -50,6 +50,24 @@ function strCharStats(str,chars=''){
 //~ number
 //// see https://github.com/MAZ01001/Math-Js/blob/main/functions.js
 
+//~ array
+/**
+ * __checks if the given array has empty slots__ \
+ * most iterator functions skip empty entries, like `every` and `some`, so they might bypass checks and lead to undefined behavior \
+ * their value is `undefined` but they're treated differently from an actual `undefined` in the array \
+ * but the length attribute does include them since they do contribute to the total length of the array
+ * @param {any[]} arr - an array of items (any items, incl. `undefined` are allowed)
+ * @returns {boolean} true if the array has empty slots and false otherwise
+ * @example
+ * hasArrayHoles(["",0,undefined,,,,null,()=>{},[],{}]); //=> true
+ * hasArrayHoles(["",0,undefined,null,()=>{},[],{}]);    //=> false
+ */
+function hasArrayHoles(arr){
+    let count=0;
+    arr.forEach(()=>count++);
+    return arr.length!==count;
+}
+
 //~ HTML / DOM
 /**
  * __measures the dimensions of a given `text` in pixels (sub-pixel accurate)__ \
