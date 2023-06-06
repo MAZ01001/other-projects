@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      1.0
+// @version      1.0.1
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -384,7 +384,11 @@ window.addEventListener('load',()=>{
     document.body.appendChild(_bvc_hint);
     document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
 },{passive:true,once:true});
-console.groupCollapsed("Better Video Controls - Script via Tampermonkey by MAZ01001");
+console.groupCollapsed(
+    "%c%s",
+    "background-color:#000;color:#0F0;font-size:larger",
+    "Better Video Controls - Script via Tampermonkey by MAZ01001"
+);
     console.info(
         "%ccontrols:\n%c%s",
         "background-color:#000;color:#fff;",
