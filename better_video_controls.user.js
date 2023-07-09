@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      1.0.1
+// @version      1.1.0
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -15,7 +15,7 @@
 // ==/UserScript==
 
 //~ set some (local) variables
-/** @type {HTMLDivElement} - the base for the `_bvc_hint_text` and `_bvc_css` element */
+/** @type {HTMLDivElement} - the base element */
 const _bvc_hint=document.createElement('div'),
     /** @type {HTMLDivElement} - the base for the from-to-loop menu */
     _bvc_loop_menu=document.createElement('div'),
@@ -27,15 +27,13 @@ const _bvc_hint=document.createElement('div'),
     _bvc_loop_to=document.createElement("input"),
     /** @type {HTMLInputElement} - the start-loop button in `_bvc_loop_menu` */
     _bvc_loop_set=Object.assign(document.createElement("input"),{type:"button",value:"Loop"}),
-    /** @type {HTMLStyleElement} - css style for the `_bvc_hint` element */
-    _bvc_css=document.createElement('style'),
     /** @type {number[]} - current mouse x and y position on page (sealed array) */
     _bvc_mouse=Object.seal([0,0]),
     /** @type {RegExp} - pattern for matching time in format "-0:0:0.0" (sign, hours, minutes, and milliseconds are optional) - (grouped: sign; hours; minutes; seconds (with milliseconds)) */
     _bvc_time_format=/^([+-]?)(?:(?:(0|[1-9][0-9]*):)?(0|[1-9][0-9]*):)?((?:0|[1-9][0-9]*)(?:\.[0-9]+)?)$/;
 /** @type {boolean} - if `false` ignores video controls and does not call `preventDefault` and `stopImmediatePropagation` for keypressed on video elements */
 let _bvc_state=true,
-    /** @type {?HTMLVideoElement} - the last video element that the mouse was over */
+    /** @type {HTMLVideoElement|null} - the last video element that the mouse was over */
     _bvc_last_video=null,
     /** @type {number} - the start for looping interval */
     _bvc_loop_start=0,
@@ -43,49 +41,29 @@ let _bvc_state=true,
     _bvc_loop_end=0,
     /** @type {number|null} - the looping interval or null */
     _bvc_loop_interval=null;
-//~ set a name and ""some"" styling for the hint element
-_bvc_hint.dataset.name="better-video-controls hint";
-_bvc_css.innerText=`
-    div[data-name="better-video-controls hint"]{
-        position: fixed;
-        transform: translate(-50%,-50%);
-        border-radius: .5rem;
-        border: 1px solid #333;
-        background-color: #000;
-        color: #0f0;
-        font-family: consolas,monospace;
-        font-size: large;
-        text-align: center;
-        width: max-content;
-        padding: 2px 8px;
-        /* white-space: nowrap; */
-        line-break: anywhere;
-        z-index: 1000000;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 500ms ease-in 500ms,
-            visibility 0s linear 1s;
-    }
-    div[data-name="better-video-controls hint"].visible{
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0s linear 0s,
-            visibility 0s linear 0s;
-    }
-    div[data-name="better-video-controls hint"]>div[data-name="better-video-controls loop"] input:not([type="button"]){
-        all: inherit;
-        border: revert;
-    }
-`.replaceAll(/\n\s*/g,' ');
+//~ set a name and some styling for the hint element
+_bvc_hint.dataset.name="better-video-controls";
+_bvc_hint.style.position="fixed";
+_bvc_hint.style.transform="translate(-50%,-50%)";
+_bvc_hint.style.borderRadius=".5rem";
+_bvc_hint.style.border="1px solid #333";
+_bvc_hint.style.backgroundColor="#000";
+_bvc_hint.style.color="#0f0";
+_bvc_hint.style.fontFamily="consolas,monospace";
+_bvc_hint.style.fontSize="large";
+_bvc_hint.style.textAlign="center";
+_bvc_hint.style.width="max-content";
+_bvc_hint.style.padding="2px 8px";
+//// _bvc_hint.style.whiteSpace="nowrap";
+_bvc_hint.style.lineBreak="anywhere";
+_bvc_hint.style.zIndex="1000000";
 //~ append elements and eventlisteners to base element (stay even when element is removed and re-appended to document body)
-_bvc_hint.appendChild(_bvc_css);
 _bvc_hint.appendChild(_bvc_hint_text);
 _bvc_hint.addEventListener('mouseleave',()=>bvc_hint_visible(false),{passive:true});
 _bvc_hint.addEventListener('mouseover',()=>bvc_hint_visible(true),{passive:true});
 //~ setup loop menu
 (()=>{
     "use strict";
-    _bvc_loop_menu.dataset.name="better-video-controls loop";
     [_bvc_loop_from,_bvc_loop_to].forEach(el=>{
         "use strict";
         el.required=true;
@@ -229,6 +207,7 @@ function bvc_keyboard_event_listener(ev){
     if(!_bvc_state)return;
     if(_bvc_hint.classList.contains('visible')&&!_bvc_loop_menu.hidden)return;
     _bvc_loop_menu.hidden=true;
+    _bvc_loop_menu.style.display="none";
     let text="";
     switch(ev.key){
         case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
@@ -311,6 +290,7 @@ function bvc_keyboard_event_listener(ev){
             _bvc_loop_to.value=Number.isNaN(_bvc_loop_end)?"":String(_bvc_loop_end);
             _bvc_loop_set.style.backgroundColor=_bvc_loop_interval==null?"#ccc":"#6f6";
             _bvc_loop_menu.hidden=false;
+            _bvc_loop_menu.style.display="";
         break;
         case'f':
             if(document.fullscreenEnabled){
@@ -345,13 +325,20 @@ function bvc_keyboard_event_listener(ev){
     if(!bvc_mouse_over_element(_bvc_hint))bvc_hint_visible(false);
 }
 /**
- * __set/remove visible class of `_bvc_hint` to show/hide the element__
+ * __toggle visibility of `_bvc_hint` to show/hide the element__
  * @param {boolean} state - `true` to show the element and `false` to fade out
  */
 function bvc_hint_visible(state){
     "use strict";
-    if(state)_bvc_hint.classList.add('visible');
-    else _bvc_hint.classList.remove('visible');
+    if(state){
+        _bvc_hint.style.transition="opacity 0s linear 0s,visibility 0s linear 0s";
+        _bvc_hint.style.visibility="visible";
+        _bvc_hint.style.opacity="1";
+    }else{
+        _bvc_hint.style.transition="opacity 500ms ease-in 500ms,visibility 0s linear 1s";
+        _bvc_hint.style.visibility="hidden";
+        _bvc_hint.style.opacity="0";
+    }
 }
 /**
  * __toggle the better video controls on/off (resets custom loop when turned off)__
