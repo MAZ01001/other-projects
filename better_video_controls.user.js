@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      1.1.0
+// @version      1.1.1
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -68,8 +68,9 @@ _bvc_hint.addEventListener('mouseover',()=>bvc_hint_visible(true),{passive:true}
         "use strict";
         el.required=true;
         el.addEventListener('input',()=>el.reportValidity(),{passive:true});
-        el.title="format: hours:min:sec.ms (all but seconds are optional)";
-        el.pattern="^([+-]?)(?:(?:(0|[1-9][0-9]*):)?(0|[1-9][0-9]*):)?((?:0|[1-9][0-9]*)(?:\.[0-9]+)?)$";
+        el.title="format: [[hours:]minutes:]seconds[.milliseconds]";
+        el.pattern="([+\\-]?)(?:(?:(0|[1-9][0-9]*):)?(0|[1-9][0-9]*):)?((?:0|[1-9][0-9]*)(?:\\.[0-9]+)?)";
+        el.placeholder="h:m:s.ms";
     })
     let _fieldset = document.createElement("fieldset"),
         _legend = Object.assign(document.createElement("legend"),{innerText:"Loop video"}),
