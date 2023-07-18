@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      1.1.3
+// @version      1.1.4
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -16,11 +16,11 @@
 
 //~ set some (local) variables
 /** @type {HTMLDivElement} - the base element */
-const _bvc_hint=document.createElement('div'),
+const _bvc_hint=document.createElement("div"),
     /** @type {HTMLDivElement} - the base for the from-to-loop menu */
-    _bvc_loop_menu=document.createElement('div'),
+    _bvc_loop_menu=document.createElement("div"),
     /** @type {HTMLSpanElement} - the element for showing the action done on keypress */
-    _bvc_hint_text=document.createElement('span'),
+    _bvc_hint_text=document.createElement("span"),
     /** @type {HTMLInputElement} - input field for the from-time in `_bvc_loop_menu` */
     _bvc_loop_from=document.createElement("input"),
     /** @type {HTMLInputElement} - input field for the to-time in `_bvc_loop_menu` */
@@ -61,14 +61,14 @@ _bvc_hint.style.visibility="hidden";
 _bvc_hint.style.opacity="0";
 _bvc_hint.appendChild(_bvc_hint_text);
 //~ fade out `_bvc_hint` when the document window changes
-document.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
-document.addEventListener('scroll',()=>bvc_hint_visible(false),{passive:true});
+document.addEventListener("resize",()=>bvc_hint_visible(false),{passive:true});
+document.addEventListener("scroll",()=>bvc_hint_visible(false),{passive:true});
 //~ mouse hover, focus, or selection events may change `_bvc_hint`s visibility status (fades out when not focused in any way)
-_bvc_hint.addEventListener('focusin',()=>bvc_hint_visible(true),{passive:true});
-_bvc_hint.addEventListener('focusout',()=>bvc_hint_visible(bvc_mouse_over_element(_bvc_hint)||_bvc_hint.contains(document.getSelection().focusNode.parentElement)),{passive:true});
-_bvc_hint.addEventListener('mouseover',()=>bvc_hint_visible(true),{passive:true});
-_bvc_hint.addEventListener('mouseleave',()=>bvc_hint_visible(_bvc_hint.contains(document.activeElement)||_bvc_hint.contains(document.getSelection().focusNode.parentElement)),{passive:true});
-document.addEventListener('selectionchange',()=>{
+_bvc_hint.addEventListener("focusin",()=>bvc_hint_visible(true),{passive:true});
+_bvc_hint.addEventListener("focusout",()=>bvc_hint_visible(bvc_mouse_over_element(_bvc_hint)||_bvc_hint.contains(document.getSelection().focusNode.parentElement)),{passive:true});
+_bvc_hint.addEventListener("mouseover",()=>bvc_hint_visible(true),{passive:true});
+_bvc_hint.addEventListener("mouseleave",()=>bvc_hint_visible(_bvc_hint.contains(document.activeElement)||_bvc_hint.contains(document.getSelection().focusNode.parentElement)),{passive:true});
+document.addEventListener("selectionchange",()=>{
     if(
         _bvc_hint.style.visibility==="visible"
         &&!bvc_mouse_over_element(_bvc_hint)
@@ -82,7 +82,7 @@ document.addEventListener('selectionchange',()=>{
     [_bvc_loop_from,_bvc_loop_to].forEach(el=>{
         "use strict";
         el.required=true;
-        el.addEventListener('input',()=>el.reportValidity(),{passive:true});
+        el.addEventListener("input",()=>el.reportValidity(),{passive:true});
         el.title="format: [[hours:]minutes:]seconds[.milliseconds]";
         el.pattern="([+\\-]?)(?:(?:(0|[1-9][0-9]*):)?(0|[1-9][0-9]*):)?((?:0|[1-9][0-9]*)(?:\\.[0-9]+)?)";
         el.placeholder="h:m:s.ms";
@@ -99,7 +99,7 @@ document.addEventListener('selectionchange',()=>{
     _fieldset.appendChild(_bvc_loop_set);
     _label_from.append(_bvc_loop_from);
     _label_to.append(_bvc_loop_to);
-    _bvc_loop_set.addEventListener('click',()=>{
+    _bvc_loop_set.addEventListener("click",()=>{
         "use strict";
         _bvc_loop_set.style.backgroundColor=bvc_make_loop_interval(_bvc_loop_from.value,_bvc_loop_to.value)?"#6f6":"#f66";
     },{passive:true});
@@ -221,7 +221,7 @@ function bvc_keyboard_event_listener(ev){
     }
     if(_bvc_last_video==null)return;
     if(!_bvc_state)return;
-    if(_bvc_hint.classList.contains('visible')&&!_bvc_loop_menu.hidden)return;
+    if(_bvc_hint.style.visibility==="visible"&&!_bvc_loop_menu.hidden)return;
     _bvc_loop_menu.hidden=true;
     _bvc_loop_menu.style.display="none";
     let text="";
@@ -310,7 +310,7 @@ function bvc_keyboard_event_listener(ev){
         break;
         case'f':
             if(document.fullscreenEnabled){
-                if(!document.fullscreenElement)_bvc_last_video.requestFullscreen({navigationUI:'hide'});
+                if(!document.fullscreenElement)_bvc_last_video.requestFullscreen({navigationUI:"hide"});
                 else if(document.fullscreenElement===_bvc_last_video)document.exitFullscreen();
             }else text="fullscreen not supported";
         break;
@@ -384,10 +384,10 @@ function bvc_override_video_element(new_video_element){
     else _bvc_last_video=null;
 }
 //~ append hint element, turn on bvc, and log controls, toggle function, and credits as a collapsed group
-document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
-document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
-document.addEventListener('mousedown',bvc_mousedown_event,{passive:true});
-document.addEventListener('load',()=>{document.body.appendChild(_bvc_hint);},{passive:true,once:true});
+document.addEventListener("keydown",bvc_keyboard_event_listener,{passive:false});
+document.addEventListener("mousemove",bvc_mousemove_event_listener,{passive:true});
+document.addEventListener("mousedown",bvc_mousedown_event,{passive:true});
+document.addEventListener("load",()=>{document.body.appendChild(_bvc_hint);},{passive:true,once:true});
 console.groupCollapsed(
     "%c%s",
     "background-color:#000;color:#0F0;font-size:larger",
@@ -399,6 +399,9 @@ console.groupCollapsed(
         "background-color:#000;color:#0a0;font-family:consolas,monospace;",
         [
             " Keyboard (intended for QWERTZ) | Function                                                               ",
+            "--------------------------------+------------------------------------------------------------------------",
+            " [alt] [c]                      |  toggles controls (no visual cue)                                      ",
+            " [ctrl]                         |  use the video element currently hovering over, if any (no visual cue) ",
             "--------------------------------+------------------------------------------------------------------------",
             " [0] - [9]                      |  skip to []% of total duration (ie. key [8] skips to 80% of the video) ",
             " [.]                            |  (while paused) next frame (1/60 sec)                                  ",
