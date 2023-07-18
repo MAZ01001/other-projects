@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      1.1.1
+// @version      1.1.2
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -57,6 +57,8 @@ _bvc_hint.style.padding="2px 8px";
 //// _bvc_hint.style.whiteSpace="nowrap";
 _bvc_hint.style.lineBreak="anywhere";
 _bvc_hint.style.zIndex="1000000";
+_bvc_hint.style.visibility="hidden";
+_bvc_hint.style.opacity="0";
 //~ append elements and eventlisteners to base element (stay even when element is removed and re-appended to document body)
 _bvc_hint.appendChild(_bvc_hint_text);
 _bvc_hint.addEventListener('mouseleave',()=>bvc_hint_visible(false),{passive:true});
