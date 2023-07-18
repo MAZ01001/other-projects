@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      1.1.2
+// @version      1.1.3
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -59,10 +59,23 @@ _bvc_hint.style.lineBreak="anywhere";
 _bvc_hint.style.zIndex="1000000";
 _bvc_hint.style.visibility="hidden";
 _bvc_hint.style.opacity="0";
-//~ append elements and eventlisteners to base element (stay even when element is removed and re-appended to document body)
 _bvc_hint.appendChild(_bvc_hint_text);
-_bvc_hint.addEventListener('mouseleave',()=>bvc_hint_visible(false),{passive:true});
+//~ fade out `_bvc_hint` when the document window changes
+document.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
+document.addEventListener('scroll',()=>bvc_hint_visible(false),{passive:true});
+//~ mouse hover, focus, or selection events may change `_bvc_hint`s visibility status (fades out when not focused in any way)
+_bvc_hint.addEventListener('focusin',()=>bvc_hint_visible(true),{passive:true});
+_bvc_hint.addEventListener('focusout',()=>bvc_hint_visible(bvc_mouse_over_element(_bvc_hint)||_bvc_hint.contains(document.getSelection().focusNode.parentElement)),{passive:true});
 _bvc_hint.addEventListener('mouseover',()=>bvc_hint_visible(true),{passive:true});
+_bvc_hint.addEventListener('mouseleave',()=>bvc_hint_visible(_bvc_hint.contains(document.activeElement)||_bvc_hint.contains(document.getSelection().focusNode.parentElement)),{passive:true});
+document.addEventListener('selectionchange',()=>{
+    if(
+        _bvc_hint.style.visibility==="visible"
+        &&!bvc_mouse_over_element(_bvc_hint)
+        &&!_bvc_hint.contains(document.activeElement)
+        &&!_bvc_hint.contains(document.getSelection().focusNode.parentElement)
+    )bvc_hint_visible(false);
+},{passive:true});
 //~ setup loop menu
 (()=>{
     "use strict";
@@ -325,7 +338,11 @@ function bvc_keyboard_event_listener(ev){
     _bvc_hint.style.left=`${left+Math.floor(width*.5)}px`;
     _bvc_hint.style.maxWidth=`${width}px`;
     bvc_hint_visible(true);
-    if(!bvc_mouse_over_element(_bvc_hint))bvc_hint_visible(false);
+    if(
+        !bvc_mouse_over_element(_bvc_hint)
+        &&!_bvc_hint.contains(document.activeElement)
+        &&!_bvc_hint.contains(document.getSelection().focusNode.parentElement)
+    )bvc_hint_visible(false);
 }
 /**
  * __toggle visibility of `_bvc_hint` to show/hide the element__
@@ -370,10 +387,7 @@ function bvc_override_video_element(new_video_element){
 document.addEventListener('keydown',bvc_keyboard_event_listener,{passive:false});
 document.addEventListener('mousemove',bvc_mousemove_event_listener,{passive:true});
 document.addEventListener('mousedown',bvc_mousedown_event,{passive:true});
-window.addEventListener('load',()=>{
-    document.body.appendChild(_bvc_hint);
-    document.body.addEventListener('resize',()=>bvc_hint_visible(false),{passive:true});
-},{passive:true,once:true});
+document.addEventListener('load',()=>{document.body.appendChild(_bvc_hint);},{passive:true,once:true});
 console.groupCollapsed(
     "%c%s",
     "background-color:#000;color:#0F0;font-size:larger",
