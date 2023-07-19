@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      1.1.6
+// @version      1.1.7
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -61,7 +61,7 @@ _bvc_hint.style.visibility="hidden";
 _bvc_hint.style.opacity="0";
 _bvc_hint.appendChild(_bvc_hint_text);
 //~ fade out `_bvc_hint` when the document window changes
-document.addEventListener("resize",()=>bvc_hint_visible(false),{passive:true});
+window.addEventListener("resize",()=>bvc_hint_visible(false),{passive:true});
 document.addEventListener("scroll",()=>bvc_hint_visible(false),{passive:true});
 //~ mouse hover, focus, or selection events may change `_bvc_hint`s visibility status (fades out when not focused in any way)
 _bvc_hint.addEventListener("focusin",()=>bvc_hint_visible(true),{passive:true});
@@ -384,7 +384,7 @@ function bvc_override_video_element(new_video_element){
     else _bvc_last_video=null;
 }
 //~ append hint element, turn on bvc, and log controls, toggle function, and credits as a collapsed group
-document.body.addEventListener("load",()=>{document.body.appendChild(_bvc_hint);},{passive:true,once:true});
+window.addEventListener("DOMContentLoaded",()=>{document.body.appendChild(_bvc_hint);},{passive:true,once:true});
 document.addEventListener("keydown",bvc_keyboard_event_listener,{passive:false});
 document.addEventListener("mousemove",bvc_mousemove_event_listener,{passive:true});
 document.addEventListener("mousedown",bvc_mousedown_event,{passive:true});
