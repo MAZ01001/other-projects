@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      1.1.5
+// @version      1.1.6
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -384,10 +384,10 @@ function bvc_override_video_element(new_video_element){
     else _bvc_last_video=null;
 }
 //~ append hint element, turn on bvc, and log controls, toggle function, and credits as a collapsed group
+document.body.addEventListener("load",()=>{document.body.appendChild(_bvc_hint);},{passive:true,once:true});
 document.addEventListener("keydown",bvc_keyboard_event_listener,{passive:false});
 document.addEventListener("mousemove",bvc_mousemove_event_listener,{passive:true});
 document.addEventListener("mousedown",bvc_mousedown_event,{passive:true});
-document.addEventListener("load",()=>{document.body.appendChild(_bvc_hint);},{passive:true,once:true});
 console.groupCollapsed(
     "%c%s",
     "background-color:#000;color:#0F0;font-size:larger",
