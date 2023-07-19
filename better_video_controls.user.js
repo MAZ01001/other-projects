@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         better video controls
-// @version      1.1.4
+// @version      1.1.5
 // @description  various keyboard controls for html video elements, see console after page loads for keyboard shortcuts (uses the last video element that was clicked on).
 // @author       MAZ / MAZ01001
 // @source       https://github.com/MAZ01001/other-projects#better_video_controlsuserjs
@@ -65,15 +65,15 @@ document.addEventListener("resize",()=>bvc_hint_visible(false),{passive:true});
 document.addEventListener("scroll",()=>bvc_hint_visible(false),{passive:true});
 //~ mouse hover, focus, or selection events may change `_bvc_hint`s visibility status (fades out when not focused in any way)
 _bvc_hint.addEventListener("focusin",()=>bvc_hint_visible(true),{passive:true});
-_bvc_hint.addEventListener("focusout",()=>bvc_hint_visible(bvc_mouse_over_element(_bvc_hint)||_bvc_hint.contains(document.getSelection().focusNode.parentElement)),{passive:true});
+_bvc_hint.addEventListener("focusout",()=>bvc_hint_visible(bvc_mouse_over_element(_bvc_hint)||_bvc_hint.contains(document.getSelection().focusNode?.parentElement)),{passive:true});
 _bvc_hint.addEventListener("mouseover",()=>bvc_hint_visible(true),{passive:true});
-_bvc_hint.addEventListener("mouseleave",()=>bvc_hint_visible(_bvc_hint.contains(document.activeElement)||_bvc_hint.contains(document.getSelection().focusNode.parentElement)),{passive:true});
+_bvc_hint.addEventListener("mouseleave",()=>bvc_hint_visible(_bvc_hint.contains(document.activeElement)||_bvc_hint.contains(document.getSelection().focusNode?.parentElement)),{passive:true});
 document.addEventListener("selectionchange",()=>{
     if(
         _bvc_hint.style.visibility==="visible"
         &&!bvc_mouse_over_element(_bvc_hint)
         &&!_bvc_hint.contains(document.activeElement)
-        &&!_bvc_hint.contains(document.getSelection().focusNode.parentElement)
+        &&!_bvc_hint.contains(document.getSelection().focusNode?.parentElement)
     )bvc_hint_visible(false);
 },{passive:true});
 //~ setup loop menu
@@ -341,7 +341,7 @@ function bvc_keyboard_event_listener(ev){
     if(
         !bvc_mouse_over_element(_bvc_hint)
         &&!_bvc_hint.contains(document.activeElement)
-        &&!_bvc_hint.contains(document.getSelection().focusNode.parentElement)
+        &&!_bvc_hint.contains(document.getSelection().focusNode?.parentElement)
     )bvc_hint_visible(false);
 }
 /**
