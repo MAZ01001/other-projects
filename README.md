@@ -50,6 +50,18 @@ some useful JavaScript functions
 - `function strCharStats(str: string, chars?: string): Readonly<{ [string]: number; other: number; }>`
 - analyses string of how much each character appears
 
+### 2. Date
+
+#### __formatDate__
+
+- `function formatDate(dt: Date | null, utc: boolean | null, separators: string | string[] | null): string`
+- format date with custom separators
+
+#### __getUTC0__
+
+- `function getUTC0(highResMonotonicClock: boolean): BigInt`
+- get the current timestamp UTC from year 0
+
 ### 2. Number
 
 see [`Math-Js/functions.js`](https://github.com/MAZ01001/Math-Js#functionsjs)

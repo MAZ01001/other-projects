@@ -47,6 +47,48 @@ function strCharStats(str,chars=''){
     return Object.freeze(obj);
 }
 
+//~ date (string|number)
+/**
+ * __format date with custom separators__
+ * @param {Date|null} dt - a valid date - default current date
+ * @param {boolean|null} utc - if `true` uses UTC otherwise local time - default `false`
+ * @param {string|string[]|null} separators - the separators between each block (from left) - 6 possible separators - default `"__-__."`
+ * @returns {string} date in format (with default {@linkcode separators}) `YYYY_MM_dd-HH_mm_ss.ms` (zero padded to fit this format - ms is 3 digits)
+ * @example
+ * getDate(null,null,[,," - ",,,"."]); //=> "YYYYMMdd - HHmmss.ms"
+ * getDate(null,null,""); //=> "YYYYMMddHHmmssms"
+ */
+function formatDate(dt,utc,separators){
+    "use strict";
+    if(dt==null)dt=new Date();
+    if(utc==null)utc=false;
+    if(separators==null)separators="__-__.";
+    return[
+        (utc?dt.getUTCFullYear():dt.getFullYear()).toString().padStart(4,"0"),
+        ((utc?dt.getUTCMonth():dt.getMonth())+1).toString().padStart(2,"0"),
+        (utc?dt.getUTCDate():dt.getDate()).toString().padStart(2,"0"),
+        (utc?dt.getUTCHours():dt.getHours()).toString().padStart(2,"0"),
+        (utc?dt.getUTCMinutes():dt.getMinutes()).toString().padStart(2,"0"),
+        (utc?dt.getUTCSeconds():dt.getSeconds()).toString().padStart(2,"0"),
+        (utc?dt.getUTCMilliseconds():dt.getMilliseconds()).toString().padStart(3,"0")
+    ].reduce((o,v,i)=>o+String(separators?.[i-1]??"")+v);
+}
+/**
+ * __get the current timestamp UTC from year 0__
+ * @param {boolean} highResMonotonicClock - if `true` uses {@linkcode performance} to get current time (actual time, not user time)otherwise gets user time via {@linkcode Date}
+ * @returns {BigInt} UTC in milliseconds from year 0 (with {@linkcode highResMonotonicClock}, time is in nanoseconds ~ should be accurate to 5 microseconds)
+ */
+function getUTC0(highResMonotonicClock){
+    "use strict";
+    if(!highResMonotonicClock)return BigInt(Date.now())+0x3880D1649800n;
+    const now=performance.now().toString().match(/^([0-9]+)(\.[0-9]+)?$/),
+        origin=performance.timeOrigin.toString().match(/^([0-9]+)(\.[0-9]+)?$/);
+    return(BigInt(now?.[1]??"0")*0xF4240n)
+        +(BigInt(origin?.[1]??"0")*0xF4240n)
+        +BigInt(Math.round(Number.parseFloat(now?.[2]??"0")*0xF4240))
+        +BigInt(Math.round(Number.parseFloat(origin?.[2]??"0")*0xF4240));
+}
+
 //~ number
 //// see https://github.com/MAZ01001/Math-Js/blob/main/functions.js
 
