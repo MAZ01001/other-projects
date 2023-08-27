@@ -21,6 +21,7 @@ body{
     border-right:.2rem solid #000F;
     border-radius:0;
 }
+::-webkit-scrollbar-thumb:hover:vertical,
 :hover::-webkit-scrollbar-thumb:vertical{
     background-color:#000F;
     box-shadow:inset .4rem 0 .4rem 0 #0A0F;
@@ -33,6 +34,7 @@ body{
     border-bottom:.2rem solid #000F;
     border-radius:0;
 }
+::-webkit-scrollbar-thumb:hover:horizontal,
 :hover::-webkit-scrollbar-thumb:horizontal{
     background-color:#000F;
     box-shadow:inset .4rem 0 .4rem 0 #0A0F;
@@ -40,7 +42,9 @@ body{
     border-top-left-radius:1rem;
     border-top-right-radius:1rem;
 }
+::-webkit-scrollbar-thumb:hover:vertical,
 :hover::-webkit-scrollbar-thumb:hover:vertical,
+::-webkit-scrollbar-thumb:hover:horizontal,
 :hover::-webkit-scrollbar-thumb:hover:horizontal{box-shadow:inset .4rem 0 .4rem 0 #0F0F;}
 ::-webkit-scrollbar-track,
 ::-webkit-scrollbar-track-piece,
