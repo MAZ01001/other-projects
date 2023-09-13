@@ -1,11 +1,9 @@
 # Random projects
 
->
-> other "small" projects that aren't on [my-GitHub-page](https://maz01001.github.io)
-> nor strongly related to [math](https://github.com/MAZ01001/Math-Js)
->
-> other languages than javascript :o
->
+Other _small_ projects that don't have their own repo (yet?)
+or aren't strongly related to [Math-JS](https://github.com/MAZ01001/Math-Js "My Math-js repo")
+
+also...other languages than javascript ?! :o
 
 - [snake_cmd-game.cpp](#snake_cmd-gamecpp)
 - [useful.js](#usefuljs)
@@ -17,11 +15,13 @@
 
 ## [snake_cmd-game.cpp](./snake_cmd-game.cpp)
 
-    +---------------+
-    |       +--->   |
-    |   +---+       |
-    |   |      [F]  |
-    +---------------+
+```text
++---------------+
+|       +--->   |
+|   +---+       |
+|   |      [F]  |
++---------------+
+```
 
 A Windows console Snake game which's written in C++
 
@@ -33,70 +33,82 @@ A Windows console Snake game which's written in C++
   - Other keys and what they do, like `[wasd] move` are on-screen underneath the game.
   - The playable field is default 30*30 cells big. Wich is only changeable before compiling.
 
+Scroll [TOP](#random-projects)
+
 ## [useful.js](./useful.js)
 
 some useful JavaScript functions
 
-### 1. String
+also see [`Math-Js/functions.js`](https://github.com/MAZ01001/Math-Js#functionsjs)
 
-#### __strInsert__
+```typescript
+// String
 
-- `function strInsert(str: string, i?: number, r?: string, d?: number): string`
-- insert string in string at index and delete some characters
+/** insert string in string at index and delete some characters */
+function strInsert(str: string, i?: number, r?: string, d?: number): string
 
-#### __strCharStats__
+/** analyses string of how much each character appears */
+function strCharStats(str: string, chars?: string): Readonly<{
+  [string]: number;
+  other: number;
+}>
 
-- `function strCharStats(str: string, chars?: string): Readonly<{ [string]: number; other: number; }>`
-- analyses string of how much each character appears
+// Date
 
-### 2. Date
+/** format date with custom separators */
+function formatDate(dt: Date | null, utc: boolean | null, separators: string | string[] | null): string
 
-#### __formatDate__
+/** get the current timestamp UTC from year 0 */
+function getUTC0(highResMonotonicClock: boolean): BigInt
 
-- `function formatDate(dt: Date | null, utc: boolean | null, separators: string | string[] | null): string`
-- format date with custom separators
+// Array
 
-#### __getUTC0__
+/** checks the array for empty entries / holes */
+function hasArrayHoles(arr: any[]): boolean
 
-- `function getUTC0(highResMonotonicClock: boolean): BigInt`
-- get the current timestamp UTC from year 0
+// HTML / DOM
 
-### 2. Number
+/**
+ * measures the dimensions of a given text in pixels (sub-pixel accurate)
+ * uses an element to account for text styling
+ */
+function getTextDimensions(text: string, element?: Element, pseudoElt?: string): Readonly<{
+  width: number;
+  height: number;
+  lineHeight: number;
+}>
 
-see [`Math-Js/functions.js`](https://github.com/MAZ01001/Math-Js#functionsjs)
+/** copies the given text or rich-content to clipboard */
+function copyToClipboard(data: string | Blob): Promise<any>
 
-### 3. Array
+/** gets the current cursor position and also relative to the previous position, screen space, the browser window, the HTML page, and a given (HTML) element */
+function getMousePos(offsetElement?: Element | null): Readonly<{
+  pageX: number;
+  pageY: number;
+  clientX: number;
+  clientY: number;
+  offsetX: number;
+  offsetY: number;
+  screenX: number;
+  screenY: number;
+  movementX: number;
+  movementY: number;
+}>
+```
 
-#### __hasArrayHoles__
-
-- `function hasArrayHoles(arr: any[]): boolean`
-- checks the array for empty entries / holes
-
-### 4. HTML / DOM
-
-#### __getTextDimensions__
-
-- `function getTextDimensions(text: string, element?: Element, pseudoElt?: string): Readonly<{ width: number; height: number; lineHeight: number; }>`
-- measures the dimensions of a given text in pixels (sub-pixel accurate)
-- uses an element to account for text styling
-
-#### __copyToClipboard__
-
-- `function copyToClipboard(data: string | Blob): Promise<any>`
-- copies the given text or rich-content to clipboard
-
-#### __getMousePos__
-
-- `function getMousePos(offsetElement?: Element | null): Readonly<{ pageX: number; pageY: number; clientX: number; clientY: number; offsetX: number; offsetY: number; screenX: number; screenY: number; movementX: number; movementY: number; }>`
-- gets the current cursor position and also relative to the previous position, screen space, the browser window, the HTML page, and a given (HTML) element
+Scroll [UP](#usefuljs) | [TOP](#random-projects)
 
 ## [black-green.css](./black-green.css)
 
 some style rules I find useful and nice-looking
 
+Scroll [TOP](#random-projects)
+
 ## [ffmpeg.md](./ffmpeg.md)
 
-a more or less detailed list of some useful FFmpeg commands
+a more or less detailed list of some useful FFmpeg commands for quick video edits
+
+Scroll [TOP](#random-projects)
 
 ## [ConsoleIO.cs](./ConsoleIO.cs)
 
@@ -119,3 +131,5 @@ Features include (but are not limited to)
 - pauses the program for given milliseconds
 - "press any key"
 - custom number formatting
+
+Scroll [TOP](#random-projects)
