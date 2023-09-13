@@ -1,284 +1,454 @@
-# Some useful [FFmpeg](https://ffmpeg.org/) commands
+# Some useful [FFmpeg](https://ffmpeg.org/ "Official FFmpeg website") commands
 
-- [official documentation](#official-documentation)
+- Full FFmpeg documentation @ <https://ffmpeg.org/ffmpeg-all.html>
+- Full FFplay documentation @ <https://ffmpeg.org/ffplay-all.html>
+- Full FFprobe documentation @ <https://ffmpeg.org/ffprobe-all.html>
+
+Get FFmpeg from <https://ffmpeg.org/download.html>.
+
+I currently use the FFmpeg builds from <https://www.gyan.dev/ffmpeg/builds/> (for Windows 7+)
+under the __release builds__ section the file `ffmpeg-release-full.7z`
+or directly <https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z>
+
+To check your version use
+
+```shell
+ffmpeg -version
+```
+
+- [FFplay video viewing](#ffplay-video-viewing)
+  - [Watch a video (looping)](#watch-a-video-looping)
+- [FFmpeg video editing](#ffmpeg-video-editing)
+  - [Hide all but stats when running a command](#hide-all-but-stats-when-running-a-command)
+  - [Convert MP4 to M4A (audio only mp4)](#convert-mp4-to-m4a-audio-only-mp4)
+  - [Edit metadata (add chapters)](#edit-metadata-add-chapters)
+  - [Add thumbnail](#add-thumbnail)
+  - [Add subtitles](#add-subtitles)
+  - [Extract frames](#extract-frames)
+  - [Create video from frames](#create-video-from-frames)
+  - [crop video](#crop-video)
+  - [compress video](#compress-video)
+  - [cut video](#cut-video)
+  - [loop video](#loop-video)
+  - [Reverse video and/or Audio](#reverse-video-andor-audio)
+  - [Concatenate multiple videos into one](#concatenate-multiple-videos-into-one)
+  - [Create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist)
+  - [find silence parts in video](#find-silence-parts-in-video)
+
+## FFplay video viewing
+
+- [Watch a video (looping)](#watch-a-video-looping)
+
+Scroll [TOP](#some-useful-ffmpeg-commands)
+
+### Watch a video (looping)
+
+```shell
+ffplay -v level+error -stats -loop -1 INPUT.mp4
+```
+
+A window will show the video looping infinitly (Q or ESC to exit)
+
+[ffplay video controls](https://ffmpeg.org/ffplay-all.html#While-playing "Keyboard controls for the ffplay video player")
+
+- [`-v` documentation](https://ffmpeg.org/ffplay-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffplay-all.html#:~:text=%2Dstats,-Print%20several%20playback%20statistics "Documentation of `-stats`")
+- [`-loop` documentation](https://ffmpeg.org/ffplay-all.html#:~:text=-loop%20number,-Loops%20movie%20playback "Documentation of `-loop number`")
+
+Scroll [UP](#ffplay-video-viewing) | [TOP](#some-useful-ffmpeg-commands)
+
+## FFmpeg video editing
+
 - [Hide all but stats when running a command](#hide-all-but-stats-when-running-a-command)
-- [Convert MP4 to M4A (video to audio)](#convert-mp4-to-m4a-video-to-audio)
-- [Extracting metadata to file](#extracting-metadata-to-file)
-  - [Edit metadata file](#edit-metadata-file)
-  - [Reinserting (edited) metadata](#reinserting-edited-metadata)
+- [Convert MP4 to M4A (audio only mp4)](#convert-mp4-to-m4a-audio-only-mp4)
+- [Edit metadata (add chapters)](#edit-metadata-add-chapters)
 - [Add thumbnail](#add-thumbnail)
 - [Add subtitles](#add-subtitles)
-  - [subtitle file format](#subtitle-file-format)
 - [Extract frames](#extract-frames)
-  - [Create video from frames](#create-video-from-frames)
-    - [Watch short video as a loop](#watch-short-video-as-a-loop)
+- [Create video from frames](#create-video-from-frames)
 - [crop video](#crop-video)
 - [compress video](#compress-video)
 - [cut video](#cut-video)
 - [loop video](#loop-video)
-- [reverse video](#reverse-video)
-- [concat videos](#concat-videos)
-- [create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist)
+- [Reverse video and/or Audio](#reverse-video-andor-audio)
+- [Concatenate multiple videos into one](#concatenate-multiple-videos-into-one)
+- [Create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist)
 - [find silence parts in video](#find-silence-parts-in-video)
-- [my current FFmpeg version](#my-current-ffmpeg-version)
 
-## official documentation
+Scroll [TOP](#some-useful-ffmpeg-commands)
 
-- [FFmpeg - all](https://ffmpeg.org/ffmpeg-all.html)
-- [FFplay - all](https://ffmpeg.org/ffplay-all.html)
-- [FFprobe - all](https://ffmpeg.org/ffprobe-all.html)
+### Hide all but stats when running a command
 
-## Hide all but stats when running a command
+```shell
+ffmpeg -v level+warning -stats # [...]
+```
 
-    ffmpeg [-hide_banner] [-v {[level+]&[quiet|error|warning|info|verbose]}] -stats [...]
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 
-- [-hide_banner] - hides the big version/configuration block in the beginning
-- [-v|-loglevel]
-  - [level] - show what log_level each log is
-    - (optional) use first after `-v` and then with a `+` the log_level after it
-      - `-v error` → `-v level+error`
-    - shows the log_level in "[]" before each logged message
-  - [quiet] - show nothing
-  - [error] - only show errors _(incl. recoverable errors)_
-  - [warning] - only show warnings and errors _(I usually use this one 'cause it also hides the big "config-banner")_
-  - [info] - show above plus informative messages like file metadata _(default)_
-  - [verbose] - just like info but more verbose
-- [-stats] - show stats like how far encoding is live
-  - [-nostats] - for no live stats
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
-## Convert MP4 to M4A (video to audio)
+### Convert MP4 to M4A (audio only mp4)
 
-- no video = smaller file size
-- metadata and subtitles are preserved
-- no conversion to MP3, uses original audio codec from MP4 file
-- same audio codec =  can be played by anything that can play MP4 (audio)
+only include audio and subtitles (if present)
 
-      ffmpeg -i ".\INPUT.mp4" -c copy -map 0:a -map 0:s? ".\OUTPUT.m4a"
+```shell
+ffmpeg -v level+warning -stats -i INPUT.mp4 -c copy -map 0:a -map 0:s? OUTPUT.m4a
+```
 
-## Extracting metadata to file
+or only exclude video
 
-    ffmpeg -i ".\INPUT.mp4" -f ffmetadata ".\FFMETADATAFILE.txt"
+```shell
+ffmpeg -v level+warning -stats -i INPUT.mp4 -c copy -map 0 -map -0:v OUTPUT.m4a
+```
 
-### Edit metadata file
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+- [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
 
-    ;FFMETADATA1
-     [...]
-    title=Video Title
-    artist=Artist Name
-    description=Text\
-    Line two\
-    \
-    \
-    Line five\
-    Line with Û̕͝͡n̊̑̓̊i͚͚ͬ́c̗͕̈́̀o̵̯ͣ͊ḑ̴̱̐ḛ̯̓̒\
-     [...]
-    Line twenty
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
-- adding chapters _(order does not matter so easiest is append to end of file)_
+### Edit metadata (add chapters)
 
-      [CHAPTER]
-      TIMEBASE=1/1000
-      START=0
-      END=10000
-      title=0 to 10sec of the video
-      [CHAPTER]
-      TIMEBASE=1/1000
-      START=10000
-      END=20000
-      title=10sec to 20sec of the video
+export all metadata to a file
 
-  - TIMEBASE - 1/1000 _(of a sec)_ = milliseconds for setting start/end
-    - the actual point is set to the next nearest frame that exists
-    - only on re-encoding _(during reinsertion)_ it will be exact after that amount of time
-  - START - start of chapter in milliseconds _(or according to TIMEBASE)_
-  - END - end of chapter in milliseconds _(or according to TIMEBASE)_
-  - title - title of this chapter
+```shell
+ffmpeg -v level+warning -stats -i INPUT.mp4 -f ffmetadata FFMETADATAFILE.txt
+```
 
-### Reinserting (edited) metadata
+it looks something like this
 
-    ffmpeg -i ".\INPUT.mp4" -i ".\FFMETADATAFILE.txt" -map_metadata 1 -codec copy ".\OUTPUT.mp4"
+```ini
+;FFMETADATA1
 
-- empty lines in metadata file will be ignored
-  and order doesn't matter except for the ";FFMETADATA1" in the first line
+# empty lines or lines starting with ; or # will be ignored
+# whitespace will not be ignored so "title = A" would be interpreted as key "title " and value " A"
 
-## Add thumbnail
+title=Video Title
+artist=Artist Name
 
-    ffmpeg -i ".\INPUT.mp4" -i ".\IMAGE.png" -map 0 -map 1 -c copy -c:v:1 png -disposition:v:1 attached_pic ".\OUTPUT.mp4"
+# newlines and other special characters like = ; # \ must be escaped with a \
+description=Text\
+Line two\
+\
+\
+Line five\
+Line with Û̕͝͡n̊̑̓̊i͚͚ͬ́c̗͕̈́̀o̵̯ͣ͊ḑ̴̱̐ḛ̯̓̒
 
-## Add subtitles
+# then adding chapters is very simple | order does not matter (no intersection ofc), so easiest is to append them to the end of file
 
-- adding subtitles as an extra stream so they can be turned on and off
-  - must use a player that supports this like [VLC](https://www.videolan.org/vlc/index.en_GB.html)
-- ... for mp4 output
+[CHAPTER]
+# fractions of a second so 1/1000 says the following START and END are in milliseconds
+TIMEBASE=1/1000
+# start and end might change a bit when reinserting (snaps to nearest frame when video stream is copied and not encoded)
+START=0
+END=10000
+title=0 to 10sec of the video
 
-      ffmpeg -i ".\INPUT.mp4" -i ".\SUB.srt" -c copy -c:s mov_text ".\OUTPUT.mp4"
+[CHAPTER]
+TIMEBASE=1/1000
+START=10000
+END=20000
+title=10sec to 20sec of the video
+```
 
-- ... for mkv output
+then to reinsert the edited metadata file
 
-      ffmpeg -i ".\INPUT.mp4" -i ".\SUB.srt" -c copy ".\OUTPUT.mkv"
+```shell
+ffmpeg -v level+warning -stats -i INPUT.mp4 -i FFMETADATAFILE.txt -map_metadata 1 -c copy OUTPUT.mp4
+```
 
-- multiple subtitle files
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [full metadata documentation](https://ffmpeg.org/ffmpeg-all.html#Metadata-1 "A little more detailed documentation as seen above")
+- You might also want to look at the [`-metadata` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmetadata%5B%3Ametadata_specifier%5D%20key%3Dvalue%20(output%2Cper%2Dmetadata) "Documentation of `-metadata[:metadata_specifier] key=value (output,per-metadata)`")
 
-      ffmpeg -i ".\INPUT.mp4" -i ".\SUB_ENG.srt" -i ".\SUB_GER.srt" -map 0:0 -map 1:0 -map 2:0 -c copy -c:s mov_text ".\OUTPUT.mp4"
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
-  - with language codes
+### Add thumbnail
 
-        ffmpeg -i ".\INPUT.mp4" -i ".\SUB_ENG.srt" -i ".\SUB_GER.srt" -map 0:0 -map 1:0 -map 2:0 -c copy -c:s mov_text -metadata:s:s:0 language=eng -metadata:s:s:1 language=ger ".\OUTPUT.mp4"
+```shell
+ffmpeg -v level+warning -stats -i INPUT.mp4 -i IMAGE.png -map 0 -map 1 -c copy -c:v:1 png -disposition:v:1 attached_pic OUTPUT.mp4
+```
 
-### subtitle file format
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+- [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
+- [`-disposition` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Ddisposition%5B%3Astream_specifier%5D%20value%20(output%2Cper%2Dstream) "Documentation of `-disposition[:stream_specifier] value (output,per-stream)`")
+- [How To add an embedded cover/thumbnail](https://ffmpeg.org/ffmpeg-all.html#:~:text=To%20add%20an%20embedded%20cover/thumbnail%3A "Example of how to add an embedded cover/thumbnail (with `-disposition`)") (within the `-disposition` documentation)
 
-    1
-    00:00:00,000 --> 00:00:03,000
-    hello there
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
-    2
-    00:00:04,000 --> 00:00:08,000
-    general kenobi
+### Add subtitles
 
-    3
-    00:00:10,000 --> 00:01:00,000
-    multi
-    line
-    subtitles
+Adding subtitles as an extra stream so they can be turned on and off.
 
-- Unicode can be used - tested with z̧̢̛̻̱̝͖ͤͯͪ̏ͤ̀ͩ̂̅͒̕͞ͅa̵̸̡̯̼̠͑̑ͫ̔̉̈̉͊ͥ̍̿̂͝͝l̵̥̮̳̖̟̗ͧ̆ͣ͋͋̐̌͊ͩ̇̋̀̚g̴̴͉̲͖͉̱̪̙̣͙̩̪͈̈́ͬ̎̄̈͠ó̵̰̼͈͗̔͌ͩ̽̌̒̓ͨ̕͝ text and it "pushed" the subtitles of screen - big line height
-- displayed like in file
-  - new line in SRT = new line in video
+_Needs a video player that supports this feature like [VLC](https://www.videolan.org/vlc/index.en_GB.html)._
 
-## Extract frames
+```shell
+# for mkv output
+ffmpeg -v level+warning -stats -i INPUT.mp4 -i SUB.srt -c copy OUTPUT.mkv
 
-    ffmpeg -i ".\INPUT.mp4" ".\_dump\frame%03d.png"
+# for mp4 output
+ffmpeg -v level+warning -stats -i INPUT.mp4 -i SUB.srt -c copy -c:s mov_text OUTPUT.mp4
 
-- "frame%03d.png" = frame000.png / frame001.png / frame050.png / frame1000.png
-- jpeg slow - bmp large
-- _(subfolder must be created first)_
-- every x frames x pictures
+# ... with multiple subtitle files
+ffmpeg -v level+warning -stats -i INPUT.mp4 -i SUB_ENG.srt -i SUB_GER.srt -map 0:0 -map 1:0 -map 2:0 -c copy -c:s mov_text OUTPUT.mp4
 
-      ffmpeg [-r 1] -i ".\INPUT.mp4" [-r 1] ".\_dump\frame%03d.png"
+# ... with language codes
+ffmpeg -v level+warning -stats -i INPUT.mp4 -i SUB_ENG.srt -i SUB_GER.srt -map 0:0 -map 1:0 -map 2:0 -c copy -c:s mov_text -metadata:s:s:0 language=eng -metadata:s:s:1 language=ger OUTPUT.mp4
+```
 
-  - _(first and second "-r 1")_
-  - if only first is omitted then every 1/x sec a pic
-  - if both are omitted then all frames
-  - or use -ss -t to give the timeframe for extraction
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+- [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
+- [`-metadata` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmetadata%5B%3Ametadata_specifier%5D%20key%3Dvalue%20(output%2Cper%2Dmetadata) "Documentation of `-metadata[:metadata_specifier] key=value (output,per-metadata)`")
+
+A subtitle file (`.srt`) may look like this:
+
+```SRecode-Template
+1
+00:00:00,000 --> 00:00:03,000
+hello there
+
+2
+00:00:04,000 --> 00:00:08,000
+general kenobi
+
+3
+00:00:10,000 --> 00:01:00,000
+multi
+line
+subtitles
+```
+
+displayed like in file → new line in SRT = new line in video
+
+Unicode can be used → tested with z̵̢͎̟͛ͥ̄͑̐͐a̡͈̳̟ͧ̑̓͆̔ͬl̗̠̭͖͓͚ͭ̐͊͊ģ͖͈̍̓ͭͩ̚͝͞ơ̢̞̫̜̞̓͗͊ͪ text and it "pushed" the subtitles of screen (big line height)
+
+Note: not all subtitle files are [supported by FFmpeg](https://ffmpeg.org/ffmpeg-all.html#Subtitle-Formats "List of Supported subtitle formats (FFmpeg wiki)").
+
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+
+### Extract frames
+
+```shell
+# ! subfolder must be created first (recommended)
+# dump ALL frames
+ffmpeg -v level+warning -stats -i INPUT.mp4 ./_dump/frame%03d.png
+# dump frames with custom frame rate (here 1fps)
+ffmpeg -v level+warning -stats -i INPUT.mp4 -r 1 ./_dump/frame%03d.png
+# dump custom number of frames
+ffmpeg -v level+warning -stats -i INPUT.mp4 -frames:v 3 ./_dump/frame%03d.png
+# dump all frames in a timeframe (here from 0:00:02 to 0:00:05)
+ffmpeg -v level+warning -stats -ss 2 -i INPUT.mp4 -t 3 ./_dump/frame%03d.png
+ffmpeg -v level+warning -stats -ss 2 -i INPUT.mp4 -to 5 ./_dump/frame%03d.png
+```
+
+- `png` is a good middle ground (lossless compression, but supports less colors)
+- `jpeg` is slower but has good compression (not lossless compression)
+- `bmp` is faster but has large file size (uncompressed)
+
+The format `frame%03d.png` means files will be named: `frame000.png`, `frame001.png`, ..., `frame050.png`, ..., `frame1000.png`, and so on
+
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [image file muxer (output)](https://ffmpeg.org/ffmpeg-all.html#image2-2 "Documentation for outputting images")
+- [`-r`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dr%5B%3Astream_specifier%5D%20fps%20(input/output%2Cper%2Dstream) "Documentation of `-r[:stream_specifier] fps (input/output,per-stream)`")
+- [`-ss`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dss%20position%20(input/output) "Documentation of `-ss position (input/output)`")
+- [`-t`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dt%20duration%20(input/output) "Documentation of `-t duration (input/output)`")
+- [`-to`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dto%20position%20(input/output) "Documentation of `-to position (input/output)`")
+
+`-ss`, `-t`, and `-to` expect a specific [time format](https://ffmpeg.org/ffmpeg-utils.html#time-duration-syntax "Documentation for time duration format")
+in short `[-][HH:]MM:SS[.m...]` or `[-]S+[.m...][s|ms|us]`
+
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
 ### Create video from frames
 
-    ffmpeg -framerate 24 -i [".\INPUT%03d.jpeg"|".\INPUT*.png"] ".\OUTPUT.mp4"
+```shell
+# uses files INPUT000.png, INPUT001.png, etc to create the mp4 video (with 24fps)
+ffmpeg -v level+warning -stats -framerate 24 -i INPUT%03d.png OUTPUT.mp4
+# uses every png file that starts with INPUT (at 24fps)
+ffmpeg -v level+warning -stats -framerate 24 -i INPUT*.png OUTPUT.mp4
+# uses every png file (at 24fps)
+ffmpeg -v level+warning -stats -framerate 24 -i *.png OUTPUT.mp4
+```
 
-#### Watch short video as a loop
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [image file demuxer (input)](https://ffmpeg.org/ffmpeg-all.html#image2-1 "Documentation for inputting images")
+- [`-framerate` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dframerate,-Set%20the%20grabbing%20frame%20rate. "Documentation of `-framerate`")
 
-    ffplay -loop -1 ".\INPUT.mp4"
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
-- a window will show the video looping infinitly
-  - [controls](https://ffmpeg.org/ffplay.html#While-playing)
+### crop video
 
-## crop video
+```shell
+ffmpeg -v level+warning -stats -i INPUT.mp4 -vf crop=WIDTH:HEIGHT:POSX:POSY OUTPUT.mp4
+```
 
-    ffmpeg -i ".\INPUT.mp4" -vf "crop=WIDTH_PX:HEIGHT_PX:POSX_PX:POSY_PX" ".\OUTPUT.mp4"
+- `WIDTH` - the width of the croped window
+- `HEIGHT` - the height of the croped window
+- `POSX` - the X position of the croped window (can be omitted = auto center)
+- `POSY` - the Y position of the croped window (can be omitted = auto center)
+- all values are in pixels, but there is no "px" after it (or an expression that gets calculated each frame)
 
-- `WIDTH_PX` - the width of the croped window
-- `HEIGHT_PX` - the height of the croped window
-- `POSX_PX` - the X position of the croped window (can be omitted = auto center)
-- `POSY_PX` - the Y position of the croped window (can be omitted = auto center)
-- all in pixels, but just the integer number no "px" after it !
-- for more flags, info, and examples [see the documentation](https://ffmpeg.org/ffmpeg-filters.html#crop "official ffmpeg documentation for the crop filter")
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [full crop filter documentation](https://ffmpeg.org/ffmpeg-filters.html#crop "Documentation for the crop filter")
 
-## compress video
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
-- need re-encoding for compression _(when in doubt, choose the same video-codec as input video)_
-- [-crf] - lower is better because more bitrate but also a higher file size
-- h.264 18-23 _(very good quality)_
+### compress video
 
-      ffmpeg -i ".\INPUT.mp4" -vcodec libx264 -crf 18 ".\OUTPUT.mp4"
+lower values are better (higher bitrate), but also lead to larger file size
 
-- h.265 24-30 _(very good quality)_
+```shell
+# for `h.264` values from 18 to 23 are very good
+ffmpeg -v level+warning -stats -i INPUT.mp4 -c:v libx264 -crf 20 OUTPUT.mp4
+# for `h.265` values from 24 to 30 are very good
+ffmpeg -v level+warning -stats -i INPUT.mp4 -c:v libx265 -crf 25 OUTPUT.mp4
+```
 
-      ffmpeg -i ".\INPUT.mp4" -vcodec libx265 -crf 24 ".\OUTPUT.mp4"
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+- [`-crf` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=crf,-Set%20the%20quality/size%20tradeoff%20for%20constant%2Dquality "Documentation of `-crf`") (the best description is under libaom-AV1 but it's also in other encoders like MPEG-4)
+- also see [this guide](https://trac.ffmpeg.org/wiki/Encode/H.264#crf "H.264 Video Encoding Guide") for CRF with `libx264`
 
-## cut video
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
-- start at 1sec and stop at 10sec
+### cut video
 
-      ffmpeg -ss 0:0:1 -to 0:0:10 -i ".\INPUT.mp4" -c copy ".\OUTPUT.mp4"
+```shell
+# start at 0:00:01 and stop at 0:00:10
+ffmpeg -v level+warning -stats -ss 1 -i INPUT.mp4 -to 10 -c copy OUTPUT.mp4
+# start at 0:00:10 and stop at 0:00:20 (0:00:10 duration)
+ffmpeg -v level+warning -stats -ss 10 -i INPUT.mp4 -t 10 -c copy OUTPUT.mp4
+# caps output to be 0:00:30 max
+ffmpeg -v level+warning -stats -i INPUT.mp4 -t 30 -c copy OUTPUT.mp4
+```
 
-- start at 10sec and stop after 10sec
+timing from `-ss`, `-to`, and `-t` shift to the nearest frame and not at the exact timestamp when stream is copied (like here)
 
-      ffmpeg -ss 0:0:10 -t 0:0:10 -i ".\INPUT.mp4" -c copy ".\OUTPUT.mp4"
+if exact time is needed the video needs to be re-encoded (`-c:v libx264` after or instead of `-c copy`) which obviously takes longer
 
-> NOTE \
-> with `-ss`, `-to`, and `-t` ffmpeg picks the nearest frame and not at the exact timestamp \
-> if exact time is needed add `-vcodec libx264` or `-c:v libx264` after `-c copy` to recompile the video to the exact timestamps _(takes longer)_ \
-> also the timestamp is in format `[[H:]m:]s[.ms]` so default is seconds
+when `-ss` is after `-i` it will decode and discard the video until the time is reached,
+when it's before `-i` like here it will seek into the video without decoding it first (during the seek) so it will be faster.
 
-- limit output to 30sec total
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [`-ss`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dss%20position%20(input/output) "Documentation of `-ss position (input/output)`")
+- [`-to`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dto%20position%20(input/output) "Documentation of `-to position (input/output)`")
+- [`-t`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dt%20duration%20(input/output) "Documentation of `-t duration (input/output)`")
+- [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
 
-      ffmpeg -i ".\INPUT.mp4" -c copy -t 30 ".\OUTPUT.mp4"
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
-## loop video
+### loop video
 
-- loop video infinitely but stop after 30sec _(loop up to 30sec)_
+```shell
+# loop video infinitely but stop after 0:00:30
+ffmpeg -v level+warning -stats -stream_loop -1 -i INPUT.mp4 -t 30 -c copy OUTPUT.mp4
+# loop video to length of audio
+ffmpeg -v level+warning -stats -stream_loop -1 -i INPUT.mp4 -i INPUT.mp3 -shortest -map 0:v -map 1:a OUTPUT.mp4
+# loop audio to length of video
+ffmpeg -v level+warning -stats -i INPUT.mp4 -stream_loop -1 -i INPUT.mp3 -shortest -map 0:v -map 1:a OUTPUT.mp4
+```
 
-      ffmpeg -stream_loop -1 -i ".\INPUT.mp4" -c copy -t 30 ".\OUTPUT.mp4"
+if exact timing is needed, it is better to re-encode the video (`-c:v libx264` after or instead of `-c copy`)
 
-- loop video to length of audio
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [`-stream_loop` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstream_loop%20number%20(input) "Documentation of `-stream_loop number (input)`") (note: looping once results in two videos)
+- [`-t`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dt%20duration%20(input/output) "Documentation of `-t duration (input/output)`")
+- [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+- [`-shortest` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dshortest%20(output),-Finish%20encoding%20when%20the%20shortest%20output%20stream%20ends "Documentation of `-shortest (output)`")
+- [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
 
-      ffmpeg  -stream_loop -1 -i ".\INPUT.mp4" -i ".\INPUT.mp3" -shortest -map 0:v -map 1:a ".\OUTPUT.mp4"
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
-- loop audio to length of video
+### Reverse video and/or Audio
 
-      ffmpeg  -i ".\INPUT.mp4" -stream_loop -1 -i ".\INPUT.mp3" -shortest -map 0:v -map 1:a ".\OUTPUT.mp4"
+Warning: these filters require a lot of memory (buffer of the entire clip) so it's suggested to also use the trim filter as shown
 
-## reverse video
+```shell
+# reverse video only (first 5sec)
+ffmpeg -v level+warning -stats -i INPUT.mp4 -vf trim=end=5,reverse OUTPUT.mp4
+# reverse audio only (first 5sec)
+ffmpeg -v level+warning -stats -i INPUT.mp4 -af atrim=end=5,areverse OUTPUT.mp4
+```
 
-- video
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [reverse filter documentation](https://ffmpeg.org/ffmpeg-all.html#reverse "Documentation of the reverse filter")
+- [trim filter documentation](https://ffmpeg.org/ffmpeg-all.html#trim "Documentation of the trim filter")
+- [areverse filter documentation](https://ffmpeg.org/ffmpeg-all.html#areverse "Documentation of the areverse filter")
+- [atrim filter documentation](https://ffmpeg.org/ffmpeg-all.html#atrim "Documentation of the atrim filter")
 
-      ffmpeg -i ".\INPUT.mp4" -vf reverse ".\OUTPUT.mp4"
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
-- audio
+### Concatenate multiple videos into one
 
-      ffmpeg -i ".\INPUT.mp4" -af areverse ".\OUTPUT.mp4"
+```shell
+# using filter complex and the concat filter (if video formats are not the same add `:unsafe` to the `concat` filter)
+ffmpeg -v level+warning -stats -i INPUT_0.mp4 -i INPUT_1.mp4 -filter_complex "[0:v] [0:a] [1:v] [1:a] concat=n=2:v=1:a=1 [v1] [a1]" -map "[v1]" -map "[a1]" OUTPUT.mp4
+# using a list file and demuxer
+ffmpeg -v level+warning -stats -safe 0 -f concat -i VIDEO_LIST.txt -c copy OUTPUT.mp4
+```
 
-## concat videos
+content of `VIDEO_LIST.txt` as follows
 
-- using filter complex
+```text
+file 'INPUT_0.mp4'
+file 'INPUT_1.mp4'
+```
 
-      ffmpeg -i ".\INPUT_0.mp4" -i ".\INPUT_1.mp4" -filter_complex "[0:v] [0:a] [1:v] [1:a] concat=n=2:v=1:a=1 [v] [a]" -map "[v]" -map "[a]" ".\OUTPUT.mp4"
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [concat multimedia filter](https://ffmpeg.org/ffmpeg-all.html#concat-3 "Documentation of concat filter (for `-filter_complex`)")
+- [`-filter_complex` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dfilter_complex%20filtergraph%20(global) "Documentation of `-filter_complex filtergraph (global)`")
+- [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
+- [concat demuxer documentation](https://ffmpeg.org/ffmpeg-all.html#concat-1 "Documentation of concat demuxer")
+- [`-safe` option for concat demuxer](https://ffmpeg.org/ffmpeg-all.html#:~:text=safe,-if%20set%20to%201%2C%20reject%20unsafe%20file%20paths%20and%20directives "Documentation of `-safe` option for the concat demuxer")
+- [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
 
-- using demuxer
-  - video files listed in `".\VIDEO_LIST.txt"` like this
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
-        file '.\INPUT_0.mp4'
-        file '.\INPUT_1.mp4'
+### Create/download video with m3u8 playlist
 
-  - command
+```shell
+# this will whitelist urls (`-i`) for files available via file, http/s, tcp, tls, or crypto protocol (for this command, not permanent)
+ffmpeg -v level+warning -stats -protocol_whitelist file,http,https,tcp,tls,crypto -i INPUT.m3u8 -c copy OUTPUT.mp4
+ffmpeg -v level+warning -stats -protocol_whitelist file,http,https,tcp,tls,crypto -i https://example.com/INPUT.m3u8 -c copy OUTPUT.mp4
+```
 
-        ffmpeg -safe 0 -f concat -i ".\VIDEO_LIST.txt" -c copy ".\OUTPUT.mp4"
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [`-protocol_whitelist` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=protocol_whitelist%20list%20(input) "Documentation of `protocol_whitelist list (input)`")
+- [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
 
-## create/download video with m3u8 playlist
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
 
-    ffmpeg -protocol_whitelist file,http,https,tcp,tls,crypto -i [".\INPUT.m3u8"|"https://INPUT.m3u8"] -c copy ".\OUTPUT.mp4"
+### find silence parts in video
 
-## find silence parts in video
+```shell
+# finds sections min 240sec long and max -70db loud and writes them to LOG.txt
+ffmpeg -v level+warning -stats -i INPUT.mp4 -af silencedetect=noise=-70dB:d=240 -f null - 2> LOG.txt
+```
 
-    ffmpeg -i ".\INPUT.mp4" -af silencedetect=noise=-70dB:d=240 -f null - 2> ".\LOG.txt"
+look for `[silencedetect @ *` lines in log file
 
-- [noise=-70dB] = -70dB or quieter
-- [d=240] = 240sec/4min minimum silence duration for detect
-- look for "[silencedetect*" lines in log file like:
+```text
+[silencedetect @ 0000000000******] silence_start: 01:00:02.500
+[silencedetect @ 0000000000******] silence_end: 01:10:02.500 | silence_duration: 00:09:59.989
+[silencedetect @ 000000000*******] silence_start: 02:00:02.500
+[silencedetect @ 000000000*******] silence_end: 02:10:02.500 | silence_duration: 00:09:59.989
+[...]
+```
 
-      [silencedetect @ 0000000000******] silence_start: 01:00:02.500
-      [silencedetect @ 0000000000******] silence_end: 01:10:02.500 | silence_duration: 00:09:59.989
-      [silencedetect @ 000000000*******] silence_start: 02:00:02.500
-      [silencedetect @ 000000000*******] silence_end: 02:10:02.500 | silence_duration: 00:09:59.989
-      [...]
-
-## my current FFmpeg version
-
-    ffmpeg -version
-
-- 2021-12-00
-  - ffmpeg version 4.2.2 Copyright (c) 2000-2019 the FFmpeg developers
-  - built with gcc 9.2.1 (GCC) 20200122
-- 2022-10-00
-  - ffmpeg version 5.0-full_build-www.gyan.dev Copyright (c) 2000-2022 the FFmpeg developers
-  - built with gcc 11.2.0 (Rev5, Built by MSYS2 project)
+Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
