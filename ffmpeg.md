@@ -16,31 +16,31 @@ To check your version use
 ffmpeg -version
 ```
 
-- [FFplay video viewing](#ffplay-video-viewing)
-  - [Watch a video (looping)](#watch-a-video-looping)
-- [FFmpeg video editing](#ffmpeg-video-editing)
-  - [Hide all but stats when running a command](#hide-all-but-stats-when-running-a-command)
-  - [Convert MP4 to M4A (audio only mp4)](#convert-mp4-to-m4a-audio-only-mp4)
-  - [Edit metadata (add chapters)](#edit-metadata-add-chapters)
-  - [Add thumbnail](#add-thumbnail)
-  - [Add subtitles](#add-subtitles)
-  - [Extract frames](#extract-frames)
-  - [Create video from frames](#create-video-from-frames)
-  - [crop video](#crop-video)
-  - [compress video](#compress-video)
-  - [cut video](#cut-video)
-  - [loop video](#loop-video)
-  - [Reverse video and/or Audio](#reverse-video-andor-audio)
-  - [Concatenate multiple videos into one](#concatenate-multiple-videos-into-one)
-  - [Create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist)
-  - [find silence parts in video](#find-silence-parts-in-video)
+- [FFplay video viewing](#ffplay-video-viewing "Scroll to this section")
+  - [Watch a video (looping)](#watch-a-video-looping "Scroll to this section")
+- [FFmpeg video editing](#ffmpeg-video-editing "Scroll to this section")
+  - [Only output warnings and stats when running a command](#only-output-warnings-and-stats-when-running-a-command "Scroll to this section")
   - [Convert MKV to MP4](#convert-mkv-to-mp4 "Scroll to this section")
+  - [Convert MP4 to M4A (audio only mp4)](#convert-mp4-to-m4a-audio-only-mp4 "Scroll to this section")
+  - [Edit metadata (add chapters)](#edit-metadata-add-chapters "Scroll to this section")
+  - [Add thumbnail](#add-thumbnail "Scroll to this section")
+  - [Add subtitles](#add-subtitles "Scroll to this section")
+  - [Extract frames](#extract-frames "Scroll to this section")
+  - [Create video from frames](#create-video-from-frames "Scroll to this section")
+  - [crop video](#crop-video "Scroll to this section")
+  - [compress video](#compress-video "Scroll to this section")
+  - [cut video](#cut-video "Scroll to this section")
+  - [loop video](#loop-video "Scroll to this section")
+  - [Reverse video and/or Audio](#reverse-video-andor-audio "Scroll to this section")
+  - [Concatenate multiple videos into one](#concatenate-multiple-videos-into-one "Scroll to this section")
+  - [Create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist "Scroll to this section")
+  - [find silence parts in video](#find-silence-parts-in-video "Scroll to this section")
 
 ## FFplay video viewing
 
-- [Watch a video (looping)](#watch-a-video-looping)
+- [Watch a video (looping)](#watch-a-video-looping "Scroll to this section")
 
-Scroll [TOP](#some-useful-ffmpeg-commands)
+Scroll [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### Watch a video (looping)
 
@@ -56,30 +56,30 @@ A window will show the video looping infinitly (Q or ESC to exit)
 - [`-stats` documentation](https://ffmpeg.org/ffplay-all.html#:~:text=%2Dstats,-Print%20several%20playback%20statistics "Documentation of `-stats`")
 - [`-loop` documentation](https://ffmpeg.org/ffplay-all.html#:~:text=-loop%20number,-Loops%20movie%20playback "Documentation of `-loop number`")
 
-Scroll [UP](#ffplay-video-viewing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffplay-video-viewing "Scroll to beginning of FFplay section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ## FFmpeg video editing
 
-- [Hide all but stats when running a command](#hide-all-but-stats-when-running-a-command)
-- [Convert MP4 to M4A (audio only mp4)](#convert-mp4-to-m4a-audio-only-mp4)
-- [Edit metadata (add chapters)](#edit-metadata-add-chapters)
-- [Add thumbnail](#add-thumbnail)
-- [Add subtitles](#add-subtitles)
-- [Extract frames](#extract-frames)
-- [Create video from frames](#create-video-from-frames)
-- [crop video](#crop-video)
-- [compress video](#compress-video)
-- [cut video](#cut-video)
-- [loop video](#loop-video)
-- [Reverse video and/or Audio](#reverse-video-andor-audio)
-- [Concatenate multiple videos into one](#concatenate-multiple-videos-into-one)
-- [Create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist)
-- [find silence parts in video](#find-silence-parts-in-video)
-
-Scroll [TOP](#some-useful-ffmpeg-commands)
-
-### Hide all but stats when running a command
+- [Only output warnings and stats when running a command](#only-output-warnings-and-stats-when-running-a-command "Scroll to this section")
 - [Convert MKV to MP4](#convert-mkv-to-mp4 "Scroll to this section")
+- [Convert MP4 to M4A (audio only mp4)](#convert-mp4-to-m4a-audio-only-mp4 "Scroll to this section")
+- [Edit metadata (add chapters)](#edit-metadata-add-chapters "Scroll to this section")
+- [Add thumbnail](#add-thumbnail "Scroll to this section")
+- [Add subtitles](#add-subtitles "Scroll to this section")
+- [Extract frames](#extract-frames "Scroll to this section")
+- [Create video from frames](#create-video-from-frames "Scroll to this section")
+- [crop video](#crop-video "Scroll to this section")
+- [compress video](#compress-video "Scroll to this section")
+- [cut video](#cut-video "Scroll to this section")
+- [loop video](#loop-video "Scroll to this section")
+- [Reverse video and/or Audio](#reverse-video-andor-audio "Scroll to this section")
+- [Concatenate multiple videos into one](#concatenate-multiple-videos-into-one "Scroll to this section")
+- [Create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist "Scroll to this section")
+- [find silence parts in video](#find-silence-parts-in-video "Scroll to this section")
+
+Scroll [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
+
+### Only output warnings and stats when running a command
 
 ```shell
 ffmpeg -v level+warning -stats # [...]
@@ -88,7 +88,7 @@ ffmpeg -v level+warning -stats # [...]
 - [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### Convert MKV to MP4
 
@@ -127,7 +127,7 @@ ffmpeg -v level+warning -stats -i INPUT.mp4 -c copy -map 0 -map -0:v OUTPUT.m4a
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
 - [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### Edit metadata (add chapters)
 
@@ -184,7 +184,7 @@ ffmpeg -v level+warning -stats -i INPUT.mp4 -i FFMETADATAFILE.txt -map_metadata 
 - [full metadata documentation](https://ffmpeg.org/ffmpeg-all.html#Metadata-1 "A little more detailed documentation as seen above")
 - You might also want to look at the [`-metadata` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmetadata%5B%3Ametadata_specifier%5D%20key%3Dvalue%20(output%2Cper%2Dmetadata) "Documentation of `-metadata[:metadata_specifier] key=value (output,per-metadata)`")
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### Add thumbnail
 
@@ -199,7 +199,7 @@ ffmpeg -v level+warning -stats -i INPUT.mp4 -i IMAGE.png -map 0 -map 1 -c copy -
 - [`-disposition` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Ddisposition%5B%3Astream_specifier%5D%20value%20(output%2Cper%2Dstream) "Documentation of `-disposition[:stream_specifier] value (output,per-stream)`")
 - [How To add an embedded cover/thumbnail](https://ffmpeg.org/ffmpeg-all.html#:~:text=To%20add%20an%20embedded%20cover/thumbnail%3A "Example of how to add an embedded cover/thumbnail (with `-disposition`)") (within the `-disposition` documentation)
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### Add subtitles
 
@@ -251,7 +251,7 @@ Unicode can be used → tested with z̵̢͎̟͛ͥ̄͑̐͐a̡͈̳̟ͧ̑̓͆̔ͬl�
 
 Note: not all subtitle files are [supported by FFmpeg](https://ffmpeg.org/ffmpeg-all.html#Subtitle-Formats "List of Supported subtitle formats (FFmpeg wiki)").
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### Extract frames
 
@@ -285,7 +285,7 @@ The format `frame%03d.png` means files will be named: `frame000.png`, `frame001.
 `-ss`, `-t`, and `-to` expect a specific [time format](https://ffmpeg.org/ffmpeg-utils.html#time-duration-syntax "Documentation for time duration format")
 in short `[-][HH:]MM:SS[.m...]` or `[-]S+[.m...][s|ms|us]`
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### Create video from frames
 
@@ -303,7 +303,7 @@ ffmpeg -v level+warning -stats -framerate 24 -i *.png OUTPUT.mp4
 - [image file demuxer (input)](https://ffmpeg.org/ffmpeg-all.html#image2-1 "Documentation for inputting images")
 - [`-framerate` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dframerate,-Set%20the%20grabbing%20frame%20rate. "Documentation of `-framerate`")
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### crop video
 
@@ -321,7 +321,7 @@ ffmpeg -v level+warning -stats -i INPUT.mp4 -vf crop=WIDTH:HEIGHT:POSX:POSY OUTP
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 - [full crop filter documentation](https://ffmpeg.org/ffmpeg-filters.html#crop "Documentation for the crop filter")
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### compress video
 
@@ -340,7 +340,7 @@ ffmpeg -v level+warning -stats -i INPUT.mp4 -c:v libx265 -crf 25 OUTPUT.mp4
 - [`-crf` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=crf,-Set%20the%20quality/size%20tradeoff%20for%20constant%2Dquality "Documentation of `-crf`") (the best description is under libaom-AV1 but it's also in other encoders like MPEG-4)
 - also see [this guide](https://trac.ffmpeg.org/wiki/Encode/H.264#crf "H.264 Video Encoding Guide") for CRF with `libx264`
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### cut video
 
@@ -367,7 +367,7 @@ when it's before `-i` like here it will seek into the video without decoding it 
 - [`-t`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dt%20duration%20(input/output) "Documentation of `-t duration (input/output)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### loop video
 
@@ -390,7 +390,7 @@ if exact timing is needed, it is better to re-encode the video (`-c:v libx264` a
 - [`-shortest` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dshortest%20(output),-Finish%20encoding%20when%20the%20shortest%20output%20stream%20ends "Documentation of `-shortest (output)`")
 - [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### Reverse video and/or Audio
 
@@ -410,7 +410,7 @@ ffmpeg -v level+warning -stats -i INPUT.mp4 -af atrim=end=5,areverse OUTPUT.mp4
 - [areverse filter documentation](https://ffmpeg.org/ffmpeg-all.html#areverse "Documentation of the areverse filter")
 - [atrim filter documentation](https://ffmpeg.org/ffmpeg-all.html#atrim "Documentation of the atrim filter")
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### Concatenate multiple videos into one
 
@@ -437,7 +437,7 @@ file 'INPUT_1.mp4'
 - [`-safe` option for concat demuxer](https://ffmpeg.org/ffmpeg-all.html#:~:text=safe,-if%20set%20to%201%2C%20reject%20unsafe%20file%20paths%20and%20directives "Documentation of `-safe` option for the concat demuxer")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### Create/download video with m3u8 playlist
 
@@ -452,7 +452,7 @@ ffmpeg -v level+warning -stats -protocol_whitelist file,http,https,tcp,tls,crypt
 - [`-protocol_whitelist` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=protocol_whitelist%20list%20(input) "Documentation of `protocol_whitelist list (input)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### find silence parts in video
 
@@ -471,4 +471,4 @@ look for `[silencedetect @ *` lines in log file
 [...]
 ```
 
-Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
