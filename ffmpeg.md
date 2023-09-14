@@ -34,6 +34,7 @@ ffmpeg -version
   - [Concatenate multiple videos into one](#concatenate-multiple-videos-into-one)
   - [Create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist)
   - [find silence parts in video](#find-silence-parts-in-video)
+  - [Convert MKV to MP4](#convert-mkv-to-mp4 "Scroll to this section")
 
 ## FFplay video viewing
 
@@ -78,6 +79,7 @@ Scroll [UP](#ffplay-video-viewing) | [TOP](#some-useful-ffmpeg-commands)
 Scroll [TOP](#some-useful-ffmpeg-commands)
 
 ### Hide all but stats when running a command
+- [Convert MKV to MP4](#convert-mkv-to-mp4 "Scroll to this section")
 
 ```shell
 ffmpeg -v level+warning -stats # [...]
@@ -87,6 +89,24 @@ ffmpeg -v level+warning -stats # [...]
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 
 Scroll [UP](#ffmpeg-video-editing) | [TOP](#some-useful-ffmpeg-commands)
+
+### Convert MKV to MP4
+
+the mkv video file format is suggested when streaming or recording (via OBS) since it can be easily recovert
+
+```shell
+# Audio codec already is AAC, so it can be copied to save some time
+# Also use some compression to shrink the file size a bit
+ffmpeg -v level+warning -stats -i INPUT.mkv -c:a copy -c:v libx264 -crf 12 OUTPUT.mp4
+```
+
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+- [`-crf` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=crf,-Set%20the%20quality/size%20tradeoff%20for%20constant%2Dquality "Documentation of `-crf`") (the best description is under libaom-AV1 but it's also in other encoders like MPEG-4)
+- also see [this guide](https://trac.ffmpeg.org/wiki/Encode/H.264#crf "H.264 Video Encoding Guide") for CRF with `libx264`
+
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
 ### Convert MP4 to M4A (audio only mp4)
 
