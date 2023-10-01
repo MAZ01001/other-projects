@@ -277,10 +277,10 @@ The format `frame%03d.png` means files will be named: `frame000.png`, `frame001.
 - [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 - [image file muxer (output)](https://ffmpeg.org/ffmpeg-all.html#image2-2 "Documentation for outputting images")
-- [`-r`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dr%5B%3Astream_specifier%5D%20fps%20(input/output%2Cper%2Dstream) "Documentation of `-r[:stream_specifier] fps (input/output,per-stream)`")
-- [`-ss`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dss%20position%20(input/output) "Documentation of `-ss position (input/output)`")
-- [`-t`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dt%20duration%20(input/output) "Documentation of `-t duration (input/output)`")
-- [`-to`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dto%20position%20(input/output) "Documentation of `-to position (input/output)`")
+- [`-r` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dr%5B%3Astream_specifier%5D%20fps%20(input/output%2Cper%2Dstream) "Documentation of `-r[:stream_specifier] fps (input/output,per-stream)`")
+- [`-ss` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dss%20position%20(input/output) "Documentation of `-ss position (input/output)`")
+- [`-t` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dt%20duration%20(input/output) "Documentation of `-t duration (input/output)`")
+- [`-to` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dto%20position%20(input/output) "Documentation of `-to position (input/output)`")
 
 `-ss`, `-t`, and `-to` expect a specific [time format](https://ffmpeg.org/ffmpeg-utils.html#time-duration-syntax "Documentation for time duration format")
 in short `[-][HH:]MM:SS[.m...]` or `[-]S+[.m...][s|ms|us]`
@@ -362,9 +362,9 @@ when it's before `-i` like here it will seek into the video without decoding it 
 
 - [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
-- [`-ss`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dss%20position%20(input/output) "Documentation of `-ss position (input/output)`")
-- [`-to`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dto%20position%20(input/output) "Documentation of `-to position (input/output)`")
-- [`-t`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dt%20duration%20(input/output) "Documentation of `-t duration (input/output)`")
+- [`-ss` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dss%20position%20(input/output) "Documentation of `-ss position (input/output)`")
+- [`-to` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dto%20position%20(input/output) "Documentation of `-to position (input/output)`")
+- [`-t` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dt%20duration%20(input/output) "Documentation of `-t duration (input/output)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
 
 Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
@@ -385,7 +385,7 @@ if exact timing is needed, it is better to re-encode the video (`-c:v libx264` a
 - [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 - [`-stream_loop` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstream_loop%20number%20(input) "Documentation of `-stream_loop number (input)`") (note: looping once results in two videos)
-- [`-t`](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dt%20duration%20(input/output) "Documentation of `-t duration (input/output)`")
+- [`-t` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dt%20duration%20(input/output) "Documentation of `-t duration (input/output)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
 - [`-shortest` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dshortest%20(output),-Finish%20encoding%20when%20the%20shortest%20output%20stream%20ends "Documentation of `-shortest (output)`")
 - [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
