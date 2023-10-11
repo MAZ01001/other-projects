@@ -16,6 +16,8 @@ To check your version use
 ffmpeg -version
 ```
 
+Note: the order of (_some_) parameters/flags matters - before or after a given input or output (_FFmpeg supports multiple input files and [creating multiple output streams with one command](https://trac.ffmpeg.org/wiki/Creating%20multiple%20outputs "FFmpeg guide: Creating Multiple Outputs")_)
+
 - [FFplay video viewing](#ffplay-video-viewing "Scroll to this section")
   - [Watch a video (looping)](#watch-a-video-looping "Scroll to this section")
 - [FFmpeg video editing](#ffmpeg-video-editing "Scroll to this section")
@@ -329,16 +331,26 @@ lower values are better (higher bitrate), but also lead to larger file size
 
 ```shell
 # for `h.264` values from 18 to 23 are very good
-ffmpeg -v level+warning -stats -i INPUT.mp4 -c:v libx264 -crf 20 OUTPUT.mp4
+ffmpeg -v level+warning -stats -i INPUT.mp4 -c copy -c:v libx264 -crf 20 OUTPUT.mp4
 # for `h.265` values from 24 to 30 are very good
-ffmpeg -v level+warning -stats -i INPUT.mp4 -c:v libx265 -crf 25 OUTPUT.mp4
+ffmpeg -v level+warning -stats -i INPUT.mp4 -c copy -c:v libx265 -crf 25 OUTPUT.mp4
+```
+
+faster with GPU hardware acceleration / NVIDIA CUDA
+
+```shell
+# for h.265 → h264_nvenc with NVIDIA CUDA
+ffmpeg -v level+warning -stats -hwaccel cuda -hwaccel_output_format cuda -i INPUT.mp4 -c copy -c:v h264_nvenc -fps_mode passthrough -b_ref_mode disabled -preset medium -tune hq -rc vbr -multipass disabled -crf 20 OUTPUT.mp4
+# for h.265 → hevc_nvenc with NVIDIA CUDA
+ffmpeg -v level+warning -stats -hwaccel cuda -hwaccel_output_format cuda -i INPUT.mp4 -c copy -c:v hevc_nvenc -fps_mode passthrough -b_ref_mode disabled -preset medium -tune hq -rc vbr -multipass disabled -crf 25 OUTPUT.mp4
 ```
 
 - [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
 - [`-crf` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=crf,-Set%20the%20quality/size%20tradeoff%20for%20constant%2Dquality "Documentation of `-crf`") (the best description is under libaom-AV1 but it's also in other encoders like MPEG-4)
-- also see [this guide](https://trac.ffmpeg.org/wiki/Encode/H.264#crf "H.264 Video Encoding Guide") for CRF with `libx264`
+- also see [this FFmpeg guide](https://trac.ffmpeg.org/wiki/Encode/H.264#crf "H.264 Video Encoding Guide") for CRF with `libx264`
+- and ["Using FFmpeg with NVIDIA GPU Hardware Acceleration"](https://docs.nvidia.com/video-technologies/video-codec-sdk/12.0/ffmpeg-with-nvidia-gpu/ "NVIDIA Documentation Hub: Using FFmpeg with NVIDIA GPU Hardware Acceleration") on the NVIDIA Documentation Hub
 
 Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
