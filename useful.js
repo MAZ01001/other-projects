@@ -269,3 +269,44 @@ function getMousePos(offsetElement=null){
         movementY:this.obj.movement[1]
     });
 }
+/**
+ * ## pads overflow of {@linkcode el} (pad left/top the same as the width/height of `-webkit-scrollbar`) \
+ * if {@linkcode el} is not an {@linkcode HTMLElement} ends silently (without doing anything)
+ * @param {HTMLElement} el - the element to pad (according to overflow and sizes of `-webkit-scrollbar`)
+ * @deprecated use [CSS `scrollbar-gutter: stable;`](https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-gutter) instead
+ * @throws {Error} if `Window` is not defined (not in HTML context)
+ * @example
+ * //~ to automatically update element "ID" when document loads and on every resize of the browser window
+ * window.addEventListener("resize",()=>PadOverflowFor(document.getElementById("ID")),{passive:true});
+ * window.addEventListener("DOMContentLoaded",()=>PadOverflowFor(document.getElementById("ID")),{passive:true,once:true});
+ */
+function PadOverflowFor(el){
+    "use strict";
+    if(window==null)throw new Error("[PadOverflowFor] called outside the context of HTML (Window is not defined)");
+    if(!(el instanceof HTMLElement))return;
+    const[x,y]=(({clientWidth,clientHeight,scrollWidth,scrollHeight})=>[scrollWidth>clientWidth,scrollHeight>clientHeight])(el),
+        {width:scW,height:scH}=window.getComputedStyle(el,"-webkit-scrollbar"),
+        {paddingLeft:pl,paddingTop:pt}=window.getComputedStyle(el);
+    if(el.dataset.ox==="1"){
+        if(!x){
+            //~ horizontal scrollbar disappears (no X-overflow)
+            el.style.paddingTop=`calc(${pt} - ${scH})`;
+            el.dataset.ox="0";
+        }
+    }else if(x){
+        //~ horizontal scrollbar appears (X-overflow)
+        el.style.paddingTop=`calc(${pt} + ${scH})`;
+        el.dataset.ox="1";
+    }
+    if(el.dataset.oy==="1"){
+        if(!y){
+            //~ vertical scrollbar disappears (no Y-overflow)
+            el.style.paddingLeft=`calc(${pl} - ${scW})`;
+            el.dataset.oy="0";
+        }
+    }else if(y){
+        //~ vertical scrollbar appears (Y-overflow)
+        el.style.paddingLeft=`calc(${pl} + ${scW})`;
+        el.dataset.oy="1";
+    }
+}

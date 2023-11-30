@@ -94,6 +94,9 @@ function getMousePos(offsetElement?: Element | null): Readonly<{
   movementX: number;
   movementY: number;
 }>
+
+/** pads element when it's overflowing (pad left/top the same as the width/height of `-webkit-scrollbar` if element is overflowing (per axis)) */
+function PadOverflowFor(el: HTMLElement): void
 ```
 
 Scroll [UP](#usefuljs) | [TOP](#random-projects)
