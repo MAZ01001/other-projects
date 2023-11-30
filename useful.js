@@ -71,7 +71,7 @@ function formatDate(dt,utc,separators){
         (utc?dt.getUTCMinutes():dt.getMinutes()).toString().padStart(2,"0"),
         (utc?dt.getUTCSeconds():dt.getSeconds()).toString().padStart(2,"0"),
         (utc?dt.getUTCMilliseconds():dt.getMilliseconds()).toString().padStart(3,"0")
-    ].reduce((o,v,i)=>o+String(separators?.[i-1]??"")+v);
+    ].reduce((o,v,i)=>o+String(separators[i-1]??"")+v);
 }
 /**
  * __get the current timestamp UTC from year 0__
@@ -167,9 +167,9 @@ function copyToClipboard(data){
             return;
         }
         if(
-            (typeof Navigator)===undefined
-            ||(typeof Permissions)===undefined
-            ||(typeof (navigator?.permissions?.query??undefined))!=='function'
+            typeof Navigator===undefined
+            ||typeof Permissions===undefined
+            ||typeof(navigator?.permissions?.query??undefined)!=='function'
         ){
             reject('[copyToClipboard] `navigator.permissions.query` is not defined');
             return;
@@ -209,8 +209,8 @@ function copyToClipboard(data){
  */
 function getMousePos(offsetElement=null){
     if(
-        (typeof Window==='undefined')
-        ||(typeof Document==='undefined')
+        typeof Window==='undefined'
+        ||typeof Document==='undefined'
     )throw new Error('[getMousePos] called outside the context of HTML (Window and Document are not defined)');
     if(this.obj==null){//~ ==null checks for null and undefined
         /**
