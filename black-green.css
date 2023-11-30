@@ -50,9 +50,11 @@ body{
 ::-webkit-scrollbar-track-piece,
 ::-webkit-scrollbar-corner{display:none;background-color:#0000;}
 .overflowScroll{
-    max-width:100vw;
-    max-height:100vh;
-    overflow:overlay;
+    box-sizing:border-box;
+    max-width:100%;
+    max-height:100%;
+    overflow:auto;
+    scrollbar-gutter:stable;
 }
 .blurBG{
     backdrop-filter:blur(3px);
