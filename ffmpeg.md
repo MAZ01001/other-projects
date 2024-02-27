@@ -35,6 +35,7 @@ Note: the order of (_some_) parameters/flags matters - before or after a given i
   - [loop video](#loop-video "Scroll to this section")
   - [Reverse video and/or Audio](#reverse-video-andor-audio "Scroll to this section")
   - [Concatenate multiple videos into one](#concatenate-multiple-videos-into-one "Scroll to this section")
+  - [Cut and combine multiple sections of multiple files](#cut-and-combine-multiple-sections-of-multiple-files "Scroll to this section")
   - [Create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist "Scroll to this section")
   - [find silence parts in video](#find-silence-parts-in-video "Scroll to this section")
 
@@ -76,6 +77,7 @@ Scroll [UP](#ffplay-video-viewing "Scroll to beginning of FFplay section") | [TO
 - [loop video](#loop-video "Scroll to this section")
 - [Reverse video and/or Audio](#reverse-video-andor-audio "Scroll to this section")
 - [Concatenate multiple videos into one](#concatenate-multiple-videos-into-one "Scroll to this section")
+- [Cut and combine multiple sections of multiple files](#cut-and-combine-multiple-sections-of-multiple-files "Scroll to this section")
 - [Create/download video with m3u8 playlist](#createdownload-video-with-m3u8-playlist "Scroll to this section")
 - [find silence parts in video](#find-silence-parts-in-video "Scroll to this section")
 
@@ -105,6 +107,7 @@ ffmpeg -v level+warning -stats -i INPUT.mkv -c:a copy -c:v libx264 -crf 12 OUTPU
 - [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+  - [Stream specifiers documentation](https://ffmpeg.org/ffmpeg-all.html#Stream-specifiers "Documentation of stream specifiers for `-c`")
 - [`-crf` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=crf,-Set%20the%20quality/size%20tradeoff%20for%20constant%2Dquality "Documentation of `-crf`") (the best description is under libaom-AV1 but it's also in other encoders like MPEG-4)
 - also see [this guide](https://trac.ffmpeg.org/wiki/Encode/H.264#crf "H.264 Video Encoding Guide") for CRF with `libx264`
 
@@ -127,6 +130,7 @@ ffmpeg -v level+warning -stats -i INPUT.mp4 -c copy -map 0 -map -0:v OUTPUT.m4a
 - [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+  - [Stream specifiers documentation](https://ffmpeg.org/ffmpeg-all.html#Stream-specifiers "Documentation of stream specifiers for `-c`")
 - [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
 
 Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
@@ -197,6 +201,7 @@ ffmpeg -v level+warning -stats -i INPUT.mp4 -i IMAGE.png -map 0 -map 1 -c copy -
 - [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+  - [Stream specifiers documentation](https://ffmpeg.org/ffmpeg-all.html#Stream-specifiers "Documentation of stream specifiers for `-c`")
 - [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
 - [`-disposition` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Ddisposition%5B%3Astream_specifier%5D%20value%20(output%2Cper%2Dstream) "Documentation of `-disposition[:stream_specifier] value (output,per-stream)`")
 - [How To add an embedded cover/thumbnail](https://ffmpeg.org/ffmpeg-all.html#:~:text=To%20add%20an%20embedded%20cover/thumbnail%3A "Example of how to add an embedded cover/thumbnail (with `-disposition`)") (within the `-disposition` documentation)
@@ -226,6 +231,7 @@ ffmpeg -v level+warning -stats -i INPUT.mp4 -i SUB_ENG.srt -i SUB_GER.srt -map 0
 - [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+  - [Stream specifiers documentation](https://ffmpeg.org/ffmpeg-all.html#Stream-specifiers "Documentation of stream specifiers for `-c`")
 - [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
 - [`-metadata` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmetadata%5B%3Ametadata_specifier%5D%20key%3Dvalue%20(output%2Cper%2Dmetadata) "Documentation of `-metadata[:metadata_specifier] key=value (output,per-metadata)`")
 
@@ -340,17 +346,19 @@ faster with GPU hardware acceleration / NVIDIA CUDA
 
 ```shell
 # for h.265 → h264_nvenc with NVIDIA CUDA
-ffmpeg -v level+warning -stats -hwaccel cuda -hwaccel_output_format cuda -i INPUT.mp4 -c copy -c:v h264_nvenc -fps_mode passthrough -b_ref_mode disabled -preset medium -tune hq -rc vbr -multipass disabled -crf 20 OUTPUT.mp4
+ffmpeg -v level+warning -stats -hwaccel cuda -hwaccel_output_format cuda -i INPUT.mp4 -c copy -c:v h264_nvenc -fps_mode passthrough -b_ref_mode disabled -preset medium -tune hq -rc vbr -multipass disabled -qp 20 OUTPUT.mp4
 # for h.265 → hevc_nvenc with NVIDIA CUDA
-ffmpeg -v level+warning -stats -hwaccel cuda -hwaccel_output_format cuda -i INPUT.mp4 -c copy -c:v hevc_nvenc -fps_mode passthrough -b_ref_mode disabled -preset medium -tune hq -rc vbr -multipass disabled -crf 25 OUTPUT.mp4
+ffmpeg -v level+warning -stats -hwaccel cuda -hwaccel_output_format cuda -i INPUT.mp4 -c copy -c:v hevc_nvenc -fps_mode passthrough -b_ref_mode disabled -preset medium -tune hq -rc vbr -multipass disabled -qp 25 OUTPUT.mp4
 ```
 
 - [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+  - [Stream specifiers documentation](https://ffmpeg.org/ffmpeg-all.html#Stream-specifiers "Documentation of stream specifiers for `-c`")
 - [`-crf` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=crf,-Set%20the%20quality/size%20tradeoff%20for%20constant%2Dquality "Documentation of `-crf`") (the best description is under libaom-AV1 but it's also in other encoders like MPEG-4)
 - also see [this FFmpeg guide](https://trac.ffmpeg.org/wiki/Encode/H.264#crf "H.264 Video Encoding Guide") for CRF with `libx264`
 - and ["Using FFmpeg with NVIDIA GPU Hardware Acceleration"](https://docs.nvidia.com/video-technologies/video-codec-sdk/12.0/ffmpeg-with-nvidia-gpu/ "NVIDIA Documentation Hub: Using FFmpeg with NVIDIA GPU Hardware Acceleration") on the NVIDIA Documentation Hub
+- CUDA ignores [`-crf`](https://ffmpeg.org/ffmpeg-all.html#:~:text=crf,-Set%20the%20quality/size%20tradeoff%20for%20constant%2Dquality "Documentation of `-crf`") (the best description is under libaom-AV1 but it's also in other encoders like MPEG-4) so it's `-qp` for the hardware acceleration
 
 Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
@@ -378,6 +386,7 @@ when it's before `-i` like here it will seek into the video without decoding it 
 - [`-to` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dto%20position%20(input/output) "Documentation of `-to position (input/output)`")
 - [`-t` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dt%20duration%20(input/output) "Documentation of `-t duration (input/output)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+  - [Stream specifiers documentation](https://ffmpeg.org/ffmpeg-all.html#Stream-specifiers "Documentation of stream specifiers for `-c`")
 
 Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
@@ -399,6 +408,7 @@ if exact timing is needed, it is better to re-encode the video (`-c:v libx264` a
 - [`-stream_loop` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstream_loop%20number%20(input) "Documentation of `-stream_loop number (input)`") (note: looping once results in two videos)
 - [`-t` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dt%20duration%20(input/output) "Documentation of `-t duration (input/output)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+  - [Stream specifiers documentation](https://ffmpeg.org/ffmpeg-all.html#Stream-specifiers "Documentation of stream specifiers for `-c`")
 - [`-shortest` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dshortest%20(output),-Finish%20encoding%20when%20the%20shortest%20output%20stream%20ends "Documentation of `-shortest (output)`")
 - [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
 
@@ -442,12 +452,41 @@ file 'INPUT_1.mp4'
 
 - [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
-- [concat multimedia filter](https://ffmpeg.org/ffmpeg-all.html#concat-3 "Documentation of concat filter (for `-filter_complex`)")
 - [`-filter_complex` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dfilter_complex%20filtergraph%20(global) "Documentation of `-filter_complex filtergraph (global)`")
+- [concat multimedia filter](https://ffmpeg.org/ffmpeg-all.html#concat-3 "Documentation of concat filter (for `-filter_complex`)")
 - [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
 - [concat demuxer documentation](https://ffmpeg.org/ffmpeg-all.html#concat-1 "Documentation of concat demuxer")
 - [`-safe` option for concat demuxer](https://ffmpeg.org/ffmpeg-all.html#:~:text=safe,-if%20set%20to%201%2C%20reject%20unsafe%20file%20paths%20and%20directives "Documentation of `-safe` option for the concat demuxer")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+  - [Stream specifiers documentation](https://ffmpeg.org/ffmpeg-all.html#Stream-specifiers "Documentation of stream specifiers for `-c`")
+
+Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
+
+### Cut and combine multiple sections of multiple files
+
+Cut clips and concat them (with re-encoding) as follows (video and audio are cut and combined separately).
+
+```shell
+# 00:00 to 00:02 video and audio of INPUT_0.mp4
+# 00:04 to 00:08 video and audio of INPUT_0.mp4
+# 00:01 to 00:05 video and audio of INPUT_1.mp4
+# 00:06 to 00:08 video and audio of INPUT_1.mp4
+ffmpeg -v level+warning -stats -i INPUT_0.mp4 -i INPUT_1.mp4 -filter_complex "[0:v]trim=0:2,setpts=PTS-STARTPTS[i0v0];[0:v]atrim=0:2,asetpts=PTS-STARTPTS[i0a0];[0:v]trim=4:8,setpts=PTS-STARTPTS[i0v1];[0:v]atrim=4:8,asetpts=PTS-STARTPTS[i0a1];[1:v]trim=1:5,setpts=PTS-STARTPTS[i1v0];[1:v]atrim=1:5,asetpts=PTS-STARTPTS[i1a0];[1:v]trim=6:8,setpts=PTS-STARTPTS[i1v1];[1:v]atrim=6:8,asetpts=PTS-STARTPTS[i1a1];[i0v0][i0a0][i0v1][i0a1][i1v0][i1a0][i1v1][i1a1]concat=n=4:v=1:a=1[cv][ca]" -map "[cv]" -map "[ca]" OUTPUT.mp4
+# with (h.264) NVIDIA:CUDA and slow/low compression (4 to 8 MB variable bitrate and 4 QP) for the first video stream of the combined video clips
+ffmpeg -v level+warning -stats -hwaccel cuda -hwaccel_output_format cuda -i INPUT_0.mp4 -hwaccel cuda -hwaccel_output_format cuda -i INPUT_1.mp4 -filter_complex "[0:v]trim=0:2,setpts=PTS-STARTPTS[i0v0];[0:v]atrim=0:2,asetpts=PTS-STARTPTS[i0a0];[0:v]trim=4:8,setpts=PTS-STARTPTS[i0v1];[0:v]atrim=4:8,asetpts=PTS-STARTPTS[i0a1];[1:v]trim=1:5,setpts=PTS-STARTPTS[i1v0];[1:v]atrim=1:5,asetpts=PTS-STARTPTS[i1a0];[1:v]trim=6:8,setpts=PTS-STARTPTS[i1v1];[1:v]atrim=6:8,asetpts=PTS-STARTPTS[i1a1];[i0v0][i0a0][i0v1][i0a1][i1v0][i1a0][i1v1][i1a1]concat=n=4:v=1:a=1[cv][ca]" -map "[cv]" -c:v:0 h264_nvenc -preset p7 -tune hq -profile:v:0 high -level:v:0 auto -rc vbr -b:v:0 4M -minrate:v:0 500k -maxrate:v:0 8M -bufsize:v:0 8M -multipass disabled -fps_mode passthrough -b_ref_mode:v:0 disabled -rc-lookahead:v:0 32 -qp 4 -map "[ca]" OUTPUT.mp4
+# the `-hwaccel cuda -hwaccel_output_format cuda` must be in front of every input video (that is in the filter and gets encoded as video stream)
+```
+
+- [`-v` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dloglevel%20%5Bflags%2B%5Dloglevel%20%7C%20%2Dv%20%5Bflags%2B%5Dloglevel "Documentation of `-loglevel [flags+]loglevel | -v [flags+]loglevel`")
+- [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
+- [`-filter_complex` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dfilter_complex%20filtergraph%20(global) "Documentation of `-filter_complex filtergraph (global)`")
+- [trim multimedia filter](https://ffmpeg.org/ffmpeg-all.html#trim "Documentation of trim filter (for `-filter_complex`)")
+- [atrim multimedia filter](https://ffmpeg.org/ffmpeg-all.html#atrim "Documentation of atrim filter (for `-filter_complex`)")
+- [concat multimedia filter](https://ffmpeg.org/ffmpeg-all.html#concat-3 "Documentation of concat filter (for `-filter_complex`)")
+- [`-map` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dmap%20%5B%2D%5Dinput_file_id%5B%3Astream_specifier%5D%5B%3F%5D%20%7C%20%5Blinklabel%5D%20(output) "Documentation of `-map [-]input_file_id[:stream_specifier][?] | [linklabel] (output)`")
+- [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+  - [Stream specifiers documentation](https://ffmpeg.org/ffmpeg-all.html#Stream-specifiers "Documentation of stream specifiers for `-c`")
+- also, see the section about [video compression](#compress-video "Scroll to the video compression section on this page") specifically with GPU hardware acceleration / NVIDIA CUDA
 
 Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
@@ -463,6 +502,7 @@ ffmpeg -v level+warning -stats -protocol_whitelist file,http,https,tcp,tls,crypt
 - [`-stats` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dstats%20(global) "Documentation of `-stats (global)`")
 - [`-protocol_whitelist` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=protocol_whitelist%20list%20(input) "Documentation of `protocol_whitelist list (input)`")
 - [`-c` documentation](https://ffmpeg.org/ffmpeg-all.html#:~:text=%2Dc%5B%3Astream_specifier%5D%20codec%20(input/output%2Cper%2Dstream) "Documentation of `-c[:stream_specifier] codec (input/output,per-stream)`")
+  - [Stream specifiers documentation](https://ffmpeg.org/ffmpeg-all.html#Stream-specifiers "Documentation of stream specifiers for `-c`")
 
 Scroll [UP](#ffmpeg-video-editing "Scroll to beginning of FFmpeg section") | [TOP](#some-useful-ffmpeg-commands "Scroll to top of document")
 
