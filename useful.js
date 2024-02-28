@@ -310,3 +310,70 @@ function PadOverflowFor(el){
         el.dataset.oy="1";
     }
 }
+/**
+ * ## Shows gradients at the edges of {@linkcode el} when it overflows and becommes scrollable
+ * Overrides the CSS `background` property (use {@linkcode background} to add any additional value/s for CSS)
+ * @param {HTMLElement} el - The HTML element for styling
+ * @param {number|[number,number]} offset - The minimum scroll distance (in pixels - positive and non-zero) at which to start blending out the alpha of {@linkcode color} (from {@linkcode alphaMax} to 0) - use a two numbers as `[x, y]` to set horizontal and vertical offset individually
+ * @param {string|[string,string]} size - The size of the gradients as CSS length value (`1rem` / `16px` / `clamp(1rem, 5%, 2rem)`) - use a two values as `[width, height]` to set width and height individually
+ * @param {string} color - A CSS color like `rgb(255 153 0 / $f)`, `#FF9900$x`, or `oklch(77.2% .17 64.55 / $%)` for the color of each gradient
+ * - replaces all `$f` with floatingpoint numbers from 0 to 1 (inclusive)
+ * - replaces all `$i` with integers from 0 to 255 (inclusive)
+ * - replaces all `$x` with double digit hex numbers from 00 to FF (inclusive) excluding any prefix
+ * - replaces all `$%` with percentages from 0 to 100 (inclusive) including the % sign
+ * - use \ to escape $
+ * @param {number} alphaMax - max value for the alpha of {@linkcode color} (0 to 1 inclusive)
+ * @param {string} [background] - [optional] additional value/s for the CSS `background` property (excluding trailing semicolon)
+ * @returns {()=>void} call this function to update the styles with the current scroll position and offset
+ * @example
+ * const box = document.getElementById("box"),
+ *     boxOverflowUpdate = StyleOverflowFor(box, 0xC8, ["clamp(1rem, 5vw, 2rem)", "clamp(1rem, 5vh, 2rem)"], "#CCCC00$x", 2/3, "#0008");
+ * boxOverflowUpdate();
+ * box.addEventListener("scroll", boxOverflowUpdate, {passive: true});
+ * window.addEventListener("resize", boxOverflowUpdate, {passive: true});
+ */
+function StyleOverflowFor(el,offset,size,color,alphaMax,background){
+    "use strict";
+    if(typeof HTMLElement==="undefined")throw new Error('[styleOverflowFor] called outside the context of HTML (HTMLElement is not defined)');
+    if(!(el instanceof HTMLElement))throw new TypeError("[styleOverflowFor] el is not an HTML element");
+    if(Array.isArray(offset)){
+        if(offset.length!==2)throw new TypeError("[styleOverflowFor] offset is not an array with two entries");
+        if(offset.some(v=>typeof v!=="number"||v<=0))throw new TypeError("[styleOverflowFor] offset is not an array with two non-zero positive numbers");
+    }else if(typeof offset!=="number"||offset<=0)throw new TypeError("[styleOverflowFor] offset is not a non-zero positive number");
+    else{offset=[offset,offset];}
+    if(Array.isArray(size)){
+        if(size.length!==2)throw new TypeError("[styleOverflowFor] size is not an array with two entries");
+        if(size.some(v=>typeof v!=="string"))throw new TypeError("[styleOverflowFor] size is not an array with two strings");
+    }else if(typeof size!=="string")throw new TypeError("[styleOverflowFor] size is not a string");
+    else{size=[size,size];}
+    if(typeof color!=="string")throw new TypeError("[styleOverflowFor] color is not a string");
+    if(typeof alphaMax!=="number"||alphaMax<0||alphaMax>1)throw new TypeError("[styleOverflowFor] alphaMax is not a number between 0 and 1");
+    if(background!=null&&typeof background!=="string")throw new TypeError("[styleOverflowFor] background is given but is not a string");
+    /**
+     * ## Clamps {@linkcode n} between 0 and 1
+     * @param {number} n - a number
+     * @returns {number} the clamped number
+     */
+    const Clamp01=n=>n>1?1:n<0?0:n;
+    return()=>{
+        "use strict";
+        const[top,left,bottom,right]=[
+            alphaMax*Clamp01(el.scrollTop/offset[1]),
+            alphaMax*Clamp01(el.scrollLeft/offset[0]),
+            alphaMax*Clamp01((el.scrollHeight-(el.scrollTop+el.clientHeight))/offset[1]),
+            alphaMax*Clamp01((el.scrollWidth-(el.scrollLeft+el.clientWidth))/offset[0])
+        ].map(v=>color
+            .replace(/(?<!\\)\$f/g,v)
+            .replace(/(?<!\\)\$i/g,v*0xFF)
+            .replace(/(?<!\\)\$x/g,(v*0xFF).toString(0x10).padStart(2,'0'))
+            .replace(/(?<!\\)\$%/g,`${v*0x64}%`)
+        );
+        el.style.background=`
+            scroll linear-gradient(to top,    transparent, ${top})    center top    / 100% ${size[1]}      no-repeat,
+            scroll linear-gradient(to left,   transparent, ${left})   center left   /      ${size[0]} 100% no-repeat,
+            scroll linear-gradient(to bottom, transparent, ${bottom}) center bottom / 100% ${size[1]}      no-repeat,
+            scroll linear-gradient(to right,  transparent, ${right})  center right  /      ${size[0]} 100% no-repeat
+            ${background==null?'':`, ${background}`}
+        `;
+    };
+}
