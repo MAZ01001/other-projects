@@ -83,16 +83,11 @@ function copyToClipboard(data: string | Blob): Promise<any>
 
 /** gets the current cursor position and also relative to the previous position, screen space, the browser window, the HTML page, and a given (HTML) element */
 function getMousePos(offsetElement?: Element | null): Readonly<{
-  pageX: number;
-  pageY: number;
-  clientX: number;
-  clientY: number;
-  offsetX: number;
-  offsetY: number;
-  screenX: number;
-  screenY: number;
-  movementX: number;
-  movementY: number;
+  pageX: number;     pageY: number;
+  clientX: number;   clientY: number;
+  offsetX: number;   offsetY: number;
+  screenX: number;   screenY: number;
+  movementX: number; movementY: number;
 }>
 
 /** pads element when it's overflowing (pad left/top the same as the width/height of `-webkit-scrollbar` if element is overflowing (per axis)) */
