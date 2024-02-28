@@ -92,6 +92,9 @@ function getMousePos(offsetElement?: Element | null): Readonly<{
 
 /** pads element when it's overflowing (pad left/top the same as the width/height of `-webkit-scrollbar` if element is overflowing (per axis)) */
 function PadOverflowFor(el: HTMLElement): void
+
+/** shows gradients at the edges of a given element when it overflows to visualize that it's scrollable */
+function StyleOverflowFor(el: HTMLElement, offset: number | [number, number], size: string | [string, string], color: string, alphaMax: number, background?: string | undefined): () => void
 ```
 
 Scroll [UP](#usefuljs) | [TOP](#random-projects)
