@@ -273,8 +273,8 @@ function getMousePos(offsetElement=null){
  * ## pads overflow of {@linkcode el} (pad left/top the same as the width/height of `-webkit-scrollbar`) \
  * if {@linkcode el} is not an {@linkcode HTMLElement} ends silently (without doing anything)
  * @param {HTMLElement} el - the element to pad (according to overflow and sizes of `-webkit-scrollbar`)
- * @deprecated use [CSS `scrollbar-gutter: stable both-edges;`](https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-gutter) instead
  * @throws {Error} if `Window` is not defined (not in HTML context)
+ * @deprecated use [CSS `scrollbar-gutter: stable both-edges;`](https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-gutter) instead
  * @example
  * //~ to automatically update element "ID" when document loads and on every resize of the browser window
  * window.addEventListener("resize",()=>PadOverflowFor(document.getElementById("ID")),{passive:true});
