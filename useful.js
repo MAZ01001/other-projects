@@ -109,6 +109,26 @@ function hasArrayHoles(arr){
     arr.forEach(()=>count++);
     return arr.length!==count;
 }
+/**
+ * ## Binary search in {@linkcode arr} (ascending sorted array) for {@linkcode e}
+ * using `!=` and `<` (supports dynamic types), {@linkcode arr} can have duplicate elements
+ * @param {any[]} arr - list of [compareable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Less_than#description "MDN:JS < operator (description)") elements (sorted in ascending order)
+ * @param {any} e - element in {@linkcode arr} (presumably)
+ * @returns {number} index of {@linkcode e} in {@linkcode arr} or index of next smaller element (`-1` when smaller than first element)
+ * @throws {TypeError} if {@linkcode arr} is not an array
+ */
+function binarySearch(arr,e){
+    "use strict";
+    if(!Array.isArray(arr))throw new TypeError("[binarySearch] arr is not an array");
+    let l=0,r=arr.length-1,i=Math.trunc((r-l)*.5);
+    while(arr[i]!=e){
+        if(arr[i]<e)l=i+1;
+        else r=i-1;
+        if(l>r)return r;
+        i=Math.trunc(l+(r-l)*.5);
+    }
+    return i;
+}
 
 //~ HTML / DOM
 /**

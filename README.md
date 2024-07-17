@@ -66,6 +66,9 @@ function getUTC0(highResMonotonicClock: boolean): BigInt
 /** checks the array for empty entries / holes */
 function hasArrayHoles(arr: any[]): boolean
 
+/** binary search in ascending sorted array (with dynamic typed elements) for index (or next smaller index) */
+function binarySearch(arr: any[], e: any): number
+
 // HTML / DOM
 
 /**
