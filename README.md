@@ -98,6 +98,9 @@ function PadOverflowFor(el: HTMLElement): void
 
 /** shows gradients at the edges of a given element when it overflows to visualize that it's scrollable */
 function StyleOverflowFor(el: HTMLElement, offset: number | [number, number], size: string | [string, string], color: string, alphaMax: number, background?: string | undefined): () => void
+
+/** convert image to base64 data URL - for offline viewing (asynchronous) */
+const LoadIMG: (src: string) => Promise<string | null>
 ```
 
 Scroll [UP](#usefuljs) | [TOP](#random-projects)
