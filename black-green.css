@@ -131,3 +131,8 @@ select:active,button:active,textarea:active,input[type="button"]:active,input[ty
 .select_black::selection{background-color: #000;color: #FFF;}
 .select_white::selection{background-color: #FFF;color: #000;}
 .select_gold::selection{background-color: #F90;color: #000;}
+
+tbody>tr:nth-child(3n+1){
+    /* background-color: #444; */
+    border-bottom: 1px solid #444;
+}
