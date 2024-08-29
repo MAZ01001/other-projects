@@ -399,7 +399,8 @@ function StyleOverflowFor(el,offset,size,color,alphaMax,background){
 }
 /**
  * ## Convert image to base64 data URL
- * for offline viewing (asynchronous)
+ * for offline viewing (asynchronous) \
+ * high chance of being blocked by CORS when it's not called on the page (HTML context) where the image is displayed
  * @param {string} src - image source URL
  * @returns {Promise<string|null>} (async) data URL or `null` when image could not be loaded
  * @throws {TypeError} if {@linkcode src} is not a string
@@ -413,7 +414,8 @@ const LoadIMG=(()=>{
     img.crossOrigin="anonymous";//~ make sure canvas does not taint and can still convert itself to data URL
     /**
      * ## Convert image to base64 data URL
-     * for offline viewing (asynchronous)
+     * for offline viewing (asynchronous) \
+     * high chance of being blocked by CORS when it's not called on the page (HTML context) where the image is displayed
      * @param {string} src - image source URL
      * @returns {Promise<string|null>} (async) data URL or `null` when image could not be loaded
      * @throws {TypeError} if {@linkcode src} is not a string
