@@ -397,3 +397,41 @@ function StyleOverflowFor(el,offset,size,color,alphaMax,background){
         `;
     };
 }
+/**
+ * ## Convert image to base64 data URL
+ * for offline viewing (asynchronous)
+ * @param {string} src - image source URL
+ * @returns {Promise<string|null>} (async) data URL or `null` when image could not be loaded
+ * @throws {TypeError} if {@linkcode src} is not a string
+ */
+const LoadIMG=(()=>{
+    "use strict";
+    const img=new Image(),
+        cnv=document.createElement("canvas"),//~ use the same canvas object for all calls to save some resources
+        cnx=cnv.getContext("2d");
+    img.loading="eager";
+    img.crossOrigin="anonymous";//~ make sure canvas does not taint and can still convert itself to data URL
+    /**
+     * ## Convert image to base64 data URL
+     * for offline viewing (asynchronous)
+     * @param {string} src - image source URL
+     * @returns {Promise<string|null>} (async) data URL or `null` when image could not be loaded
+     * @throws {TypeError} if {@linkcode src} is not a string
+     */
+    return async src=>{
+        "use strict";
+        if(typeof src!=="string")throw new TypeError("[LoadIMG] src is not a string");
+        let err=false;
+        const p=new Promise(L=>{
+            img.onload=L;
+            img.onerror=()=>{err=true;L();};
+        });
+        img.src=src;
+        await p;
+        if(err)return null;
+        cnv.width=img.naturalWidth;
+        cnv.height=img.naturalHeight;
+        cnx.drawImage(img,0,0);
+        return cnv.toDataURL();
+    };
+})();
