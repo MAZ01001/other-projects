@@ -100,7 +100,7 @@ function PadOverflowFor(el: HTMLElement): void
 function StyleOverflowFor(el: HTMLElement, offset: number | [number, number], size: string | [string, string], color: string, alphaMax: number, background?: string | undefined): () => void
 
 /** convert image to base64 data URL - for offline viewing (asynchronous) */
-const LoadIMG: (src: string) => Promise<string | null>
+function LoadIMG(src: string): Promise<string | null>
 ```
 
 Scroll [UP](#usefuljs) | [TOP](#random-projects)
