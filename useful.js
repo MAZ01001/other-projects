@@ -46,6 +46,39 @@ function strCharStats(str,chars=''){
     }
     return Object.freeze(obj);
 }
+/**
+ * ## Create ANSI codes to set terminal color
+ * sets output terminal fore/background colors \
+ * ! remember to output the reset code before end of script or terminal colors stay this way \
+ * for browser dev-console use `console.log("%cCSS", "background-color: #000; color: #F90");` instead \
+ * ! keep in mind that if the terminal doesn't support ansi-codes it will output them as plain text
+ * @param {null|number|[number,number,number]} [c] - set color by type (default `null`):
+ * | type        | return                                        |
+ * |:----------- |:--------------------------------------------- |
+ * | `null`      | ANSI reset code                               |
+ * | `number`    | color as 3 * 8bit RGB ~ 0x112233              |
+ * | `number[3]` | color as `[R, G, B]` (truncated to 8bit each) |
+ * @param {number} [bg] - `<0` for background color, `>0` for foreground color, or `0` for both - default: foreground color
+ * @returns {string} ANSI code for re/setting fore/background color of output terminal
+ * @throws {TypeError} when {@linkcode c} is not one of the documented types or {@linkcode bg} is given and not a number
+ * @example console.log(`TEST${ansi(0xff9900)}TEST${ansi()}TEST`);
+ */
+function ansi(c,bg){
+    "use strict";
+    if(c==null)return"\x1b[0m";
+    if(typeof c==="number")c=`${(c&0xff0000)>>>16};${(c&0xff00)>>>8};${c&0xff}`;
+    else{
+        if(!Array.isArray(c)||c.length!==3||c.some(v=>typeof v!=="number"))throw new TypeError("[c] c must be either null, a (24bit) number, or an array of 3 (8bit) numbers.");
+        c=`${c[0]&=0xff};${c[1]&=0xff};${c[2]&=0xff}`;
+    }
+    if(bg==null)return`\x1b[38;2;${c}m`;
+    if(typeof bg!=="number")throw new TypeError("[c] bg is given but not a number.");
+    switch(Math.sign(bg)){
+        case 1:return`\x1b[38;2;${c}m`;
+        case 0:return`\x1b[38;2;${c};48;2;${c}m`;
+        case-1:return`\x1b[48;2;${c}m`;
+    }
+}
 
 //~ date (string|number)
 /**
