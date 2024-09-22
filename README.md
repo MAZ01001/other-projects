@@ -53,6 +53,12 @@ function strCharStats(str: string, chars?: string): Readonly<{
   other: number;
 }>
 
+/**
+ * Create ANSI codes to set terminal color
+ * for browser dev-console use `console.log("%cCSS", "background-color: #000; color: #F90");` instead
+ */
+function ansi(c?: number | [number, number, number] | null | undefined, bg?: number | undefined): string
+
 // Date
 
 /** format date with custom separators */
