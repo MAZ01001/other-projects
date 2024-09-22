@@ -405,35 +405,24 @@ function StyleOverflowFor(el,offset,size,color,alphaMax,background){
  * @returns {Promise<string|null>} (async) data URL or `null` when image could not be loaded
  * @throws {TypeError} if {@linkcode src} is not a string
  */
-const LoadIMG=(()=>{
+async function LoadIMG(src){
     "use strict";
-    const img=new Image(),
-        cnv=document.createElement("canvas"),//~ use the same canvas object for all calls to save some resources
-        cnx=cnv.getContext("2d");
-    img.loading="eager";
-    img.crossOrigin="anonymous";//~ make sure canvas does not taint and can still convert itself to data URL
-    /**
-     * ## Convert image to base64 data URL
-     * for offline viewing (asynchronous) \
-     * high chance of being blocked by CORS when it's not called on the page (HTML context) where the image is displayed
-     * @param {string} src - image source URL
-     * @returns {Promise<string|null>} (async) data URL or `null` when image could not be loaded
-     * @throws {TypeError} if {@linkcode src} is not a string
-     */
-    return async src=>{
-        "use strict";
-        if(typeof src!=="string")throw new TypeError("[LoadIMG] src is not a string");
-        let err=false;
-        const p=new Promise(L=>{
-            img.onload=L;
-            img.onerror=()=>{err=true;L();};
-        });
-        img.src=src;
-        await p;
-        if(err)return null;
-        cnv.width=img.naturalWidth;
-        cnv.height=img.naturalHeight;
-        cnx.drawImage(img,0,0);
-        return cnv.toDataURL();
-    };
-})();
+    if(typeof this.cnv==="undefined"){
+        this.cnv=document.createElement("canvas");//~ use the same canvas object for all calls to save some resources
+        this.cnx=this.cnv.getContext("2d");
+        this.img=new Image();
+        this.img.loading="eager";
+        this.img.crossOrigin="anonymous";//~ make sure canvas does not taint and can still convert itself to data URL
+    }
+    if(typeof src!=="string")throw new TypeError("[LoadIMG] src is not a string");
+    const load=new Promise(res=>{
+        this.img.onload=()=>res(false);
+        this.img.onerror=()=>res(true);
+    });
+    this.img.src=src;
+    if(await load)return null;
+    this.cnv.width=this.img.naturalWidth;
+    this.cnv.height=this.img.naturalHeight;
+    this.cnx.drawImage(this.img,0,0);
+    return this.cnv.toDataURL();
+}
