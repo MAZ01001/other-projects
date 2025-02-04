@@ -64,13 +64,13 @@ function ansi(c?: number | [number, number, number] | null | undefined, bg?: num
 /** format date with custom separators */
 function formatDate(dt: Date | null, utc: boolean | null, separators: string | string[] | null): string
 
-/** get the current timestamp UTC from year 0 */
-function getUTC0(highResMonotonicClock: boolean): BigInt
+/** number of milliseconds from `0000-01-01 00:00` to `1970-01-01 00:00` (UTC) */
+const UTC_OFFSET = 62125920000000;
 
 // Array
 
 /** checks the array for empty entries / holes */
-function hasArrayHoles(arr: any[]): boolean
+const hasArrayHoles: (arr: any[]) => boolean
 
 /** binary search in ascending sorted array (with dynamic typed elements) for index (or next smaller index) */
 function binarySearch(arr: any[], e: any): number
