@@ -72,7 +72,7 @@ function ansi(c,bg){
         c=`${c[0]&=0xff};${c[1]&=0xff};${c[2]&=0xff}`;
     }
     if(bg==null)return`\x1b[38;2;${c}m`;
-    if(typeof bg!=="number")throw new TypeError("[c] bg is given but not a number.");
+    if(typeof bg!=="number"||Number.isNaN(bg))throw new TypeError("[c] bg is given but not a number.");
     switch(Math.sign(bg)){
         case 1:return`\x1b[38;2;${c}m`;
         case 0:return`\x1b[38;2;${c};48;2;${c}m`;
@@ -106,21 +106,9 @@ function formatDate(dt,utc,separators){
         (utc?dt.getUTCMilliseconds():dt.getMilliseconds()).toString().padStart(3,"0")
     ].reduce((o,v,i)=>o+String(separators[i-1]??"")+v);
 }
-/**
- * __get the current timestamp UTC from year 0__
- * @param {boolean} highResMonotonicClock - if `true` uses {@linkcode performance} to get current time (actual time, not user time)otherwise gets user time via {@linkcode Date}
- * @returns {BigInt} UTC in milliseconds from year 0 (with {@linkcode highResMonotonicClock}, time is in nanoseconds ~ should be accurate to 5 microseconds)
- */
-function getUTC0(highResMonotonicClock){
-    "use strict";
-    if(!highResMonotonicClock)return BigInt(Date.now())+0x3880D1649800n;
-    const now=performance.now().toString().match(/^([0-9]+)(\.[0-9]+)?$/),
-        origin=performance.timeOrigin.toString().match(/^([0-9]+)(\.[0-9]+)?$/);
-    return(BigInt(now?.[1]??"0")*0xF4240n)
-        +(BigInt(origin?.[1]??"0")*0xF4240n)
-        +BigInt(Math.round(Number.parseFloat(now?.[2]??"0")*0xF4240))
-        +BigInt(Math.round(Number.parseFloat(origin?.[2]??"0")*0xF4240));
-}
+/**## Number of milliseconds from `0000-01-01 00:00` to `1970-01-01 00:00` (UTC)*/
+const UTC_OFFSET=62125920000000;
+//// console.log(UTC_OFFSET+Date.now());
 
 //~ number
 //// see https://github.com/MAZ01001/Math-Js/blob/main/functions.js
@@ -137,11 +125,7 @@ function getUTC0(highResMonotonicClock){
  * hasArrayHoles(["",0,undefined,,,,null,()=>{},[],{}]); //=> true
  * hasArrayHoles(["",0,undefined,null,()=>{},[],{}]);    //=> false
  */
-function hasArrayHoles(arr){
-    let count=0;
-    arr.forEach(()=>count++);
-    return arr.length!==count;
-}
+const hasArrayHoles=arr=>arr.length>arr.reduce(s=>s+1,0);
 /**
  * ## Binary search in {@linkcode arr} (ascending sorted array) for {@linkcode e}
  * using `!=` and `<` (supports dynamic types), {@linkcode arr} can have duplicate elements
