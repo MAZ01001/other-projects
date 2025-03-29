@@ -138,11 +138,10 @@ function binarySearch(arr,e){
     "use strict";
     if(!Array.isArray(arr))throw new TypeError("[binarySearch] arr is not an array");
     let l=0,r=arr.length-1,i=Math.trunc((r-l)*.5);
-    while(arr[i]!=e){
+    for(;arr[i]!=e;i=Math.trunc(l+(r-l)*.5)){
         if(arr[i]<e)l=i+1;
         else r=i-1;
         if(l>r)return r;
-        i=Math.trunc(l+(r-l)*.5);
     }
     return i;
 }
