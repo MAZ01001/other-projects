@@ -8,8 +8,9 @@ also...other languages than javascript ?! :o
 - [snake_cmd-game.cpp](#snake_cmd-gamecpp)
 - [useful.js](#usefuljs)
 - [black-green.css](#black-greencss)
-- [ffmpeg.md](#ffmpegmd)
 - [ConsoleIO.cs](#consoleiocs)
+
+_Moved `ffmpeg.md` to <https://github.com/MAZ01001/FFmpeg-resource>._
 
 ----
 
@@ -114,12 +115,6 @@ Scroll [UP](#usefuljs) | [TOP](#random-projects)
 ## [black-green.css](./black-green.css)
 
 some style rules I find useful and nice-looking
-
-Scroll [TOP](#random-projects)
-
-## [ffmpeg.md](./ffmpeg.md)
-
-a more or less detailed list of some useful FFmpeg commands for quick video edits
 
 Scroll [TOP](#random-projects)
 
