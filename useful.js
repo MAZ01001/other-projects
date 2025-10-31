@@ -80,36 +80,6 @@ function ansi(c,bg){
     }
 }
 
-//~ date (string|number)
-/**
- * __format date with custom separators__
- * @param {Date|null} dt - a valid date - default current date
- * @param {boolean|null} utc - if `true` uses UTC otherwise local time - default `false`
- * @param {string|string[]|null} separators - the separators between each block (from left) - 6 possible separators - default `"__-__."`
- * @returns {string} date in format (with default {@linkcode separators}) `YYYY_MM_dd-HH_mm_ss.ms` (zero padded to fit this format - ms is 3 digits)
- * @example
- * getDate(null,null,[,," - ",,,"."]); //=> "YYYYMMdd - HHmmss.ms"
- * getDate(null,null,""); //=> "YYYYMMddHHmmssms"
- */
-function formatDate(dt,utc,separators){
-    "use strict";
-    if(dt==null)dt=new Date();
-    if(utc==null)utc=false;
-    if(separators==null)separators="__-__.";
-    return[
-        (utc?dt.getUTCFullYear():dt.getFullYear()).toString().padStart(4,"0"),
-        ((utc?dt.getUTCMonth():dt.getMonth())+1).toString().padStart(2,"0"),
-        (utc?dt.getUTCDate():dt.getDate()).toString().padStart(2,"0"),
-        (utc?dt.getUTCHours():dt.getHours()).toString().padStart(2,"0"),
-        (utc?dt.getUTCMinutes():dt.getMinutes()).toString().padStart(2,"0"),
-        (utc?dt.getUTCSeconds():dt.getSeconds()).toString().padStart(2,"0"),
-        (utc?dt.getUTCMilliseconds():dt.getMilliseconds()).toString().padStart(3,"0")
-    ].reduce((o,v,i)=>o+String(separators[i-1]??"")+v);
-}
-/**## Number of milliseconds from `0000-01-01 00:00` to `1970-01-01 00:00` (UTC)*/
-const UTC_OFFSET=62125920000000;
-//// console.log(UTC_OFFSET+Date.now());
-
 //~ number
 //// see https://github.com/MAZ01001/Math-Js/blob/main/functions.js
 
@@ -171,55 +141,6 @@ function getTextDimensions(text,element=document.body,pseudoElt=null){
         width:this.cnv2d.measureText(text).width,
         height:elementCSS.fontSize,
         lineHeight:elementCSS.lineHeight
-    });
-}
-/**
- * __copy data to clipboard__ \
- * [!] only works in the context of `HTML` ie. a browser [!] \
- * _might not work for non-chromium-browsers, because of the permission check_
- * @param {string|Blob} data - a text or rich-content in the form of a `Blob`
- * @returns {Promise} resolves the promise if the copying of `data` to the clipboard was successful and rejects the promise when:
- * - `Document` is not defined (not in HTML context)
- * - `Document` is not in focus
- * - `navigator.permissions.query` is not defined (can not check for permissions to write to the clipboard)
- * - has no permission to write to the clipboard (or in a non-chromium-browser)
- * @example
- *   setTimeout(
- *       ()=>copyToClipboard('Hello, World!').then(
- *           ()=>console.log('success'),
- *           reason=>console.log('error: %O',reason)
- *       ),3000
- *   ); //~ with 3 seconds to focus on the document
- */
-function copyToClipboard(data){
-    return new Promise((resolve,reject)=>{
-        //~ reject instead of throw
-        if(typeof Document==='undefined'){
-            reject('[copyToClipboard] called outside the context of HTML (Document is not defined)');
-            return;
-        }
-        if(!document.hasFocus()){
-            reject('[copyToClipboard] HTML document must be in focus');
-            return;
-        }
-        if(
-            typeof Navigator===undefined
-            ||typeof Permissions===undefined
-            ||typeof(navigator?.permissions?.query??undefined)!=='function'
-        ){
-            reject('[copyToClipboard] `navigator.permissions.query` is not defined');
-            return;
-        }
-        navigator.permissions.query(Object.freeze({name:'clipboard-write'})).then(result=>{
-            if(result.state==='granted'){
-                if(data instanceof Blob)
-                    navigator.clipboard.write([new ClipboardItem(Object.freeze({[data.type]:data}))])
-                    .then(()=>resolve(),reason=>reject(reason));
-                else
-                    navigator.clipboard.writeText(String(data))
-                    .then(()=>resolve(),reason=>reject(reason));
-            }else reject('[copyToClipboard] no permission to write to the clipboard (or in a non-chromium-browser)');
-        },reason=>reject(reason));
     });
 }
 /**
@@ -304,47 +225,6 @@ function getMousePos(offsetElement=null){
         movementX:this.obj.movement[0],
         movementY:this.obj.movement[1]
     });
-}
-/**
- * ## pads overflow of {@linkcode el} (pad left/top the same as the width/height of `-webkit-scrollbar`) \
- * if {@linkcode el} is not an {@linkcode HTMLElement} ends silently (without doing anything)
- * @param {HTMLElement} el - the element to pad (according to overflow and sizes of `-webkit-scrollbar`)
- * @throws {Error} if `Window` is not defined (not in HTML context)
- * @deprecated use [CSS `scrollbar-gutter: stable both-edges;`](https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-gutter) instead
- * @example
- * //~ to automatically update element "ID" when document loads and on every resize of the browser window
- * window.addEventListener("resize",()=>PadOverflowFor(document.getElementById("ID")),{passive:true});
- * window.addEventListener("DOMContentLoaded",()=>PadOverflowFor(document.getElementById("ID")),{passive:true,once:true});
- */
-function PadOverflowFor(el){
-    "use strict";
-    if(window==null)throw new Error("[PadOverflowFor] called outside the context of HTML (Window is not defined)");
-    if(!(el instanceof HTMLElement))return;
-    const[x,y]=(({clientWidth,clientHeight,scrollWidth,scrollHeight})=>[scrollWidth>clientWidth,scrollHeight>clientHeight])(el),
-        {width:scW,height:scH}=window.getComputedStyle(el,"-webkit-scrollbar"),
-        {paddingLeft:pl,paddingTop:pt}=window.getComputedStyle(el);
-    if(el.dataset.ox==="1"){
-        if(!x){
-            //~ horizontal scrollbar disappears (no X-overflow)
-            el.style.paddingTop=`calc(${pt} - ${scH})`;
-            el.dataset.ox="0";
-        }
-    }else if(x){
-        //~ horizontal scrollbar appears (X-overflow)
-        el.style.paddingTop=`calc(${pt} + ${scH})`;
-        el.dataset.ox="1";
-    }
-    if(el.dataset.oy==="1"){
-        if(!y){
-            //~ vertical scrollbar disappears (no Y-overflow)
-            el.style.paddingLeft=`calc(${pl} - ${scW})`;
-            el.dataset.oy="0";
-        }
-    }else if(y){
-        //~ vertical scrollbar appears (Y-overflow)
-        el.style.paddingLeft=`calc(${pl} + ${scW})`;
-        el.dataset.oy="1";
-    }
 }
 /**
  * ## Shows gradients at the edges of {@linkcode el} when it overflows and becommes scrollable
