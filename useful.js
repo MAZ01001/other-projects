@@ -91,11 +91,230 @@ function ansi(c,bg){
         }
     throw new TypeError("[ansi] bg is given but not a number");
 }
+/**
+ * ## get Damerau-Levenshtein distance of two strings
+ * @param {string} a - string A
+ * @param {string} b - string B
+ * @param {Intl.LocalesArgument|null} [locale] - [optional] locale for splitting {@linkcode a} and {@linkcode b} into grapheme clusters (characters/symbols/emoji) - default `null` = current system locale
+ * @returns {number} Damerau-Levenshtein distance of {@linkcode a} and {@linkcode b} (number of needed substitution, insertion, deletion, transposition)
+ * @throws {TypeError} if {@linkcode a} or {@linkcode b} are not strings
+ * @example strCompare("ca","abc");//=> 2 (flip 'ca' and add 'b')
+ * @link https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
+ */
+function strCompare(a,b,locale){
+    "use strict";
+    if(typeof a!=="string")throw new TypeError("[strCompare] a is not a string");
+    if(typeof b!=="string")throw new TypeError("[strCompare] b is not a string");
+    /**@type {Intl.Segmenter}*/let segmenter;
+    try{segmenter=new Intl.Segmenter(locale??undefined,{granularity:"grapheme"});}
+    catch(err){
+        if(err instanceof TypeError||err instanceof RangeError)throw new TypeError(`[strCompare] locale is invalid: ${err.message}`);
+        throw err;
+    }
+    if(a===b)return 0;
+    let A=Object.freeze(Array.from(segmenter.segment(a),v=>v.segment));
+    let B=Object.freeze(Array.from(segmenter.segment(b),v=>v.segment));
+    if(A.length>B.length)[A,B]=[B,A];//~ |B| >= |A|
+    /**@type {number[][]} `[A.length][B.length]` empty fields are set before use*/
+    const d=Array.from({length:A.length},()=>new Array(B.length));
+    /**@type {Map<string,number>} use `0` if not found*/
+    const da=new Map();
+    const maxDist=A.length+B.length;
+    /**@type {(i:number,j:number)=>number} read {@linkcode d}`[i][j]`*/
+    const dR=(i,j)=>{
+        "use strict";
+        if(i>1&&j>1)return d[i-2][j-2];
+        if(i===0||j===0)return maxDist;
+        return(j===1?i:j)-1;
+    };
+    for(let i=0,Ai=A[0],j,Bj,db,k,l,cost;i<A.length;Ai=A[++i]){
+        db=0;
+        for(j=0,Bj=B[0];j<B.length;Bj=B[++j]){
+            k=da.get(Bj)??0;
+            l=db;
+            if(Ai===Bj){
+                cost=0;
+                db=j+1;
+            }else cost=1;
+            d[i][j]=Math.min(//~ substitution, insertion, deletion, transposition
+                dR(i+1,j+1)+cost,
+                dR(i+2,j+1)+1,
+                dR(i+1,j+2)+1,
+                dR(k,l)+(i-k)+1+(j-l)
+            );
+        }
+        da.set(Ai,i+1);
+    }
+    // const table={},keys=[" ↓ "];
+    // for(let i=0;i<=A.length;++i){
+    //     table[i===0?" → ":" "+i]={};
+    //     for(let j=0;j<=B.length;++j)
+    //         if(i===0&&j===0)table[" → "][" ↓ "]=maxDist;
+    //         else if(j===0)table[" "+i][" ↓ "]=A[i-1];
+    //         else if(i===0)table[" → "][" "+j]=B[j-1],keys.push(" "+j);
+    //         else table[" "+i][" "+j]=d[i-1][j-1];
+    // }
+    // console.table(table,keys);
+    return d[A.length-1][B.length-1];
+}
+/**
+ * ## get Levenshtein distance of two strings
+ * is always greater or equal to {@linkcode strCompare} (Damerau-Levenshtein distance), but a bit faster for longer strings
+ * @param {string} a - string A
+ * @param {string} b - string B
+ * @param {Intl.LocalesArgument|null} [locale] - [optional] locale for splitting {@linkcode a} and {@linkcode b} into grapheme clusters (characters/symbols/emoji) - default `null` = current system locale
+ * @returns {number} Levenshtein distance of {@linkcode a} and {@linkcode b} (number of needed substitution, insertion, deletion)
+ * @throws {TypeError} if {@linkcode a} or {@linkcode b} are not strings
+ * @example strCompareLite("ca","abc");//=> 3 (delete 'c', add 'b', and add 'c')
+ * @link https://en.wikipedia.org/wiki/Levenshtein_distance
+ */
+function strCompareLite(a,b,locale){
+    "use strict";
+    if(typeof a!=="string")throw new TypeError("[strCompareFast] a is not a string");
+    if(typeof b!=="string")throw new TypeError("[strCompareFast] b is not a string");
+    /**@type {Intl.Segmenter}*/let segmenter;
+    try{segmenter=new Intl.Segmenter(locale??undefined,{granularity:"grapheme"});}
+    catch(err){
+        if(err instanceof TypeError||err instanceof RangeError)throw new TypeError(`[strCompareFast] locale is invalid: ${err.message}`);
+        throw err;
+    }
+    if(a===b)return 0;
+    let A=Object.freeze(Array.from(segmenter.segment(a),v=>v.segment));
+    let B=Object.freeze(Array.from(segmenter.segment(b),v=>v.segment));
+    if(A.length<B.length)[A,B]=[B,A];//~ |A| >= |B|
+    if(B.length>4294967294)throw new RangeError("[strCompareFast] smaller text has too many grapheme clusters (can not create aux array)");
+    let prev=Array.from({length:B.length+1},(_,i)=>i);
+    let curr=Array(B.length+1);
+    for(let i=0,Ai=A[0];i<A.length;[prev,curr]=[curr,prev],Ai=A[++i]){
+        curr[0]=i+1;
+        for(let j=0;j<B.length;++j)curr[j+1]=Math.min(//~ deletion, insertion, substitution
+            prev[j+1]+1,
+            curr[j]+1,
+            Ai===B[j]?prev[j]:prev[j]+1
+        );
+    }
+    return prev[B.length];
+}
 
 //MARK: number
 
 // https://github.com/MAZ01001/Math-Js#functionsjs
 // https://github.com/MAZ01001/Math-Js/blob/main/functions.js
+
+//MARK: color
+
+/**
+ * ## convert HSV color to RGB
+ * ! notice that {@linkcode H} input is in range `[0,6]` so to convert from `[0,360]` (degrees) divide by `60`; or multiply with `6` if coming from `[0,1]` (like {@linkcode S}/{@linkcode V} input)
+ * @param {number} H - hue in range `[0,6]` (angle) where 6=360deg (0 red-yellow-green-cyan-blue-magenta-red 6)
+ * @param {number} S - saturation in range `[0,1]` (percentage) where 0=black/white 1=color
+ * @param {number} V - value in range `[0,1]` (percentage) where 0=black and 1=white/color
+ * @returns {[number,number,number]} `[red, green, blue]` with each in range `[0,1]`
+ * @throws {TypeError} if {@linkcode H}, {@linkcode S}, or {@linkcode V} are not numbers withing their documented ranges
+ */
+function HSVtoRGB(H,S,V){
+    "use strict";
+    if(Number.isNaN(H)||H<0||H>6)throw new TypeError("[HSVtoRGB] H is not a number in range 0 to 6 inclusive");
+    if(Number.isNaN(S)||S<0||S>1)throw new TypeError("[HSVtoRGB] S is not a number in range 0 to 1 inclusive");
+    if(Number.isNaN(V)||V<0||V>1)throw new TypeError("[HSVtoRGB] V is not a number in range 0 to 1 inclusive");
+    const fac=Math.trunc(H);
+    switch(fac){
+      case 0://! fall through
+      case 6:return[V,V*(1-S*(1-(H-fac))),V*(1-S)];
+      case 1:return[V*(1-S*(H-fac)),V,V*(1-S)];
+      case 2:return[V*(1-S),V,V*(1-S*(1-(H-fac)))];
+      case 3:return[V*(1-S),V*(1-S*(H-fac)),V];
+      case 4:return[V*(1-S*(1-(H-fac))),V*(1-S),V];
+      case 5:return[V,V*(1-S),V*(1-S*(H-fac))];
+    }
+    return[0,0,0];
+}
+/**
+ * ## convert RGB color to HSV
+ * ! notice that hue output is in range `[0,6]` so multiply with `60` to get `[0,360]` (degrees); or divide by `6` for `[0,1]` (like saturation/value output)
+ * @param {number} R - red in range `[0,1]` (percentage of red)
+ * @param {number} G - green in range `[0,1]` (percentage of green)
+ * @param {number} B - blue in range `[0,1]` (percentage of blue)
+ * @returns {[number,number,number]} `[hue, saturation, value]` with hue in range `[0,6]` and the other two in range `[0,1]`
+ * @throws {TypeError} if {@linkcode R}, {@linkcode G}, or {@linkcode B} are not numbers in range 0 to 1 inclusive
+ */
+function RGBtoHSV(R,G,B){
+    "use strict";
+    if(Number.isNaN(R)||R<0||R>1)throw new TypeError("[RGBtoHSV] R is not a number in range 0 to 1 inclusive");
+    if(Number.isNaN(G)||G<0||G>1)throw new TypeError("[RGBtoHSV] G is not a number in range 0 to 1 inclusive");
+    if(Number.isNaN(B)||B<0||B>1)throw new TypeError("[RGBtoHSV] B is not a number in range 0 to 1 inclusive");
+    const max=Math.max(R,G,B);
+    const min=Math.min(R,G,B);
+    switch(max){
+        case R:return[max===min?0:  (G-B)/(max-min),max===0?0:(max-min)/max,max];
+        case G:return[max===min?0:2+(B-R)/(max-min),max===0?0:(max-min)/max,max];
+        case B:return[max===min?0:4+(R-G)/(max-min),max===0?0:(max-min)/max,max];
+    }
+    return[0,0,0];
+}
+/**
+ * ## round hex color from 6/8 digits to 3/4 digits
+ * rounded componentwise to nearest hex-double like `F5`→`E`=`EE`
+ * @param {string} color - a 6/8 digit hex color (`#RRGGBB` or `#RRGGBBAA` case-insensitive)
+ * @returns {string} 3/4 digit hex color (`#RGB` or `#RGBA` lowercase)
+ * @throws {TypeError} if {@linkcode color} is not a string
+ * @throws {SyntaxError} if {@linkcode color} is not a 6/8 digit hex color
+ */
+function colorHexRound(color){
+    "use strict";
+    if(typeof color!=="string")throw new TypeError("[colorHexRound] color is not a string");
+    const[_,r,g,b,a]=color.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i)??[null];
+    if(_==null)throw new SyntaxError("[colorHexRound] color is not a 6/8 digit hex color");
+    let out="#";
+    out+=Math.round(Number.parseInt(r,16)/17).toString(16);
+    out+=Math.round(Number.parseInt(g,16)/17).toString(16);
+    out+=Math.round(Number.parseInt(b,16)/17).toString(16);
+    return a==null?out:(out+Math.round(Number.parseInt(a,16)/17).toString(16));
+}
+/**
+ * ## convert RGB to CMY(K)
+ * @param {number} R - red in range `[0,1]` (percentage of red)
+ * @param {number} G - green in range `[0,1]` (percentage of green)
+ * @param {number} B - blue in range `[0,1]` (percentage of blue)
+ * @param {boolean} [excludeK] - [optional] if `true` does not calculate `Key/black` output and gives `0` for that entry - default `false`
+ * @returns {[number,number,number,number]} - `[cyan, magenta, yellow, key/black]` with each in range `[0,1]`
+ * @throws {TypeError} if {@linkcode R}, {@linkcode G}, or {@linkcode B} are not numbers in range 0 to 1 inclusive
+ * @throws {TypeError} if {@linkcode excludeK} is given but not a boolean
+ */
+function RGBtoCMYK(R,G,B,excludeK){
+    "use strict";
+    if(typeof R!=="number"||Number.isNaN(R)||R<0||R>1)throw new TypeError("[RGBtoCMYK] R is not a number in range 0 to 1 inclusive");
+    if(typeof G!=="number"||Number.isNaN(G)||G<0||G>1)throw new TypeError("[RGBtoCMYK] G is not a number in range 0 to 1 inclusive");
+    if(typeof B!=="number"||Number.isNaN(B)||B<0||B>1)throw new TypeError("[RGBtoCMYK] B is not a number in range 0 to 1 inclusive");
+    if(excludeK!=null&&typeof excludeK!=="boolean")throw new TypeError("[RGBtoCMYK] excludeK (given) is not a boolean");
+    if(excludeK??false)return[1-R,1-G,1-B,0];
+    const Ck=1-R;
+    const Mk=1-G;
+    const Yk=1-B;
+    const K=Math.min(Ck,Mk,Yk);
+    return[Ck-K,Mk-K,Yk-K,K];
+}
+/**
+ * ## convert CMY(K) to RGB
+ * @param {number} C - cyan in range `[0,1]` (percentage of cyan)
+ * @param {number} M - magenta in range `[0,1]` (percentage of magenta)
+ * @param {number} Y - yellow in range `[0,1]` (percentage of yellow)
+ * @param {number} [K] - [optional] key/black in range `[0,1]` (percentage of black) - default `0`
+ * @returns {[number,number,number]} `[red, green, blue]` with each in range `[0,1]`
+ * @throws {TypeError} if {@linkcode C}, {@linkcode M}, or {@linkcode Y} are not numbers in range 0 to 1 inclusive
+ * @throws {TypeError} if {@linkcode K} is given but not a number in range 0 to 1 inclusive
+ * @throws {RangeError} if {@linkcode K} (is given and) combined with {@linkcode C}, {@linkcode M}, or {@linkcode Y} results in a number larger than `1`
+ */
+function CMYKtoRGB(C,M,Y,K){
+    "use strict";
+    if(typeof C!=="number"||Number.isNaN(C)||C<0||C>1)throw new TypeError("[CMYKtoRGB] C is not a number in range 0 to 1 inclusive");
+    if(typeof M!=="number"||Number.isNaN(M)||M<0||M>1)throw new TypeError("[CMYKtoRGB] M is not a number in range 0 to 1 inclusive");
+    if(typeof Y!=="number"||Number.isNaN(Y)||Y<0||Y>1)throw new TypeError("[CMYKtoRGB] Y is not a number in range 0 to 1 inclusive");
+    if(K==null)return[1-C,1-M,1-Y];
+    if(typeof K!=="number"||Number.isNaN(K)||K<0||K>1)throw new TypeError("[CMYKtoRGB] K (given) is not a number in range 0 to 1 inclusive");
+    if(Math.max(C,M,Y)+K>1)throw new RangeError("[CMYKtoRGB] combination with K is out of range");
+    return[1-(C+K),1-(M+K),1-(Y+K)];
+}
 
 //MARK: array
 
