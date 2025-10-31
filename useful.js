@@ -1,56 +1,68 @@
-/* some useful js functions */
+//@ts-check
+"use strict";
 
-//~ string
+//MARK: string
+
 /**
- * __inserts a string at a specific index__
- * @param {string} str - initial string
- * @param {number} i - (zero-based) index of `str` - can be negative
- * @param {string} r - replacement string to be inserted in `str` at `i`
- * @param {number} d - delete count of characters in `str` at `i`
- * @returns {string} modified string
- * @throws {TypeError} if `i` or `d` are not whole numbers
- * @example strInsert('Hello#World!',-6,', ',-1);//=> 'Hello, World!'
+ * ## remove part of a string at a specific index and optionally inserts another string
+ * string equivalent of {@linkcode Array.splice}
+ * @param {string} txt - initial string
+ * @param {number} i - (zero-based) index of {@linkcode txt} (from the end if negative)
+ * @param {number} rem - delete count of characters in {@linkcode txt} at {@linkcode i} (duplicates characters if negative)
+ * @param {string} [add] - [optional] replacement string to be inserted in {@linkcode txt} at {@linkcode i} (after removing) - default `""` (none)
+ * @returns {string} (new) modified string
+ * @throws {TypeError} if {@linkcode txt} or {@linkcode add} (if given) are not strings
+ * @throws {TypeError} if {@linkcode i} or {@linkcode rem} are not safe integers (`]-2^53..2^53[`)
+ * @example
+ * strSplice("Hello#World!",  5,  1);      //=> "HelloWorld!"
+ * strSplice("Hello#World!", -7,  1, ", ");//=> "Hello, World!"
+ * strSplice("Hello#World!",  6, -1, ", ");//=> "Hello#, #World!"
  */
-function strInsert(str,i=0,r='',d=0){
-    i=Number(i);if(!Number.isInteger(i)){throw new TypeError('[i] is not a whole number.');}
-    d=Number(d);if(!Number.isInteger(d)){throw new TypeError('[d] is not a whole number.');}
-    str=String(str);
-    r=String(r);
-    if(i<0)i=str.length+i;
-    return str.substring(0,i)+r+str.substring(i+d);
+function strSplice(txt,i,rem,add){
+    "use strict";
+    if(typeof txt!=="string")throw new TypeError("[strSplice] txt is not a string");
+    if(!Number.isSafeInteger(i))throw new TypeError("[strSplice] i is not a safe integer");
+    if(!Number.isSafeInteger(rem))throw new TypeError("[strSplice] rem is not a safe integer");
+    if(add!=null&&typeof add!=="string")throw new TypeError("[strSplice] add (given) is not a string");
+    if(i<0)i=txt.length+i;
+    return txt.substring(0,i)+(add??"")+txt.substring(i+rem);
 }
 /**
- * __object of how much each character appears in the string__\
- * _or for only the given characters_
+ * ## object of how much each character appears in the string
+ * or for only the given characters
  * @param {string} str - the string for analysis
- * @param {string} chars - if given, searches only the amount for these characters - _default `''` = all_
- * @returns {Readonly<{[string]:number;other:number;}>} object with amount of apperance (`'a':8, 'b':2, ..., other:0`)
+ * @param {Intl.LocalesArgument|null} [locale] - [optional] locale for deciding what a character is (language/unicode support) - default `null` (current system locale)
+ * @param {string} [chars] - [optional] searches only the amount for these characters - default `""` (all)
+ * @returns {Map<string,number>&Map<"other",number>} map with amount of apperance (in order of appearance in {@linkcode chars} or (if not given) {@linkcode str})
  * @example
- * strCharStats('abzaacdd');       //~ Readonly<{'a':3, 'b':1, 'z':1, 'c':1, 'd':2}>
- * strCharStats('abzaacdd','abce');//~ Readonly<{'a':3, 'b':1, 'c':1, 'e':0, 'other':3}>
+ * strCharStats("abzaacdd");              //=> Map{"other" => 0, "a" => 3, "b" => 1, "z" => 1, "c" => 1, "d" => 2}
+ * strCharStats("abzaacdd", null, "abce");//=> Map{"other" => 3, "a" => 3, "b" => 1, "c" => 1, "e" => 0}
  */
-function strCharStats(str,chars=''){
-    //~ getUnique >>> str.split('').sort().join('').replace(/([\s\S])\1+/,'$1').replace(/(([\s\S])\2*)/g,(m,a,z)=>`${z} - ${a.length}\n`);
-    str=String(str);
-    chars=String(chars);
-    /** @type {{string:number;}} */
-    let obj={};
-    if(chars==='')for(const char of str)obj[char]=(obj[char]??0)+1;
+function strCharStats(str,locale,chars){
+    "use strict";
+    if(typeof str!=="string")throw new TypeError("[strCharStats] str is not a string");
+    if(chars!=null&&typeof chars!=="string")throw new TypeError("[strCharStats] chars (given) is not a string");
+    /**@type {Map<string,number>&Map<"other",number>}*/
+    const obj=new Map();
+    obj.set("other",0);
+    const seg=new Intl.Segmenter(locale??undefined);
+    if(chars==null||chars==='')
+        for(const{segment:char}of seg.segment(str))obj.set(char,(obj.get(char)??0)+1);
     else{
-        obj.other=0;
-        for(const char of chars)obj[char]=0;
-        for(const char of str){
-            if(typeof obj[char]==='undefined')obj.other++;
-            else obj[char]++;
-        }
+        for(const{segment:char}of seg.segment(chars))obj.set(char,0);
+        for(const{segment:char}of seg.segment(str))
+            //@ts-ignore `char` does exist in `obj` within if block
+            if(obj.has(char))obj.set(char,obj.get(char)+1);
+            //@ts-ignore "other" does exist in `obj`
+            else obj.set("other",obj.get("other")+1);
     }
-    return Object.freeze(obj);
+    return obj;
 }
 /**
  * ## Create ANSI codes to set terminal color
  * sets output terminal fore/background colors \
  * ! remember to output the reset code before end of script or terminal colors stay this way \
- * for browser dev-console use `console.log("%cCSS", "background-color: #000; color: #F90");` instead \
+ * for browser dev-console use `console.log("%cCSS", "background-color: #000; color: #f90");` instead \
  * ! keep in mind that if the terminal doesn't support ansi-codes it will output them as plain text
  * @param {null|number|[number,number,number]} [c] - set color by type (default `null`):
  * | type        | return                                        |
@@ -61,32 +73,35 @@ function strCharStats(str,chars=''){
  * @param {number} [bg] - `<0` for background color, `>0` for foreground color, or `0` for both - default: foreground color
  * @returns {string} ANSI code for re/setting fore/background color of output terminal
  * @throws {TypeError} when {@linkcode c} is not one of the documented types or {@linkcode bg} is given and not a number
- * @example console.log(`TEST${ansi(0xff9900)}TEST${ansi()}TEST`);
+ * @example console.log("TEST%sTEST%sTEST",ansi(0xff9900),ansi());// <=> console.log("TEST%cTEST%cTEST","color:#f90","");
  */
 function ansi(c,bg){
     "use strict";
     if(c==null)return"\x1b[0m";
-    if(typeof c==="number")c=`${(c&0xff0000)>>>16};${(c&0xff00)>>>8};${c&0xff}`;
-    else{
-        if(!Array.isArray(c)||c.length!==3||c.some(v=>typeof v!=="number"))throw new TypeError("[c] c must be either null, a (24bit) number, or an array of 3 (8bit) numbers.");
-        c=`${c[0]&=0xff};${c[1]&=0xff};${c[2]&=0xff}`;
-    }
-    if(bg==null)return`\x1b[38;2;${c}m`;
-    if(typeof bg!=="number"||Number.isNaN(bg))throw new TypeError("[c] bg is given but not a number.");
-    switch(Math.sign(bg)){
-        case 1:return`\x1b[38;2;${c}m`;
-        case 0:return`\x1b[38;2;${c};48;2;${c}m`;
-        case-1:return`\x1b[48;2;${c}m`;
-    }
+    let color="";
+    if(typeof c==="number")color=`${(c&0xff0000)>>>16};${(c&0xff00)>>>8};${c&255}`;
+    else if(Array.isArray(c)&&c.length===3&&c.every(v=>typeof v==="number"))color=`${c[0]&255};${c[1]&255};${c[2]&255}`;
+    else throw new TypeError("[ansi] c is given but not a number nor an array of 3 numbers");
+    if(bg==null)return`\x1b[38;2;${color}m`;
+    if(typeof bg==="number")
+        switch(Math.sign(bg)){
+            case 1:return`\x1b[38;2;${color}m`;
+            case 0:return`\x1b[38;2;${color};48;2;${color}m`;
+            case-1:return`\x1b[48;2;${color}m`;
+        }
+    throw new TypeError("[ansi] bg is given but not a number");
 }
 
-//~ number
-//// see https://github.com/MAZ01001/Math-Js/blob/main/functions.js
+//MARK: number
 
-//~ array
+// https://github.com/MAZ01001/Math-Js#functionsjs
+// https://github.com/MAZ01001/Math-Js/blob/main/functions.js
+
+//MARK: array
+
 /**
- * __checks if the given array has empty slots__ \
- * most iterator functions skip empty entries, like `every` and `some`, so they might bypass checks and lead to undefined behavior \
+ * ## checks if the given array has empty slots
+ * most iterator functions skip empty entries, like {@linkcode Array.every} and {@linkcode Array.some}, so they might bypass checks and lead to undefined behavior \
  * their value is `undefined` but they're treated differently from an actual `undefined` in the array \
  * but the length attribute does include them since they do contribute to the total length of the array
  * @param {any[]} arr - an array of items (any items, incl. `undefined` are allowed)
@@ -116,118 +131,115 @@ function binarySearch(arr,e){
     return i;
 }
 
-//~ HTML / DOM
+//MARK: HTML / DOM
+
 /**
- * __measures the dimensions of a given `text` in pixels (sub-pixel accurate)__ \
- * [!] only works in the context of `HTML` ie. a browser [!]
+ * ## measures the dimensions of a given {@linkcode text} in pixels (sub-pixel accurate)
+ * [!] only works in the context of HTML ie. a browser [!] \
+ * for using an elements font use {@linkcode CSSStyleDeclaration.font} of {@linkcode window.getComputedStyle} ie `window.getComputedStyle(element, pseudoElementOrNull).font` \
+ * if using `"initial"`, `"revert"`, or any similar or invalid value as font, it seems to use `"10px sans-serif"` (default of {@linkcode OffscreenCanvasRenderingContext2D.font})
  * @param {string} text - the string to calculate the dimensions of in pixels
- * @param {Element} element - (HTML) element to get the font informations from - _default `document.body`_
- * @param {string} pseudoElt - if set get the pseudo-element of `element`, for example `':after'` - _default `null` (no pseudo element, `element` itself)_
- * @returns {Readonly<{width:number;height:number;lineHeight:number;}>} the dimensions of the text in pixels (sub-pixel accurate)
- * @throws {Error} if `Window` or `Document` are not defined (not in HTML context)
- * @throws {TypeError} if `element` is not an (HTML) `Element`
+ * @param {string} [fontCSS] - [optional] CSS font - default uses computed font of {@linkcode document.body}
+ * @returns {number} the width of the {@linkcode text} in CSS pixels (sub-pixel accurate)
+ * @throws {Error} if {@linkcode Window} or {@linkcode Document} are not defined (not in HTML context)
+ * @throws {TypeError} if {@linkcode text} or {@linkcode fontCSS} (if given) are not strings
+ * @throws {ReferenceError} (internal error) if (offscreen) canvas 2d context could not be created/linked
  */
-function getTextDimensions(text,element=document.body,pseudoElt=null){
+function getTextDimensions(text,fontCSS){
+    "use strict";
     if(
-        (typeof Window==='undefined')
-        ||(typeof Document==='undefined')
-    )throw new Error('[getTextDimensions] called outside the context of HTML (Window and Document are not defined)');
-    if(!(element instanceof Element))throw new TypeError('[getTextDimensions] element is not an (HTML) element');
-    text=String(text);
-    if(typeof this.cnv2d==='undefined')this.cnv2d=document.createElement('canvas').getContext('2d');
-    const elementCSS=getComputedStyle(element,pseudoElt);
-    this.cnv2d.font=elementCSS.font;
-    return Object.freeze({
-        width:this.cnv2d.measureText(text).width,
-        height:elementCSS.fontSize,
-        lineHeight:elementCSS.lineHeight
-    });
+        (typeof Window==="undefined")
+        ||(typeof Document==="undefined")
+    )throw new Error("[getTextDimensions] called outside the context of HTML (Window and Document are not defined)");
+    if(typeof text!=="string")throw new TypeError("[getTextDimensions] text is not a string");
+    if(fontCSS!=null&&typeof fontCSS!=="string")throw new TypeError("[getTextDimensions] fontCSS (given) is not a string");
+    if(this.cnv2d==null)
+        if((this.cnv2d=new OffscreenCanvas(0,0).getContext("2d"))==null)throw new ReferenceError("[getTextDimensions] (internal error) could not get (offscreen) canvas 2d context");
+    this.cnv2d.font=fontCSS??getComputedStyle(document.body).font;
+    return this.cnv2d.measureText(text).width;
+    // ((txt,font)=>Object.assign(new OffscreenCanvas(0,0).getContext("2d"),{font}).measureText(txt).width)("Hello, World!","16px consolas,monospace");
 }
 /**
- * __gets different mouse positions__ \
- * [!] only works in the context of `HTML` ie. a browser [!]
- * @description __Warning__:
- * Browsers use different units for movementX and screenX than what the specification defines.
- * Depending on the browser and operating system, the movementX units
- * may be a physical pixel, a logical pixel, or a CSS pixel. \
- * _(see [this issue on GitHub](https://github.com/w3c/pointerlock/issues/42) for more information on the topic)_
- * @param {Element?} offsetElement - HTML element for calculating relative / offset mouse position - _default `null`_
- * @returns {Readonly<{pageX:number;pageY:number;clientX:number;clientY:number;offsetX:number;offsetY:number;screenX:number;screenY:number;movementX:number;movementY:number;}>} mouse X and Y positions (read only)
- * - `page`       : position on the rendered page (actual page size >= browser window)
- * - `client`     : position on the visible portion on the rendered page (browser window)
- * - `offset`     : relative position on the rendered page (to an elements position)
- * - `screen`     : position on screen (from top left of all monitors)
- * - `movement`   : distance moved from previous `screen` position
- * @throws {Error} if `Window` or `Document` are not defined (not in HTML context)
- * @throws {TypeError} if `offsetElement` is set but is not an (HTML) `Element`
+ * ## gets current mouse position (optionally relative to an element)
+ * [!] only works in the context of HTML ie. a browser [!] \
+ * __WARNING__: \
+ * Browsers may use different units for movementX and screenX than what the specification defines. \
+ * The movementX units can be physical, logical, or CSS pixels, depending on the browser and operating system. \
+ * _See [this issue on GitHub](https://github.com/w3c/pointerlock/issues/42) for more information on the topic._
+ * @param {Element|null} [offsetElement] - [optional] HTML element for calculating relative / offset mouse position - default `null` (none)
+ * @returns {[Readonly<{page:[number,number];client:[number,number];offset:[number,number];screen:[number,number];movement:[number,number]}>,AbortController]} mouse positions (reference to sealed object) and abort controller for `mousemove` event listener on `document` \
+ * mouse `[X,Y]` positions (sealed arrays) automatically updated (`offset` will be (0,0) when {@linkcode offsetElement} is `null`)
+ * | attribute  | description                                                           |
+ * | ---------- | --------------------------------------------------------------------- |
+ * | `page`     | position on the rendered page (actual page size >= browser window)    |
+ * | `client`   | position on the visible portion on the rendered page (browser window) |
+ * | `offset`   | relative position on the rendered page (to an elements position)      |
+ * | `screen`   | position on screen (from top left of all monitors)                    |
+ * | `movement` | distance moved from previous `screen` position                        |
+ * @throws {Error} if {@linkcode Window} or {@linkcode Document} are not defined (not in HTML context)
+ * @throws {TypeError} if {@linkcode offsetElement} is set but is not an (HTML) element
  * @example
- * const log = setInterval( () => console.log( JSON.stringify( getMousePos() ) ), 1000 );
- * // clearInterval( log );
+ * const [mousePos, mouseSignal] = getMousePos();
+ * const log = setInterval(() => console.log(JSON.stringify(mousePos)), 1000);
+ * // mouseSignal.abort();
+ * // clearInterval(log);
  */
-function getMousePos(offsetElement=null){
+function getMousePos(offsetElement){
+    "use strict";
     if(
-        typeof Window==='undefined'
-        ||typeof Document==='undefined'
-    )throw new Error('[getMousePos] called outside the context of HTML (Window and Document are not defined)');
-    if(this.obj==null){//~ ==null checks for null and undefined
-        /**
-         * @type {{page:number[];client:number[];offset:number[];screen:number[];movement:number[];}} - various mouse positions (sealed object)
-         * @description mouse `[X,Y]` positions (sealed arrays)
-         * - `page`       : position on the rendered page (actual page size >= browser window)
-         * - `client`     : position on the visible portion on the rendered page (browser window)
-         * - `offset`     : relative position on the rendered page (to an elements position)
-         * - `screen`     : position on screen (from top left of all monitors)
-         * - `movement`   : distance moved from previous `screen` position
-         */
-        this.obj=Object.seal({
-            page:Object.seal([0,0]),
-            client:Object.seal([0,0]),
-            offset:Object.seal([0,0]),
-            screen:Object.seal([0,0]),
-            movement:Object.seal([0,0]),
-        });
-        /**
-         * __set instance variables with current mouse position__
-         * @param {MouseEvent} e - the mouse event from a `mousemove` event listener
-         */
-        this.listener=e=>{
-            this.obj.page=[e.pageX,e.pageY];
-            this.obj.client=[e.clientX,e.clientY];
-            this.obj.screen=[e.screenX,e.screenY];
-            this.obj.movement=[e.movementX,e.movementY];
-        };
-        document.addEventListener('mousemove',this.listener,{passive:true});
-        /**
-         * __deletes the current instance__ \
-         * also removes the `mousemove` event listener from the `document`
-         */
-        this.deleteInstance=function(){
-            document.removeEventListener('mousemove',this.listener,{passive:true});
-            delete this.listener;
-            delete this.obj;
-            delete this.deleteInstance;
-        };
+        typeof Window==="undefined"
+        ||typeof Document==="undefined"
+    )throw new Error("[getMousePos] called outside the context of HTML (Window and Document are not defined)");
+    if(offsetElement!=null&&!(offsetElement instanceof Element))throw new TypeError("[getMousePos] offsetElement (given) is not an (HTML) element");
+    /**@type {Element|null|undefined} - current/last (optional) offset element*/
+    this.offsetElement=offsetElement;
+    if(this.ctrl?.signal.aborted??true){
+        if(this.obj==null)
+            /**
+             * @type {Readonly<{page:[number,number];client:[number,number];offset:[number,number];screen:[number,number];movement:[number,number]}>} - various mouse positions (readonly object) \
+             * mouse `[X,Y]` positions (sealed arrays)
+             * | attribute  | description                                                           |
+             * | ---------- | --------------------------------------------------------------------- |
+             * | `page`     | position on the rendered page (actual page size >= browser window)    |
+             * | `client`   | position on the visible portion on the rendered page (browser window) |
+             * | `offset`   | relative position on the rendered page (to an elements position)      |
+             * | `screen`   | position on screen (from top left of all monitors)                    |
+             * | `movement` | distance moved from previous `screen` position                        |
+             */
+            this.obj=Object.freeze({
+                /**@type {[number,number]}`[X,Y]`*/page:Object.seal([0,0]),
+                /**@type {[number,number]}`[X,Y]`*/client:Object.seal([0,0]),
+                /**@type {[number,number]}`[X,Y]`*/offset:Object.seal([0,0]),
+                /**@type {[number,number]}`[X,Y]`*/screen:Object.seal([0,0]),
+                /**@type {[number,number]}`[X,Y]`*/movement:Object.seal([0,0])
+            });
+        if(this.listener==null)
+            /**
+             * @type {(ev:MouseEvent)=>void} - set instance variables with current mouse position
+             * @param {MouseEvent} ev - `mousemove` event
+             */
+            this.listener=ev=>{
+                "use strict";
+                this.obj.page[0]=ev.pageX;        this.obj.page[1]=ev.pageY;
+                this.obj.client[0]=ev.clientX;    this.obj.client[1]=ev.clientY;
+                this.obj.screen[0]=ev.screenX;    this.obj.screen[1]=ev.screenY;
+                this.obj.movement[0]=ev.movementX;this.obj.movement[1]=ev.movementY;
+                if(this.offsetElement==null)this.obj.offset[1]=this.obj.offset[0]=0;
+                else{
+                    const bcr=this.offsetElement.getBoundingClientRect();
+                    this.obj.offset[0]=this.obj.page[0]-bcr.x;
+                    this.obj.offset[1]=this.obj.page[1]-bcr.y;
+                }
+            };
+        /**@type {AbortController} - abort controller for `mousemove` event listener on `document`*/
+        this.ctrl=new AbortController();
+        document.addEventListener("mousemove",this.listener,{passive:true,signal:this.ctrl.signal});
     }
-    if(offsetElement===null)this.obj.offset=[0,0];
-    else{
-        if(!(offsetElement instanceof Element))throw new TypeError('[getMousePos] offsetElement is not an (HTML) element');
-        const offsetElementBCR=offsetElement.getBoundingClientRect();
-        this.obj.offset[0]=this.obj.page[0]-offsetElementBCR.x;
-        this.obj.offset[1]=this.obj.page[1]-offsetElementBCR.y;
-    }
-    return Object.freeze({
-        pageX:this.obj.page[0],
-        pageY:this.obj.page[1],
-        clientX:this.obj.client[0],
-        clientY:this.obj.client[1],
-        screenX:this.obj.screen[0],
-        screenY:this.obj.screen[1],
-        movementX:this.obj.movement[0],
-        movementY:this.obj.movement[1]
-    });
+    return[this.obj,this.ctrl];
 }
 /**
  * ## Shows gradients at the edges of {@linkcode el} when it overflows and becommes scrollable
+ * [!] only works in the context of HTML ie. a browser [!] \
  * Overrides the CSS `background` property (use {@linkcode background} to add any additional value/s for CSS)
  * @param {HTMLElement} el - The HTML element for styling
  * @param {number|[number,number]} offset - The minimum scroll distance (in pixels - positive and non-zero) at which to start blending out the alpha of {@linkcode color} (from {@linkcode alphaMax} to 0) - use a two numbers as `[x, y]` to set horizontal and vertical offset individually
@@ -239,8 +251,10 @@ function getMousePos(offsetElement=null){
  * - replaces all `$%` with percentages from 0 to 100 (inclusive) including the % sign
  * - use \ to escape $
  * @param {number} alphaMax - max value for the alpha of {@linkcode color} (0 to 1 inclusive)
- * @param {string} [background] - [optional] additional value/s for the CSS `background` property (excluding trailing semicolon)
+ * @param {string|null} [background] - [optional] additional value/s for the CSS `background` property (excluding trailing semicolon)
  * @returns {()=>void} call this function to update the styles with the current scroll position and offset
+ * @throws {Error} if {@linkcode Window} or {@linkcode Document} are not defined (not in HTML context)
+ * @throws {TypeError} if {@linkcode el}, {@linkcode offset}, {@linkcode size}, {@linkcode color}, {@linkcode alphaMax}, or {@linkcode background} (if given) are not one of the defined types
  * @example
  * const box = document.getElementById("box"),
  *     boxOverflowUpdate = StyleOverflowFor(box, 0xC8, ["clamp(1rem, 5vw, 2rem)", "clamp(1rem, 5vh, 2rem)"], "#CCCC00$x", 2/3, "#0008");
@@ -248,9 +262,12 @@ function getMousePos(offsetElement=null){
  * box.addEventListener("scroll", boxOverflowUpdate, {passive: true});
  * window.addEventListener("resize", boxOverflowUpdate, {passive: true});
  */
-function StyleOverflowFor(el,offset,size,color,alphaMax,background){
+function styleOverflowFor(el,offset,size,color,alphaMax,background){
     "use strict";
-    if(typeof HTMLElement==="undefined")throw new Error('[styleOverflowFor] called outside the context of HTML (HTMLElement is not defined)');
+    if(
+        typeof Window==="undefined"
+        ||typeof Document==="undefined"
+    )throw new Error("[styleOverflowFor] called outside the context of HTML (Window and Document are not defined)");
     if(!(el instanceof HTMLElement))throw new TypeError("[styleOverflowFor] el is not an HTML element");
     if(Array.isArray(offset)){
         if(offset.length!==2)throw new TypeError("[styleOverflowFor] offset is not an array with two entries");
@@ -265,11 +282,7 @@ function StyleOverflowFor(el,offset,size,color,alphaMax,background){
     if(typeof color!=="string")throw new TypeError("[styleOverflowFor] color is not a string");
     if(typeof alphaMax!=="number"||alphaMax<0||alphaMax>1)throw new TypeError("[styleOverflowFor] alphaMax is not a number between 0 and 1");
     if(background!=null&&typeof background!=="string")throw new TypeError("[styleOverflowFor] background is given but is not a string");
-    /**
-     * ## Clamps {@linkcode n} between 0 and 1
-     * @param {number} n - a number
-     * @returns {number} the clamped number
-     */
+    /**@type {(n:number)=>number} - clamps {@linkcode n} to 0-1*/
     const Clamp01=n=>n>1?1:n<0?0:n;
     return()=>{
         "use strict";
@@ -279,46 +292,142 @@ function StyleOverflowFor(el,offset,size,color,alphaMax,background){
             alphaMax*Clamp01((el.scrollHeight-(el.scrollTop+el.clientHeight))/offset[1]),
             alphaMax*Clamp01((el.scrollWidth-(el.scrollLeft+el.clientWidth))/offset[0])
         ].map(v=>color
-            .replace(/(?<!\\)\$f/g,v)
-            .replace(/(?<!\\)\$i/g,v*0xFF)
-            .replace(/(?<!\\)\$x/g,(v*0xFF).toString(0x10).padStart(2,'0'))
-            .replace(/(?<!\\)\$%/g,`${v*0x64}%`)
+            .replace(/(?<!\\)\$f/g,String(v))
+            .replace(/(?<!\\)\$i/g,(v*255).toFixed(0))
+            .replace(/(?<!\\)\$x/g,(v*255).toString(16).padStart(2,"0"))
+            .replace(/(?<!\\)\$%/g,`${v*100}%`)
         );
         el.style.background=`
             scroll linear-gradient(to top,    transparent, ${top})    center top    / 100% ${size[1]}      no-repeat,
             scroll linear-gradient(to left,   transparent, ${left})   center left   /      ${size[0]} 100% no-repeat,
             scroll linear-gradient(to bottom, transparent, ${bottom}) center bottom / 100% ${size[1]}      no-repeat,
             scroll linear-gradient(to right,  transparent, ${right})  center right  /      ${size[0]} 100% no-repeat
-            ${background==null?'':`, ${background}`}
+            ${background==null?"":`, ${background}`}
         `;
     };
 }
-/**
- * ## Convert image to base64 data URL
- * for offline viewing (asynchronous) \
- * high chance of being blocked by CORS when it's not called on the page (HTML context) where the image is displayed
- * @param {string} src - image source URL
- * @returns {Promise<string|null>} (async) data URL or `null` when image could not be loaded
- * @throws {TypeError} if {@linkcode src} is not a string
- */
-async function LoadIMG(src){
-    "use strict";
-    if(typeof this.cnv==="undefined"){
-        this.cnv=document.createElement("canvas");//~ use the same canvas object for all calls to save some resources
-        this.cnx=this.cnv.getContext("2d");
-        this.img=new Image();
-        this.img.loading="eager";
-        this.img.crossOrigin="anonymous";//~ make sure canvas does not taint and can still convert itself to data URL
+
+//MARK: other
+
+/**## fetch image from URL and convert it to (base64) data-URL*/
+const LoadIMG=class LoadIMG{
+    /**
+     * ### fetch via `<img>` and convert via `<canvas>`
+     * [!] only works in the context of HTML ie. a browser [!] \
+     * for offline viewing (asynchronous) \
+     * high chance of being blocked by CORS when it's not called on the page (HTML context) where the image is displayed
+     * @returns {(src:string)=>Promise<string|null>} async function (for repeated calls) to get data-URL (`null` when image can't be loaded)
+     * @throws {Error} if {@linkcode Window} or {@linkcode Document} are not defined (not in HTML context)
+     * @throws {TypeError} [by returned function] if {@linkcode src} is not a string
+     * @throws {ReferenceError} (internal error) if canvas 2d context could not be created/linked
+     */
+    static IMG(){
+        if(
+            typeof Window==="undefined"
+            ||typeof Document==="undefined"
+        )throw new Error("[LoadIMG:IMG] called outside the context of HTML (Window and Document are not defined)");
+        /**@type {HTMLCanvasElement}*/
+        const cnv=document.createElement("canvas");//~ use the same canvas object for all calls to save some resources
+        /**@type {CanvasRenderingContext2D}*///@ts-ignore checked for null right after
+        const cnx=cnv.getContext("2d");
+        if(cnx==null)throw new ReferenceError("[LoadIMG:IMG] (internal error) could not get 2d canvas context");
+        /**@type {HTMLImageElement}*/
+        const img=new Image();
+        img.loading="eager";
+        img.crossOrigin="anonymous";//~ make sure canvas does not taint and can still convert itself to data URL
+        /**
+         * #### get IMG as data-URL
+         * for offline viewing (asynchronous) \
+         * high chance of being blocked by CORS when it's not called on the page (HTML context) where the image is displayed
+         * @param {string} src - image URL
+         * @returns {Promise<string|null>} data-URL or `null` when image can't be loaded
+         * @throws {TypeError} if {@linkcode src} is not a string
+         */
+        return async src=>{
+            if(typeof src!=="string")throw new TypeError("[LoadIMG:IMG] src is not a string");
+            const load=new Promise(res=>{
+                img.onload=()=>res(false);
+                img.onerror=()=>res(true);
+            });
+            img.src=src;
+            if(await load)return null;
+            cnv.width=img.naturalWidth;
+            cnv.height=img.naturalHeight;
+            cnx.drawImage(img,0,0);
+            return cnv.toDataURL();
+        };
     }
-    if(typeof src!=="string")throw new TypeError("[LoadIMG] src is not a string");
-    const load=new Promise(res=>{
-        this.img.onload=()=>res(false);
-        this.img.onerror=()=>res(true);
-    });
-    this.img.src=src;
-    if(await load)return null;
-    this.cnv.width=this.img.naturalWidth;
-    this.cnv.height=this.img.naturalHeight;
-    this.cnx.drawImage(this.img,0,0);
-    return this.cnv.toDataURL();
-}
+    /**
+     * ### fetch via {@linkcode fetch} and convert via {@linkcode FileReader}
+     * [!] only works in the context of HTML ie. a browser [!] \
+     * for offline viewing (asynchronous)
+     * @returns {(src:string)=>Promise<string|null>} async function (for repeated calls) to get data-URL (`null` when image can't be loaded)
+     * @throws {Error} if {@linkcode Window} or {@linkcode Document} are not defined (not in HTML context)
+     * @throws {TypeError} [by returned function] if {@linkcode src} is not a string
+     */
+    static FetchFileReader(){
+        if(
+            typeof Window==="undefined"
+            ||typeof Document==="undefined"
+        )throw new Error("[LoadIMG:FetchFileReader] called outside the context of HTML (Window and Document are not defined)");
+        const fr=new FileReader();
+        /**
+         * #### get IMG as data-URL
+         * for offline viewing (asynchronous)
+         * @param {string} src - image URL
+         * @returns {Promise<string|null>} data-URL or `null` when image can't be loaded
+         * @throws {TypeError} if {@linkcode src} is not a string
+         */
+        return async src=>{
+            if(typeof src!=="string")throw new TypeError("[LoadIMG:FetchFileReader] src is not a string");
+            const load=new Promise(res=>{
+                fr.onload=()=>res(true);
+                fr.onerror=()=>res(false);
+                fr.onabort=()=>res(false);
+            });
+            const res=await fetch(src).catch(()=>null);
+            if(res==null||!res.ok)return null;
+            const blob=await res.blob().catch(()=>null);
+            if(blob==null)return null;
+            fr.readAsDataURL(blob);
+            return(await load)?String(fr.result):null;
+        };
+    }
+    /**
+     * ### fetch via {@linkcode fetch} and convert manually to base64
+     * for offline viewing (asynchronous)
+     * @returns {(src:string)=>Promise<string|null>} async function (for repeated calls) to get data-URL (`null` when image can't be loaded)
+     * @throws {TypeError} [by returned function] if {@linkcode src} is not a string
+     */
+    static FetchManual(){
+        /**@type {(bytes:Uint8Array<ArrayBuffer>)=>string} <https://en.wikipedia.org/wiki/Base64>*/
+        const b64=bytes=>{
+            const b64="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+            let res="";
+            for(let bitmap,i=0;i<bytes.length;i+=3){
+                bitmap=(bytes[i]<<16)|(bytes[i+1]<<8)|bytes[i+2];
+                res+=b64.charAt(bitmap>>18&63)
+                    +b64.charAt(bitmap>>12&63)
+                    +b64.charAt(bitmap>>6&63)
+                    +b64.charAt(bitmap&63);
+            }
+            const rest=bytes.length%3;
+            return rest!==0?res.slice(0,rest-3)+"===".substring(rest):res;
+        };
+        /**
+         * #### get IMG as data-URL
+         * for offline viewing (asynchronous)
+         * @param {string} src - image URL
+         * @returns {Promise<string|null>} data-URL or `null` when image can't be loaded
+         * @throws {TypeError} if {@linkcode src} is not a string
+         */
+        return async src=>{
+            if(typeof src!=="string")throw new TypeError("[LoadIMG:FetchManual] src is not a string");
+            const fetchRes=await fetch(src).catch(()=>null);
+            if(fetchRes==null||!fetchRes.ok)return null;
+            const blob=await fetchRes.blob().catch(()=>null);
+            if(blob==null)return null;
+            return`data:${blob.type};base64,${b64(await blob.bytes())}`;
+        };
+    }
+};
