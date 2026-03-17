@@ -335,6 +335,29 @@ function hasArrayHoles(arr){
     return!arr.every((_,i)=>i===j++);
 }
 /**
+ * ## get the indecies of all empty slots in the given array
+ * see [MDN: Array methods and empty slots](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#array_methods_and_empty_slots "MDN>JavaScript>Array: Array methods and empty slots")
+ * @param {readonly any[]} arr - an array of items (any items, incl. `undefined` are allowed)
+ * @returns {number[]} the indecies of all empty slots (in ascending order)
+ * @throws {TypeError} if {@linkcode arr} is not an array
+ * @example
+ * getArrayHoles(["",0,undefined,,,,null,()=>{},[],{}]); //=> [3,4,5]
+ * getArrayHoles(["",0,undefined,null,()=>{},[],{}]);    //=> []
+ * getArrayHoles([0,1,,,4,,,7,8,9,,11,,]);               //=> [2,3,5,6,10,12]
+ */
+function getArrayHoles(arr){
+    "use strict";
+    if(!Array.isArray(arr))throw new TypeError("arr is not an array");
+    const l=[];
+    let i=0;
+    arr.forEach((_,j)=>{
+        for(;i<j;l.push(i++));
+        ++i;
+    });
+    for(;i<arr.length;l.push(i++));
+    return l;
+}
+/**
  * ## Binary search in {@linkcode arr} for {@linkcode val}
  * {@linkcode arr} can have duplicate entries
  * @param {readonly T[]} arr - sorted array (ascending order)

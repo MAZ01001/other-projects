@@ -302,6 +302,27 @@ hasArrayHoles(["",0,undefined,null,()=>{},[],{}]);    //=> false
 ```
 
 </details>
+<details><summary><code>getArrayHoles</code></summary>
+
+__checks if the given array has empty slots__
+
+most iterator functions skip empty entries, like `Array.every` and `Array.some`, so they might bypass checks and lead to undefined behavior \
+their value is `undefined` but they're treated differently from an actual `undefined` in the array \
+but the length attribute does include them since they do contribute to the total length of the array
+
+see [MDN: Array methods and empty slots](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#array_methods_and_empty_slots "MDN>JavaScript>Array: Array methods and empty slots")
+
+```typescript
+function getArrayHoles(arr: readonly any[]): number[]
+```
+
+```javascript
+getArrayHoles(["",0,undefined,,,,null,()=>{},[],{}]); //=> [3,4,5]
+getArrayHoles(["",0,undefined,null,()=>{},[],{}]);    //=> []
+getArrayHoles([0,1,,,4,,,7,8,9,,11,,]);               //=> [2,3,5,6,10,12]
+```
+
+</details>
 <details><summary><code>binarySearch</code></summary>
 
 __Binary search in `arr` for `val`__
