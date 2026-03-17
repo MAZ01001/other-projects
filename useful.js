@@ -335,21 +335,27 @@ function hasArrayHoles(arr){
     return!arr.every((_,i)=>i===j++);
 }
 /**
- * ## Binary search in {@linkcode arr} (ascending sorted array) for {@linkcode e}
- * using `!=` and `<` (supports dynamic types), {@linkcode arr} can have duplicate elements
- * @param {any[]} arr - list of [compareable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Less_than#description "MDN:JS < operator (description)") elements (sorted in ascending order)
- * @param {any} e - element in {@linkcode arr} (presumably)
- * @returns {number} index of {@linkcode e} in {@linkcode arr} or index of next smaller element (`-1` when smaller than first element)
+ * ## Binary search in {@linkcode arr} for {@linkcode val}
+ * {@linkcode arr} can have duplicate entries
+ * @param {readonly T[]} arr - sorted array (ascending order)
+ * @param {T} val - element in {@linkcode arr} (presumably)
+ * @param {(a:T,v:T)=>number} [compare] - [optional] comparison function - default: `(a,v)=>a===v?0:a<v?-1:1`
+ * @returns {number} index of {@linkcode val} in {@linkcode arr} or index of insertion which keeps ascending order
+ * @template {any} T
  * @throws {TypeError} if {@linkcode arr} is not an array
+ * @throws {TypeError} if {@linkcode compare} is given but not a function
+ * @example binarySearch([1,2,3,4,5],3.14);//=> 3 → array.splice(3,0,3.14) => [1,2,3,3.14,4,5]
  */
-function binarySearch(arr,e){
+function binarySearch(arr,val,compare){
     "use strict";
-    if(!Array.isArray(arr))throw new TypeError("[binarySearch] arr is not an array");
+    if(!Array.isArray(arr))throw new TypeError("arr is not an array");
+    if(compare==null)compare=(a,v)=>a===v?0:a<v?-1:1;
+    else if(typeof compare!=="function")throw new TypeError("compare is given but not a function");
     let l=0,r=arr.length-1,i=Math.trunc((r-l)*.5);
-    for(;arr[i]!=e;i=Math.trunc(l+(r-l)*.5)){
-        if(arr[i]<e)l=i+1;
+    for(let c;(c=compare(arr[i],val))!==0;i=Math.trunc(l+(r-l)*.5)){
+        if(c<0)l=i+1;
         else r=i-1;
-        if(l>r)return r;
+        if(l>r)return l;
     }
     return i;
 }

@@ -304,15 +304,24 @@ hasArrayHoles(["",0,undefined,null,()=>{},[],{}]);    //=> false
 </details>
 <details><summary><code>binarySearch</code></summary>
 
-__Binary search in `arr` (ascending sorted array) for `e`__
+__Binary search in `arr` for `val`__
 
-using `!=` and `<` (supports dynamic types), `arr` can have duplicate elements
+`arr` is sorted in ascending order and can have duplicate elements
 
 ```typescript
-function binarySearch(
-    arr: any[],
-    e: any
+function binarySearch<T extends unknown>(
+    arr: readonly T[],
+    val: T,
+    compare?: ((a: T, v: T) => number) | undefined
 ): number
+```
+
+```javascript
+const arr = [1, 2, 3, 4, 5];
+let i = binarySearch(arr, 3.14);
+//i: 3
+arr.splice(i, 0, 3.14);
+//arr: [1, 2, 3, 3.14, 4, 5]
 ```
 
 </details>
