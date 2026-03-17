@@ -290,10 +290,10 @@ most iterator functions skip empty entries, like `Array.every` and `Array.some`,
 their value is `undefined` but they're treated differently from an actual `undefined` in the array \
 but the length attribute does include them since they do contribute to the total length of the array
 
+see [MDN: Array methods and empty slots](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#array_methods_and_empty_slots "MDN>JavaScript>Array: Array methods and empty slots")
+
 ```typescript
-const hasArrayHoles: (
-    arr: any[]
-) => boolean
+function hasArrayHoles(arr: readonly any[]): boolean
 ```
 
 ```javascript

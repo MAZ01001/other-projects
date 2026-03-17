@@ -320,16 +320,20 @@ function CMYKtoRGB(C,M,Y,K){
 
 /**
  * ## checks if the given array has empty slots
- * most iterator functions skip empty entries, like {@linkcode Array.every} and {@linkcode Array.some}, so they might bypass checks and lead to undefined behavior \
- * their value is `undefined` but they're treated differently from an actual `undefined` in the array \
- * but the length attribute does include them since they do contribute to the total length of the array
- * @param {any[]} arr - an array of items (any items, incl. `undefined` are allowed)
+ * see [MDN: Array methods and empty slots](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#array_methods_and_empty_slots "MDN>JavaScript>Array: Array methods and empty slots")
+ * @param {readonly any[]} arr - an array of items (any items, incl. `undefined` are allowed)
  * @returns {boolean} true if the array has empty slots and false otherwise
+ * @throws {TypeError} if {@linkcode arr} is not an array
  * @example
  * hasArrayHoles(["",0,undefined,,,,null,()=>{},[],{}]); //=> true
  * hasArrayHoles(["",0,undefined,null,()=>{},[],{}]);    //=> false
  */
-const hasArrayHoles=arr=>arr.length>arr.reduce(s=>s+1,0);
+function hasArrayHoles(arr){
+    "use strict";
+    if(!Array.isArray(arr))throw new TypeError("arr is not an array");
+    let j=0;
+    return!arr.every((_,i)=>i===j++);
+}
 /**
  * ## Binary search in {@linkcode arr} (ascending sorted array) for {@linkcode e}
  * using `!=` and `<` (supports dynamic types), {@linkcode arr} can have duplicate elements
