@@ -319,6 +319,80 @@ function getSubarrayOffset<
 
 </details>
 </dd>
+<dt>Object</dt>
+<dd>
+<details><summary><code>equal</code></summary>
+
+__(recursive) compare two values/objects for equality__
+
+[same value zero](https://tc39.es/ecma262/multipage/abstract-operations.html#sec-samevaluezero) & deep scan for objects (prototype & own property descriptors) \
+(_functions are only compared by address_)
+
+```typescript
+function equal(
+    a: any,
+    b: any,
+    valueOnly?: boolean | undefined,
+    prototype?: boolean | null | undefined
+): boolean
+```
+
+```text
+| --    | ← (check propery descriptors)
+| vo    | ← value only
+|    -- | ← (same prototype)
+|    cp | ← check prototype
+|    ip | ← ignore prototype
+┌────────────────────────────────────────────────┬───────┬───────┬───────┬───────┬───────┬───────┐
+│ (index)                                        │ -- -- │ vo -- │ -- cp │ vo cp │ -- ip │ vo ip │
+├────────────────────────────────────────────────┼───────┼───────┼───────┼───────┼───────┼───────┤
+│ string object vs string                        │  ❌  │   ❌  │  ❌  │   ❌  │  ❌  │   ❌  │
+│ array object vs array                          │  ❌  │   ❌  │  ❌  │   ❌  │  ❌  │   ❌  │
+│ null object vs object prototype                │  ❌  │   ❌  │  ❌  │   ❌  │  ❌  │   ❌  │
+│ objects with different values                  │  ❌  │   ❌  │  ❌  │   ❌  │  ❌  │   ❌  │
+│ objects with different properties              │  ❌  │   ❌  │  ❌  │   ❌  │  ❌  │   ❌  │
+│ object vs object with symbol property on array │  ❌  │   ❌  │  ❌  │   ❌  │  ❌  │   ❌  │
+│ null object vs empty object                    │  ❌  │   ❌  │  ❌  │   ❌  │  ✔️  │   ✔️  │
+│ empty object with equal but not same prototype │  ❌  │   ❌  │  ✔️  │   ✔️  │  ✔️  │   ✔️  │
+│ object vs object with frozen value             │  ❌  │   ✔️  │  ❌  │   ✔️  │  ❌  │   ✔️  │
+│ equal but not same object                      │  ✔️  │   ✔️  │  ✔️  │   ✔️  │  ✔️  │   ✔️  │
+│ -0 vs +0                                       │  ✔️  │   ✔️  │  ✔️  │   ✔️  │  ✔️  │   ✔️  │
+│ -NaN vs +NaN                                   │  ✔️  │   ✔️  │  ✔️  │   ✔️  │  ✔️  │   ✔️  │
+└────────────────────────────────────────────────┴───────┴───────┴───────┴───────┴───────┴───────┘
+```
+
+```javascript
+/**@type {[string,any,any][]}*/
+const tests=[
+    ["string object vs string",                       new String("test"),                 "test"                                               ], // false
+    ["array object vs array",                         Object.create(Array.prototype),     []                                                   ], // false
+    ["null object vs object prototype",               Object.create(null),                Object.getPrototypeOf({})                            ], // false
+    ["objects with different values",                 {test:[1,2,3]},                     {test:[1,,3]}                                        ], // false
+    ["objects with different properties",             {test:[1,2,3]},                     {TEST:[1,2,3]}                                       ], // false
+    ["object vs object with symbol property on array",{test:[1,2,3]},                     {test:Object.assign([1,2,3],{[Symbol.for("a")]:"a"})}], // false
+    ["null object vs empty object",                   Object.create(null),                {}                                                   ], // false ; true for ignore prototype
+    ["empty object with equal but not same prototype",Object.setPrototypeOf({},{test:""}),Object.setPrototypeOf({},{test:""})                  ], // false ; true for check prototype & ignore prototype
+    ["object vs object with frozen value",            {test:[1,2,3]},                     {test:Object.freeze([1,2,3])}                        ], // false ; true for value only
+    ["equal but not same object",                     {test:[1,2,3]},                     {test:[1,2,3]}                                       ], // true
+    ["-0 vs +0",                                      -0,                                 +0                                                   ], // true
+    ["-NaN vs +NaN",                                  -NaN,                               +NaN                                                 ], // true
+];
+/**@type {{[test:string]:{[call:string]:any}}}*/
+const logTable={};
+for(const[test,a,b]of tests)
+    logTable[test]={
+        "-- --":equal(a,b,false,null ), //            ;
+        "vo --":equal(a,b,true, null ), // value only ;
+        "-- cp":equal(a,b,false,true ), //            ; check prototype
+        "vo cp":equal(a,b,true, true ), // value only ; check prototype
+        "-- ip":equal(a,b,false,false), //            ; ignore prototype
+        "vo ip":equal(a,b,true, false), // value only ; ignore prototype
+    };
+console.table(logTable);
+```
+
+</details>
+</dd>
 <dt>Color</dt>
 <dd>
 <details><summary><code>HSVtoRGB</code></summary>

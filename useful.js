@@ -356,6 +356,70 @@ function getSubarrayOffset(full,slice,reverse,fromIndex,equality){
     return-1;
 }
 
+//MARK: object
+
+/**
+ * ## (recursive) compare two values/objects for equality
+ * [same value zero](https://tc39.es/ecma262/multipage/abstract-operations.html#sec-samevaluezero) & deep scan for objects (prototype & own property descriptors) \
+ * (_functions are only compared by address_)
+ * @param {any} a
+ * @param {any} b
+ * @param {boolean} [valueOnly] - [optional] if `true` compares only values (ignoring setter and configurable, enumerable, and writable status of properties) - default `false`
+ * @param {boolean|null} [prototype] - [optional] `null` = prototypes must match; `true` = recursively check prototypes for equality; `false` = ignore prototypes - default `null`
+ * @returns {boolean} `true` when equal and `false` otherwise
+ * @throws {TypeError} if {@linkcode valueOnly} is given but not a boolean
+ * @throws {TypeError} if {@linkcode prototype} is given but not a boolean (or null)
+ */
+function equal(a,b,valueOnly,prototype){
+    if(valueOnly==null)valueOnly=false;
+    else if(typeof valueOnly!=="boolean")throw new TypeError("valueOnly is given but not a boolean");
+    if(prototype==null)prototype=null;
+    else if(typeof prototype!=="boolean")throw new TypeError("prototype is given but not a boolean (or null)");
+    if(Object.is(a,b))return true;
+    const at=typeof a;
+    if(at!==typeof b)return false;
+    if(at==="bigint")return a===0n&&b===0n;
+    if(at==="number")return a===0&&b===0;
+    if(at!=="object")return false;//~ Object.is(a,b)
+    if(a===null){
+        if(b!==null)return false;
+    }else if(b===null)return false;
+    if(prototype===null)
+        if(!Array.isArray(a)){
+            if(Array.isArray(b)||Object.getPrototypeOf(a)!==Object.getPrototypeOf(b))return false;
+        }else if(!Array.isArray(b))return false;
+    const ak=Object.getOwnPropertyNames(a);
+    const bk=new Set(Object.getOwnPropertyNames(b));
+    if(ak.length!==bk.size)return false;
+    /**@type {(a?:PropertyDescriptor,b?:PropertyDescriptor)=>boolean} check if property descriptors are equal (recursion with {@linkcode equal})*/
+    const equalDescriptor=(ad,bd)=>{
+        if(ad==null)return bd==null
+        else if(bd==null)return false;
+        if(
+            !valueOnly&&(
+                ad.configurable!==bd.configurable
+                ||ad.enumerable!==bd.enumerable
+                ||ad.writable!==bd.writable
+            )
+        )return false;
+        if("value" in ad)return "value" in bd&&equal(ad.value,bd.value,valueOnly,prototype);//~ (can't also have get/set)
+        else if("value" in bd)return false;
+        if(!valueOnly&&typeof ad.set!==typeof bd.set)return false;
+        if(ad.get!=null){
+            if(bd.get==null||!equal(ad.get(),bd.get(),valueOnly,prototype))return false;
+        }else if(bd.get!=null)return false;
+        return true;
+    };
+    for(let i=0,k;i<ak.length;++i)
+        if(!bk.has(k=ak[i])||!equalDescriptor(Object.getOwnPropertyDescriptor(a,k),Object.getOwnPropertyDescriptor(b,k)))return false;
+    const as=Object.getOwnPropertySymbols(a);
+    const bs=new Set(Object.getOwnPropertySymbols(b));
+    if(as.length!==bs.size)return false;
+    for(let i=0,s;i<as.length;++i)
+        if(!bs.has(s=as[i])||!equalDescriptor(Object.getOwnPropertyDescriptor(a,s),Object.getOwnPropertyDescriptor(b,s)))return false;
+    return prototype!==true||equal(Object.getPrototypeOf(a),Object.getPrototypeOf(b),valueOnly,prototype);
+}
+
 //MARK: color
 
 /**
