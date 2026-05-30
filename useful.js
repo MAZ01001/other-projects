@@ -1,6 +1,11 @@
 //@ts-check
 "use strict";
 
+//MARK: number
+
+// https://github.com/MAZ01001/Math-Js#functionsjs
+// https://github.com/MAZ01001/Math-Js/blob/main/functions.js
+
 //MARK: string
 
 /**
@@ -196,126 +201,6 @@ function strCompareLite(a,b,locale){
     return prev[B.length];
 }
 
-//MARK: number
-
-// https://github.com/MAZ01001/Math-Js#functionsjs
-// https://github.com/MAZ01001/Math-Js/blob/main/functions.js
-
-//MARK: color
-
-/**
- * ## convert HSV color to RGB
- * ! notice that {@linkcode H} input is in range `[0,6]` so to convert from `[0,360]` (degrees) divide by `60`; or multiply with `6` if coming from `[0,1]` (like {@linkcode S}/{@linkcode V} input)
- * @param {number} H - hue in range `[0,6]` (angle) where 6=360deg (0 red-yellow-green-cyan-blue-magenta-red 6)
- * @param {number} S - saturation in range `[0,1]` (percentage) where 0=black/white 1=color
- * @param {number} V - value in range `[0,1]` (percentage) where 0=black and 1=white/color
- * @returns {[number,number,number]} `[red, green, blue]` with each in range `[0,1]`
- * @throws {TypeError} if {@linkcode H}, {@linkcode S}, or {@linkcode V} are not numbers withing their documented ranges
- */
-function HSVtoRGB(H,S,V){
-    "use strict";
-    if(Number.isNaN(H)||H<0||H>6)throw new TypeError("[HSVtoRGB] H is not a number in range 0 to 6 inclusive");
-    if(Number.isNaN(S)||S<0||S>1)throw new TypeError("[HSVtoRGB] S is not a number in range 0 to 1 inclusive");
-    if(Number.isNaN(V)||V<0||V>1)throw new TypeError("[HSVtoRGB] V is not a number in range 0 to 1 inclusive");
-    const fac=Math.trunc(H);
-    switch(fac){
-      case 0://! fall through
-      case 6:return[V,V*(1-S*(1-(H-fac))),V*(1-S)];
-      case 1:return[V*(1-S*(H-fac)),V,V*(1-S)];
-      case 2:return[V*(1-S),V,V*(1-S*(1-(H-fac)))];
-      case 3:return[V*(1-S),V*(1-S*(H-fac)),V];
-      case 4:return[V*(1-S*(1-(H-fac))),V*(1-S),V];
-      case 5:return[V,V*(1-S),V*(1-S*(H-fac))];
-    }
-    return[0,0,0];
-}
-/**
- * ## convert RGB color to HSV
- * ! notice that hue output is in range `[0,6]` so multiply with `60` to get `[0,360]` (degrees); or divide by `6` for `[0,1]` (like saturation/value output)
- * @param {number} R - red in range `[0,1]` (percentage of red)
- * @param {number} G - green in range `[0,1]` (percentage of green)
- * @param {number} B - blue in range `[0,1]` (percentage of blue)
- * @returns {[number,number,number]} `[hue, saturation, value]` with hue in range `[0,6]` and the other two in range `[0,1]`
- * @throws {TypeError} if {@linkcode R}, {@linkcode G}, or {@linkcode B} are not numbers in range 0 to 1 inclusive
- */
-function RGBtoHSV(R,G,B){
-    "use strict";
-    if(Number.isNaN(R)||R<0||R>1)throw new TypeError("[RGBtoHSV] R is not a number in range 0 to 1 inclusive");
-    if(Number.isNaN(G)||G<0||G>1)throw new TypeError("[RGBtoHSV] G is not a number in range 0 to 1 inclusive");
-    if(Number.isNaN(B)||B<0||B>1)throw new TypeError("[RGBtoHSV] B is not a number in range 0 to 1 inclusive");
-    const max=Math.max(R,G,B);
-    const min=Math.min(R,G,B);
-    switch(max){
-        case R:return[max===min?0:  (G-B)/(max-min),max===0?0:(max-min)/max,max];
-        case G:return[max===min?0:2+(B-R)/(max-min),max===0?0:(max-min)/max,max];
-        case B:return[max===min?0:4+(R-G)/(max-min),max===0?0:(max-min)/max,max];
-    }
-    return[0,0,0];
-}
-/**
- * ## round hex color from 6/8 digits to 3/4 digits
- * rounded componentwise to nearest hex-double like `F5`→`E`=`EE`
- * @param {string} color - a 6/8 digit hex color (`#RRGGBB` or `#RRGGBBAA` case-insensitive)
- * @returns {string} 3/4 digit hex color (`#RGB` or `#RGBA` lowercase)
- * @throws {TypeError} if {@linkcode color} is not a string
- * @throws {SyntaxError} if {@linkcode color} is not a 6/8 digit hex color
- */
-function colorHexRound(color){
-    "use strict";
-    if(typeof color!=="string")throw new TypeError("[colorHexRound] color is not a string");
-    const[_,r,g,b,a]=color.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i)??[null];
-    if(_==null)throw new SyntaxError("[colorHexRound] color is not a 6/8 digit hex color");
-    let out="#";
-    out+=Math.round(Number.parseInt(r,16)/17).toString(16);
-    out+=Math.round(Number.parseInt(g,16)/17).toString(16);
-    out+=Math.round(Number.parseInt(b,16)/17).toString(16);
-    return a==null?out:(out+Math.round(Number.parseInt(a,16)/17).toString(16));
-}
-/**
- * ## convert RGB to CMY(K)
- * @param {number} R - red in range `[0,1]` (percentage of red)
- * @param {number} G - green in range `[0,1]` (percentage of green)
- * @param {number} B - blue in range `[0,1]` (percentage of blue)
- * @param {boolean} [excludeK] - [optional] if `true` does not calculate `Key/black` output and gives `0` for that entry - default `false`
- * @returns {[number,number,number,number]} - `[cyan, magenta, yellow, key/black]` with each in range `[0,1]`
- * @throws {TypeError} if {@linkcode R}, {@linkcode G}, or {@linkcode B} are not numbers in range 0 to 1 inclusive
- * @throws {TypeError} if {@linkcode excludeK} is given but not a boolean
- */
-function RGBtoCMYK(R,G,B,excludeK){
-    "use strict";
-    if(typeof R!=="number"||Number.isNaN(R)||R<0||R>1)throw new TypeError("[RGBtoCMYK] R is not a number in range 0 to 1 inclusive");
-    if(typeof G!=="number"||Number.isNaN(G)||G<0||G>1)throw new TypeError("[RGBtoCMYK] G is not a number in range 0 to 1 inclusive");
-    if(typeof B!=="number"||Number.isNaN(B)||B<0||B>1)throw new TypeError("[RGBtoCMYK] B is not a number in range 0 to 1 inclusive");
-    if(excludeK!=null&&typeof excludeK!=="boolean")throw new TypeError("[RGBtoCMYK] excludeK (given) is not a boolean");
-    if(excludeK??false)return[1-R,1-G,1-B,0];
-    const Ck=1-R;
-    const Mk=1-G;
-    const Yk=1-B;
-    const K=Math.min(Ck,Mk,Yk);
-    return[Ck-K,Mk-K,Yk-K,K];
-}
-/**
- * ## convert CMY(K) to RGB
- * @param {number} C - cyan in range `[0,1]` (percentage of cyan)
- * @param {number} M - magenta in range `[0,1]` (percentage of magenta)
- * @param {number} Y - yellow in range `[0,1]` (percentage of yellow)
- * @param {number} [K] - [optional] key/black in range `[0,1]` (percentage of black) - default `0`
- * @returns {[number,number,number]} `[red, green, blue]` with each in range `[0,1]`
- * @throws {TypeError} if {@linkcode C}, {@linkcode M}, or {@linkcode Y} are not numbers in range 0 to 1 inclusive
- * @throws {TypeError} if {@linkcode K} is given but not a number in range 0 to 1 inclusive
- * @throws {RangeError} if {@linkcode K} (is given and) combined with {@linkcode C}, {@linkcode M}, or {@linkcode Y} results in a number larger than `1`
- */
-function CMYKtoRGB(C,M,Y,K){
-    "use strict";
-    if(typeof C!=="number"||Number.isNaN(C)||C<0||C>1)throw new TypeError("[CMYKtoRGB] C is not a number in range 0 to 1 inclusive");
-    if(typeof M!=="number"||Number.isNaN(M)||M<0||M>1)throw new TypeError("[CMYKtoRGB] M is not a number in range 0 to 1 inclusive");
-    if(typeof Y!=="number"||Number.isNaN(Y)||Y<0||Y>1)throw new TypeError("[CMYKtoRGB] Y is not a number in range 0 to 1 inclusive");
-    if(K==null)return[1-C,1-M,1-Y];
-    if(typeof K!=="number"||Number.isNaN(K)||K<0||K>1)throw new TypeError("[CMYKtoRGB] K (given) is not a number in range 0 to 1 inclusive");
-    if(Math.max(C,M,Y)+K>1)throw new RangeError("[CMYKtoRGB] combination with K is out of range");
-    return[1-(C+K),1-(M+K),1-(Y+K)];
-}
-
 //MARK: array
 
 /**
@@ -469,6 +354,121 @@ function getSubarrayOffset(full,slice,reverse,fromIndex,equality){
                 i=start;
             }else if(i+slice.length>full.length)return-1;
     return-1;
+}
+
+//MARK: color
+
+/**
+ * ## convert HSV color to RGB
+ * ! notice that {@linkcode H} input is in range `[0,6]` so to convert from `[0,360]` (degrees) divide by `60`; or multiply with `6` if coming from `[0,1]` (like {@linkcode S}/{@linkcode V} input)
+ * @param {number} H - hue in range `[0,6]` (angle) where 6=360deg (0 red-yellow-green-cyan-blue-magenta-red 6)
+ * @param {number} S - saturation in range `[0,1]` (percentage) where 0=black/white 1=color
+ * @param {number} V - value in range `[0,1]` (percentage) where 0=black and 1=white/color
+ * @returns {[number,number,number]} `[red, green, blue]` with each in range `[0,1]`
+ * @throws {TypeError} if {@linkcode H}, {@linkcode S}, or {@linkcode V} are not numbers withing their documented ranges
+ */
+function HSVtoRGB(H,S,V){
+    "use strict";
+    if(Number.isNaN(H)||H<0||H>6)throw new TypeError("[HSVtoRGB] H is not a number in range 0 to 6 inclusive");
+    if(Number.isNaN(S)||S<0||S>1)throw new TypeError("[HSVtoRGB] S is not a number in range 0 to 1 inclusive");
+    if(Number.isNaN(V)||V<0||V>1)throw new TypeError("[HSVtoRGB] V is not a number in range 0 to 1 inclusive");
+    const fac=Math.trunc(H);
+    switch(fac){
+      case 0://! fall through
+      case 6:return[V,V*(1-S*(1-(H-fac))),V*(1-S)];
+      case 1:return[V*(1-S*(H-fac)),V,V*(1-S)];
+      case 2:return[V*(1-S),V,V*(1-S*(1-(H-fac)))];
+      case 3:return[V*(1-S),V*(1-S*(H-fac)),V];
+      case 4:return[V*(1-S*(1-(H-fac))),V*(1-S),V];
+      case 5:return[V,V*(1-S),V*(1-S*(H-fac))];
+    }
+    return[0,0,0];
+}
+/**
+ * ## convert RGB color to HSV
+ * ! notice that hue output is in range `[0,6]` so multiply with `60` to get `[0,360]` (degrees); or divide by `6` for `[0,1]` (like saturation/value output)
+ * @param {number} R - red in range `[0,1]` (percentage of red)
+ * @param {number} G - green in range `[0,1]` (percentage of green)
+ * @param {number} B - blue in range `[0,1]` (percentage of blue)
+ * @returns {[number,number,number]} `[hue, saturation, value]` with hue in range `[0,6]` and the other two in range `[0,1]`
+ * @throws {TypeError} if {@linkcode R}, {@linkcode G}, or {@linkcode B} are not numbers in range 0 to 1 inclusive
+ */
+function RGBtoHSV(R,G,B){
+    "use strict";
+    if(Number.isNaN(R)||R<0||R>1)throw new TypeError("[RGBtoHSV] R is not a number in range 0 to 1 inclusive");
+    if(Number.isNaN(G)||G<0||G>1)throw new TypeError("[RGBtoHSV] G is not a number in range 0 to 1 inclusive");
+    if(Number.isNaN(B)||B<0||B>1)throw new TypeError("[RGBtoHSV] B is not a number in range 0 to 1 inclusive");
+    const max=Math.max(R,G,B);
+    const min=Math.min(R,G,B);
+    switch(max){
+        case R:return[max===min?0:  (G-B)/(max-min),max===0?0:(max-min)/max,max];
+        case G:return[max===min?0:2+(B-R)/(max-min),max===0?0:(max-min)/max,max];
+        case B:return[max===min?0:4+(R-G)/(max-min),max===0?0:(max-min)/max,max];
+    }
+    return[0,0,0];
+}
+/**
+ * ## round hex color from 6/8 digits to 3/4 digits
+ * rounded componentwise to nearest hex-double like `F5`→`E`=`EE`
+ * @param {string} color - a 6/8 digit hex color (`#RRGGBB` or `#RRGGBBAA` case-insensitive)
+ * @returns {string} 3/4 digit hex color (`#RGB` or `#RGBA` lowercase)
+ * @throws {TypeError} if {@linkcode color} is not a string
+ * @throws {SyntaxError} if {@linkcode color} is not a 6/8 digit hex color
+ */
+function colorHexRound(color){
+    "use strict";
+    if(typeof color!=="string")throw new TypeError("[colorHexRound] color is not a string");
+    const[_,r,g,b,a]=color.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i)??[null];
+    if(_==null)throw new SyntaxError("[colorHexRound] color is not a 6/8 digit hex color");
+    let out="#";
+    out+=Math.round(Number.parseInt(r,16)/17).toString(16);
+    out+=Math.round(Number.parseInt(g,16)/17).toString(16);
+    out+=Math.round(Number.parseInt(b,16)/17).toString(16);
+    return a==null?out:(out+Math.round(Number.parseInt(a,16)/17).toString(16));
+}
+/**
+ * ## convert RGB to CMY(K)
+ * @param {number} R - red in range `[0,1]` (percentage of red)
+ * @param {number} G - green in range `[0,1]` (percentage of green)
+ * @param {number} B - blue in range `[0,1]` (percentage of blue)
+ * @param {boolean} [excludeK] - [optional] if `true` does not calculate `Key/black` output and gives `0` for that entry - default `false`
+ * @returns {[number,number,number,number]} - `[cyan, magenta, yellow, key/black]` with each in range `[0,1]`
+ * @throws {TypeError} if {@linkcode R}, {@linkcode G}, or {@linkcode B} are not numbers in range 0 to 1 inclusive
+ * @throws {TypeError} if {@linkcode excludeK} is given but not a boolean
+ */
+function RGBtoCMYK(R,G,B,excludeK){
+    "use strict";
+    if(typeof R!=="number"||Number.isNaN(R)||R<0||R>1)throw new TypeError("[RGBtoCMYK] R is not a number in range 0 to 1 inclusive");
+    if(typeof G!=="number"||Number.isNaN(G)||G<0||G>1)throw new TypeError("[RGBtoCMYK] G is not a number in range 0 to 1 inclusive");
+    if(typeof B!=="number"||Number.isNaN(B)||B<0||B>1)throw new TypeError("[RGBtoCMYK] B is not a number in range 0 to 1 inclusive");
+    if(excludeK!=null&&typeof excludeK!=="boolean")throw new TypeError("[RGBtoCMYK] excludeK (given) is not a boolean");
+    if(excludeK??false)return[1-R,1-G,1-B,0];
+    const Ck=1-R;
+    const Mk=1-G;
+    const Yk=1-B;
+    const K=Math.min(Ck,Mk,Yk);
+    return[Ck-K,Mk-K,Yk-K,K];
+}
+/**
+ * ## convert CMY(K) to RGB
+ * @param {number} C - cyan in range `[0,1]` (percentage of cyan)
+ * @param {number} M - magenta in range `[0,1]` (percentage of magenta)
+ * @param {number} Y - yellow in range `[0,1]` (percentage of yellow)
+ * @param {number} [K] - [optional] key/black in range `[0,1]` (percentage of black) - default `0`
+ * @returns {[number,number,number]} `[red, green, blue]` with each in range `[0,1]`
+ * @throws {TypeError} if {@linkcode C}, {@linkcode M}, or {@linkcode Y} are not numbers in range 0 to 1 inclusive
+ * @throws {TypeError} if {@linkcode K} is given but not a number in range 0 to 1 inclusive
+ * @throws {RangeError} if {@linkcode K} (is given and) combined with {@linkcode C}, {@linkcode M}, or {@linkcode Y} results in a number larger than `1`
+ */
+function CMYKtoRGB(C,M,Y,K){
+    "use strict";
+    if(typeof C!=="number"||Number.isNaN(C)||C<0||C>1)throw new TypeError("[CMYKtoRGB] C is not a number in range 0 to 1 inclusive");
+    if(typeof M!=="number"||Number.isNaN(M)||M<0||M>1)throw new TypeError("[CMYKtoRGB] M is not a number in range 0 to 1 inclusive");
+    if(typeof Y!=="number"||Number.isNaN(Y)||Y<0||Y>1)throw new TypeError("[CMYKtoRGB] Y is not a number in range 0 to 1 inclusive");
+    if(K==null)return[1-C,1-M,1-Y];
+    if(typeof K!=="number"||Number.isNaN(K)||K<0||K>1)throw new TypeError("[CMYKtoRGB] K (given) is not a number in range 0 to 1 inclusive");
+    if(Math.max(C,M,Y)+K>1)throw new RangeError("[CMYKtoRGB] combination with K is out of range");
+    return[1-(C+K),1-(M+K),1-(Y+K)];
 }
 
 //MARK: HTML / DOM

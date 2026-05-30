@@ -43,6 +43,12 @@ some useful JavaScript functions
 _locate function in `useful.js` for more documentation via JSDoc, like parameter/return description_
 
 <dl>
+<dt>Number</dt>
+<dd>
+
+see <https://github.com/MAZ01001/Math-Js#functionsjs>
+
+</dd>
 <dt>String</dt>
 <dd>
 <details><summary><code>strRem</code></summary>
@@ -200,86 +206,6 @@ console.table(V.map((v,i)=>{
 </details>
 </details>
 </dd>
-<dt>Number</dt>
-<dd>
-
-see <https://github.com/MAZ01001/Math-Js#functionsjs>
-
-</dd>
-<dt>Color</dt>
-<dd>
-<details><summary><code>HSVtoRGB</code></summary>
-
-__convert HSV color to RGB__
-
-! notice that `H` input is in range `[0,6]` so to convert from `[0,360]` (degrees) divide by `60`; or multiply with `6` if coming from `[0,1]` (like `S`/`V` input)
-
-```typescript
-function HSVtoRGB(
-    H: number,
-    S: number,
-    V: number
-): [number, number, number]
-```
-
-</details>
-<details><summary><code>RGBtoHSV</code></summary>
-
-__convert RGB color to HSV__
-
-! notice that hue output is in range `[0,6]` so multiply with `60` to get `[0,360]` (degrees); or divide by `6` for `[0,1]` (like saturation/value output)
-
-```typescript
-function RGBtoHSV(
-    R: number,
-    G: number,
-    B: number
-): [number, number, number]
-```
-
-</details>
-<details><summary><code>colorHexRound</code></summary>
-
-__round hex color from 6/8 digits to 3/4 digits__
-
-rounded componentwise to nearest hex-double like `F5` → `E` = `EE`
-
-```typescript
-function colorHexRound(
-    color: string
-): string
-```
-
-</details>
-<details><summary><code>RGBtoCMYK</code></summary>
-
-__convert RGB to CMY(K)__
-
-```typescript
-function RGBtoCMYK(
-    R: number,
-    G: number,
-    B: number,
-    excludeK?: boolean | undefined
-): [number, number, number, number]
-```
-
-</details>
-<details><summary><code>CMYKtoRGB</code></summary>
-
-__convert CMY(K) to RGB__
-
-```typescript
-function CMYKtoRGB(
-    C: number,
-    M: number,
-    Y: number,
-    K?: number | undefined
-): [number, number, number]
-```
-
-</details>
-</dd>
 <dt>Array</dt>
 <dd>
 <details><summary><code>hasArrayHoles</code></summary>
@@ -389,6 +315,80 @@ function getSubarrayOffset<
     equality?: ((a: Tf, b: Ts) => boolean) | undefined
 ): number
 
+```
+
+</details>
+</dd>
+<dt>Color</dt>
+<dd>
+<details><summary><code>HSVtoRGB</code></summary>
+
+__convert HSV color to RGB__
+
+! notice that `H` input is in range `[0,6]` so to convert from `[0,360]` (degrees) divide by `60`; or multiply with `6` if coming from `[0,1]` (like `S`/`V` input)
+
+```typescript
+function HSVtoRGB(
+    H: number,
+    S: number,
+    V: number
+): [number, number, number]
+```
+
+</details>
+<details><summary><code>RGBtoHSV</code></summary>
+
+__convert RGB color to HSV__
+
+! notice that hue output is in range `[0,6]` so multiply with `60` to get `[0,360]` (degrees); or divide by `6` for `[0,1]` (like saturation/value output)
+
+```typescript
+function RGBtoHSV(
+    R: number,
+    G: number,
+    B: number
+): [number, number, number]
+```
+
+</details>
+<details><summary><code>colorHexRound</code></summary>
+
+__round hex color from 6/8 digits to 3/4 digits__
+
+rounded componentwise to nearest hex-double like `F5` → `E` = `EE`
+
+```typescript
+function colorHexRound(
+    color: string
+): string
+```
+
+</details>
+<details><summary><code>RGBtoCMYK</code></summary>
+
+__convert RGB to CMY(K)__
+
+```typescript
+function RGBtoCMYK(
+    R: number,
+    G: number,
+    B: number,
+    excludeK?: boolean | undefined
+): [number, number, number, number]
+```
+
+</details>
+<details><summary><code>CMYKtoRGB</code></summary>
+
+__convert CMY(K) to RGB__
+
+```typescript
+function CMYKtoRGB(
+    C: number,
+    M: number,
+    Y: number,
+    K?: number | undefined
+): [number, number, number]
 ```
 
 </details>
