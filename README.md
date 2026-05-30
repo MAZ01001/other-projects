@@ -327,22 +327,36 @@ getArrayHoles([0,1,,,4,,,7,8,9,,11,,]);               //=> [2,3,5,6,10,12]
 
 __Binary search in `arr` for `val`__
 
-`arr` is sorted in ascending order and can have duplicate elements
+gives index which keeps `arr` sorted in ascending order \
+(use `stable` to get rightmost index for successive equal elements)
 
 ```typescript
-function binarySearch<T extends unknown>(
-    arr: readonly T[],
+function binarySearch<T>(
+    arr: ArrayLike<T>,
     val: T,
-    compare?: ((a: T, v: T) => number) | undefined
+    compare?: ((a: T, b: T) => number) | undefined,
+    stable?: boolean | undefined
 ): number
 ```
 
 ```javascript
-const arr = [1, 2, 3, 4, 5];
+let arr = [1, 2, 3, 4, 5];
 let i = binarySearch(arr, 3.14);
-//i: 3
+// i: 3
 arr.splice(i, 0, 3.14);
-//arr: [1, 2, 3, 3.14, 4, 5]
+// arr: [1, 2, 3, 3.14, 4, 5]
+
+arr = [1, 3, 3, 3, 5];
+i = binarySearch(arr, '3', null, false);
+// i: 2
+arr.splice(i, 0, '3');
+// arr: [1, 3, '3', 3, 3, 5]
+
+arr = [1, 3, 3, 3, 5];
+i = binarySearch(arr, '3', null, true);
+// i: 4
+arr.splice(i, 0, '3');
+// arr: [1, 3, 3, 3, '3', 5]
 ```
 
 </details>

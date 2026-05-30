@@ -359,27 +359,38 @@ function getArrayHoles(arr){
 }
 /**
  * ## Binary search in {@linkcode arr} for {@linkcode val}
- * {@linkcode arr} can have duplicate entries
- * @param {readonly T[]} arr - sorted array (ascending order)
+ * {@linkcode arr} can have duplicate entries (see {@linkcode stable})
+ * @param {ArrayLike<T>} arr - sorted list (ascending order)
  * @param {T} val - element in {@linkcode arr} (presumably)
- * @param {(a:T,v:T)=>number} [compare] - [optional] comparison function - default: `(a,v)=>a===v?0:a<v?-1:1`
+ * @param {(a:T,b:T)=>number} [compare] - [optional] comparison function - default: `(a,b)=>a>b?1:a<b?-1:0`
+ * @param {boolean} [stable] - [optional] always give the index of the first unequal element (to the right) when landing on an equal element (few additional checks) - default `false`
  * @returns {number} index of {@linkcode val} in {@linkcode arr} or index of insertion which keeps ascending order
- * @template {any} T
+ * @template T
  * @throws {TypeError} if {@linkcode arr} is not an array
- * @throws {TypeError} if {@linkcode compare} is given but not a function
- * @example binarySearch([1,2,3,4,5],3.14);//=> 3 → array.splice(3,0,3.14) => [1,2,3,3.14,4,5]
+ * @throws {TypeError} if {@linkcode compare} is given but not a function or returns non-number values
+ * @throws {TypeError} if {@linkcode stable} is given but not a boolean
+ * @example
+ * binarySearch([1,2,3,4,5],3.14);//=> 3 → array.splice(3,0,3.14) => [1,2,3,3.14,4,5]
+ * binarySearch([1,3,3,3,5],'3',null,false);//=> 2 → array.splice(2,0,'3') => [1,3,'3',3,3,5]
+ * binarySearch([1,3,3,3,5],'3',null,true );//=> 4 → array.splice(4,0,'3') => [1,3,3,3,'3',5]
  */
-function binarySearch(arr,val,compare){
+function binarySearch(arr,val,compare,stable){
     "use strict";
-    if(!Array.isArray(arr))throw new TypeError("arr is not an array");
-    if(compare==null)compare=(a,v)=>a===v?0:a<v?-1:1;
+    const len=arr?.length;
+    if(typeof len!=="number")throw new TypeError("arr is not a list");
+    if(compare==null)compare=(a,b)=>a>b?1:a<b?-1:0;
     else if(typeof compare!=="function")throw new TypeError("compare is given but not a function");
-    let l=0,r=arr.length-1,i=Math.trunc((r-l)*.5);
-    for(let c;(c=compare(arr[i],val))!==0;i=Math.trunc(l+(r-l)*.5)){
-        if(c<0)l=i+1;
+    if(stable==null)stable=false;
+    else if(typeof stable!=="boolean")throw new TypeError("stable is given but not a boolean");
+    let l=0,r=len-1,i=Math.trunc((r-l)*.5);
+    for(let c;(c=compare(val,arr[i]))!==0;i=Math.trunc(l+(r-l)*.5)){
+        if(typeof c!=="number"||Number.isNaN(c))throw new TypeError("compare function did not give a number");
+        if(c>0)l=i+1;
         else r=i-1;
         if(l>r)return l;
     }
+    if(stable)
+        for(;compare(val,arr[++i])===0;);
     return i;
 }
 /**
