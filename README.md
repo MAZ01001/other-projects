@@ -292,7 +292,8 @@ __Checks if an array is a slice of another (like `String.indexOf` but for arrays
 
 It does behave similar to `Array.include`, but not `Array.indexOf`/`Array.lastIndexOf`,
 as it also uses the [`SameValueZero`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Equality_comparisons_and_sameness#same-value-zero_equality "MDN>JavaScript>Equality: Same-value-zero equality")
-algorithim for comparisons (by default) and also does not skip [empty slots](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#array_methods_and_empty_slots "MDN>JavaScript>Array: Array methods and empty slots") (read as `undefined`).
+algorithim for comparisons (by default) and also does not skip [empty slots](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#array_methods_and_empty_slots "MDN>JavaScript>Array: Array methods and empty slots"),
+but reads them as `undefined` (since a function parameter can't be `empty slot`, but a subarray can be `[/*empty*/,]`).
 
 - `(getSubarrayOffset(arr, [val], false, start) !== -1)` \
   gives the same as `arr.includes(val, start)`
@@ -301,7 +302,7 @@ algorithim for comparisons (by default) and also does not skip [empty slots](htt
 - `getSubarrayOffset(arr, [val], true, start, (a, b) => a === b)` \
   gives the same as `[...arr].lastIndexOf(val, start)`
 
-_Assuming the types are correct, as this throws on type mismatch/index out of range, instead of type coercion, clamp index range, or interpret `{length: 2, 0: 3, 1: 4}` as `[3, 4]`._
+_So long as `[val]` is not `[/*empty*/,]` and assuming the (parameter) types are correct, as this throws on type mismatch/index out of range, instead of type coercion, clamp index range, or interpret `{length: 2, 0: 3, 1: 4}` as `[3, 4]`._
 
 ```typescript
 function getSubarrayOffset<
@@ -310,11 +311,37 @@ function getSubarrayOffset<
 >(
     full: readonly Tf[],
     slice: readonly Ts[],
-    reverse?: boolean | undefined,
-    fromIndex?: number | undefined,
-    equality?: ((a: Tf, b: Ts) => boolean) | undefined
+    reverse?: boolean | null | undefined,
+    fromIndex?: number | null | undefined,
+    equality?: ((a: Tf, b: Ts) => boolean) | null | undefined
 ): number
+```
 
+```javascript
+console.log(/*true*/[0, /*empty*/, 2].includes(undefined));
+console.log(/* -1 */[0, /*empty*/, 2].indexOf(undefined));
+console.log(/* -1 */[0, NaN, 2].indexOf(NaN));
+
+
+console.log(/* -1 */getSubarrayOffset([0, /*empty*/, 2], [undefined]));
+console.log(/*  1 */getSubarrayOffset([0, /*empty*/, 2], [/*empty*/,]));
+console.log(/* -1 */getSubarrayOffset([0, /*empty*/, 2], [0,2]));
+console.log(/*  1 */getSubarrayOffset([0, NaN, 2], [NaN]));
+console.log(/* -1 */getSubarrayOffset([0, NaN, 2], [NaN], false, 0, (a, b) => a === b));
+
+console.log(/*  3 */getSubarrayOffset([1, 2, 1, 2, 1], [1], false, 2, (a, b) => a !== b));
+console.log(/*  2 */getSubarrayOffset([1, 2, 1, 2], [1, 2], false, 1));
+console.log(/*  2 */getSubarrayOffset([1, 2, 1, 2, 1, 2], [1, 2], true, -2));
+
+console.log(/*  1 */getSubarrayOffset([1, 1, 1, 2, 3], [1, 1, 2, 3]));
+console.log(/* -1 */getSubarrayOffset([1, 1, 1, 1, 2], [1, 1, 2, 3]));
+console.log(/* -1 */getSubarrayOffset([1, 1, 1, 1, 2], [1, 1, 2, undefined]));
+console.log(/* -1 */getSubarrayOffset([1, 1, 1, 1, 2], [1, 1, 2, /*empty*/,]));
+
+console.log(/*  5 */getSubarrayOffset([12, 44, 22, 66, 222, 777, 22, 22, 22, 6, 77, 3], [777, 22, 22]));
+console.log(/* -1 */getSubarrayOffset([12, 44, 22, 66, 222, 777, 22, 22, 22, 6, 77, 3], [777, 22, 6]));
+console.log(/* -1 */getSubarrayOffset([12, 44, 22, 66, 222, 777, 22, 22, 22, 6, 77, 3], [777, 777]));
+console.log(/* -1 */getSubarrayOffset([12, 44, 22, 66, 222, 777, 22, 22, 22, 6, 77, 3], [42]));
 ```
 
 </details>
