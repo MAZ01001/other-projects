@@ -280,16 +280,16 @@ function binarySearch(arr,val,compare,stable){
 }
 /**
  * ## Checks if an array is a slice of another (like {@linkcode String.indexOf} but for arrays) and gives the index of the first found occurrence
- * _does not ignore empty slots (read as `undefined`)_ \
+ * _does not ignore empty entries (treated distinct from `undefined`)_ \
  * `arr.includes(val,start) == (getSubarrayOffset(arr,[val],false,start)!==-1)` \
  * `[...arr].indexOf(val,start) == getSubarrayOffset(arr,[val],false,start,(a,b)=>a===b)` \
  * `[...arr].lastIndexOf(val,start) == getSubarrayOffset(arr,[val],true,start,(a,b)=>a===b)`
  * @param {readonly Tf[]} full - larger containing array
  * @param {readonly Ts[]} slice - smaller subarray to search for (within {@linkcode full})
- * @param {boolean} [reverse] - [optional] search in reverse (as in _last index of_; also checks array entries in reverse order) - default `false`
- * @param {number} [fromIndex] - [optional] start at this given index in {@linkcode full} (can be negative to one-index from end of array) - default `0` (`-1` if {@linkcode reverse})
- * @param {(a:Tf,b:Ts)=>boolean} [equality] - [optional] custom comparison function used to check for equality - default [`SameValueZero`](https://tc39.es/ecma262/multipage/abstract-operations.html#sec-samevaluezero)
- * @returns {number} the offset/index of {@linkcode slice} within {@linkcode full} or `-1` if not present (`0` if {@linkcode slice} is empty)
+ * @param {?boolean} [reverse] - [optional] search in reverse (as in _last index of_; also checks array entries in reverse order) - default `false`
+ * @param {?number} [fromIndex] - [optional] start at this given index in {@linkcode full} (can be negative to one-index from end of array) - default `0` (`-1` if {@linkcode reverse})
+ * @param {?(a:Tf,b:Ts)=>boolean} [equality] - [optional] custom comparison function used to check for equality (not called for empty array entries) - default [`SameValueZero`](https://tc39.es/ecma262/multipage/abstract-operations.html#sec-samevaluezero)
+ * @returns {number} the offset/index of {@linkcode slice} within {@linkcode full} or `-1` if not present (`0` if {@linkcode slice} is empty; or {@linkcode full}`.length-1` when {@linkcode reverse})
  * @template {any} Tf
  * @template {any} Ts
  * @throws {TypeError} if {@linkcode full} or {@linkcode slice} are not arrays
@@ -306,53 +306,33 @@ function getSubarrayOffset(full,slice,reverse,fromIndex,equality){
     else if(typeof reverse!=="boolean")throw new TypeError("reverse is given but not a boolean");
     if(fromIndex==null)fromIndex=reverse?full.length-1:0;
     else if(!Number.isSafeInteger(fromIndex))throw new TypeError("fromIndex is given but not a safe integer");
-    if(equality!=null&&typeof equality!=="function")throw TypeError("equality is given but not a function");
+    if(equality==null)equality=(a,b)=>Object.is(a,b)||a===0&&b===0;
+    else if(typeof equality!=="function")throw TypeError("equality is given but not a function");
     if(slice.length===0)return reverse?full.length-1:0;
     if(full.length<slice.length)return-1;
     if(fromIndex<0)fromIndex+=full.length;
     if(fromIndex<0||fromIndex>=full.length)throw new RangeError("fromIndex is out of range");
-    const isEqual=equality??((a,b)=>Object.is(a,b)||a===0&&b===0);
-    if(full.length===slice.length){
-        if(reverse){
-            if(fromIndex!==full.length-1)return-1;
-            for(let i=full.length-1;i>=0;--i)
-                if(!isEqual(full[i],slice[i]))return-1;
-            return 0;
-        }
-        if(fromIndex!==0)return-1;
-        for(let i=0;i<full.length;++i)
-            if(!isEqual(full[i],slice[i]))return-1;
-        return 0;
-    }
-    if(slice.length===1){
-        if(reverse)
-            for(let i=fromIndex;i>=0;--i){
-                if(isEqual(full[i],slice[0]))return i;
-            }
-        else
-            for(let i=fromIndex;i<full.length;++i)
-                if(isEqual(full[i],slice[0]))return i;
-        return-1;
-    }
+    /**@type {(i:number,j:number)=>boolean} `full[i]==slice[j]`*/
+    const isEqual=(i,j)=>{
+        if(Object.hasOwn(full,i))
+            if(Object.hasOwn(slice,j))return equality(full[i],slice[j]);
+            else return false;
+        return!Object.hasOwn(slice,j);
+    };
     if(reverse)
-        for(let i=fromIndex,j=slice.length-1,start=i;i>=0;--i){
-            if(isEqual(full[i],slice[j])){
-                if(j===slice.length-1&&(start=i)<slice.length-1)return-1;
-                if(--j<0)return start-slice.length+1;
-            }else if(j!==slice.length-1){
+        for(let i=fromIndex,j=slice.length-1,end=i;i>=j;)
+            if(!isEqual(i,j)){
                 j=slice.length-1;
-                i=start;
-            }else if(i<slice.length-1)return-1;
-        }
+                i=--end;
+            }else if(--j<0)return i;
+            else--i;
     else
-        for(let i=fromIndex,j=0,start=i;i<full.length;++i)
-            if(isEqual(full[i],slice[j])){
-                if(j===0&&(start=i)+slice.length>full.length)return-1;
-                if(++j>=slice.length)return start;
-            }else if(j!==0){
+        for(let i=fromIndex,j=0,start=i;i<full.length;)
+            if(!isEqual(i,j)){
                 j=0;
-                i=start;
-            }else if(i+slice.length>full.length)return-1;
+                if((i=++start)+slice.length>full.length)break;
+            }else if(++j>=slice.length)return start;
+            else++i;
     return-1;
 }
 
