@@ -217,7 +217,7 @@ function hasArrayHoles(arr){
     "use strict";
     if(!Array.isArray(arr))throw new TypeError("arr is not an array");
     let j=0;
-    return!arr.every((_,i)=>i===j++);
+    return arr.some((_,i)=>i!==j++);
 }
 /**
  * ## get the indecies of all empty slots in the given array
